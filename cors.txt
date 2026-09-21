@@ -1,0 +1,1 @@
+{'maxAgeSeconds': 3600, 'method': ['PUT', 'GET', 'HEAD', 'OPTIONS'], 'origin': ['*'], 'responseHeader': ['Content-Type', 'x-goog-content-length-range', 'x-goog-resumable']}
