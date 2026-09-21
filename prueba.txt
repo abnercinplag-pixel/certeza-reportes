@@ -1,0 +1,33 @@
+=== CORS
+{'maxAgeSeconds': 3600, 'method': ['PUT', 'GET', 'HEAD', 'OPTIONS'], 'origin': ['*'], 'responseHeader': ['Content-Type', 'x-goog-content-length-range', 'x-goog-resumable']}
+
+=== objetos en cuarentena
+gs://certeza-cuarentena-cinplag/e_certeza_883366/o_cabana_emma_1eced8/28c6f37026c3c000/a066b261cd894812def87c1dd54288a2.pdf
+gs://certeza-cuarentena-cinplag/e_certeza_883366/o_cabana_emma_1eced8/9b08e135428c1be0/d7a8a50409d8b17c8fe3602f4eee819a.pdf
+
+=== logs
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 352, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/certeza/api.py", line 296, in confirmar_subida
+    encolar_escaneo(s.empresa_id, obra_id, doc_id)
+  File "/app/certeza/api.py", line 333, in encolar_escaneo
+    cli.create_task(parent=cola, task={
+  File "/usr/local/lib/python3.12/site-packages/google/cloud/tasks_v2/services/cloud_tasks/client.py", line 2573, in create_task
+    response = rpc(
+               ^^^^
+  File "/usr/local/lib/python3.12/site-packages/google/api_core/gapic_v1/method.py", line 373, in __call__
+    result = wrapped_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/google/api_core/timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/google/api_core/grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.PermissionDenied: 403 The principal (user or service account) lacks IAM permission "iam.serviceAccounts.actAs" for the resource "certeza-api@cinplag-v4-core.iam.gserviceaccount.com" (or the resource may not exist).
+2026-09-21 04:46:17 POST 200 https://certeza-api-823365164197.us-central1.run.app/api/obras/o_cabana_emma_1eced8/subidas/d_presupuesto_base_pca_02_06_2026_pdf_c8a4f9/fallo
+2026-09-21 04:46:23 GET 404 https://certeza-api-823365164197.us-central1.run.app/api/obras/o_cabana_emma_1eced8/auditoria
+2026-09-21 04:46:23 INFO:     169.254.169.126:15070 - "GET /api/obras/o_cabana_emma_1eced8/auditoria HTTP/1.1" 404 Not Found
