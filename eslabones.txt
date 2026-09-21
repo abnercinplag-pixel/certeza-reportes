@@ -1,0 +1,34 @@
+=== 1 cuarentena
+gs://certeza-cuarentena-cinplag/e_certeza_883366/o_cabana_emma_1eced8/28c6f37026c3c000/a066b261cd894812def87c1dd54288a2.pdf
+gs://certeza-cuarentena-cinplag/e_certeza_883366/o_cabana_emma_1eced8/9b08e135428c1be0/d7a8a50409d8b17c8fe3602f4eee819a.pdf
+
+=== 2 documentos (promovidos)
+ERROR: (gcloud.storage.ls) One or more URLs matched no objects.
+
+=== 3 aislados (rechazados)
+ERROR: (gcloud.storage.ls) One or more URLs matched no objects.
+
+=== 4 cola de escaneo
+RUNNING	projects/cinplag-v4-core/locations/us-central1/queues/certeza-escaneo
+
+=== 5 errores del servidor
+grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+2026-09-21 04:46:16 	status = StatusCode.PERMISSION_DENIED
+2026-09-21 04:46:16 	details = "The principal (user or service account) lacks IAM permission "iam.serviceAccounts.actAs" for the resource "certeza-api@cinplag-v4-core.iam.gserviceaccount.com" (or the resource may not exist)."
+2026-09-21 04:46:16 	debug_error_string = "PERMISSION_DENIED:The principal (user or service account) lacks IAM permission "iam.serviceAccounts.actAs" for the resource "certeza-api@cinplag-v4-core.iam.gserviceaccount.com" (or the resource may not exist)."
+2026-09-21 04:46:16 The above exception was the direct cause of the following exception:
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    encolar_escaneo(s.empresa_id, obra_id, doc_id)
+  File "/app/certeza/api.py", line 333, in encolar_escaneo
+  File "/usr/local/lib/python3.12/site-packages/google/api_core/grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.PermissionDenied: 403 The principal (user or service account) lacks IAM permission "iam.serviceAccounts.actAs" for the resource "certeza-api@cinplag-v4-core.iam.gserviceaccount.com" (or the resource may not exist).
