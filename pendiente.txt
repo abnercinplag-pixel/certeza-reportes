@@ -1,5 +1,53 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
-Actualizado: 2026-09-20 19:36 hora de Ciudad de Mexico (CST)
+Actualizado: 2026-09-21 hora de Ciudad de Mexico (CST)
+
+=== NUEVO 2026-09-21: subida sigue rota, diagnostico en vivo pendiente ===
+Se pidio reproducir la cadena completa de subida (intencion -> PUT firmado
+-> confirmar) eslabon por eslabon, sin adivinar, porque ya se parcho tres
+veces sin encontrar la causa real.
+
+Revise el codigo completo de la cadena (certeza/nube/almacenamiento.py,
+certeza/api.py, web/agente.html, infra/instalar.sh): nada inconsistente a
+simple vista. El Content-Type que firma el servidor y el que manda el
+navegador vienen del mismo file.type; x-goog-content-length-range se firma
+y se envia igual en ambos lados; el CORS de instalar.sh SI declara ese
+encabezado en responseHeader; el CSP (connect-src) ya incluye
+storage.googleapis.com (confirmado por infra/humo.sh en la corrida
+anterior). Los dos defectos reales previos de esta misma cadena (el
+AttributeError al firmar, el CSP bloqueando el PUT) solo se vieron
+probando en vivo contra el servicio real, nunca leyendo el codigo. Este
+probablemente es igual: sin poder ejecutar el PUT real no puedo afirmar
+cual es la causa.
+
+Escribi infra/diagnostico_subida.sh: firma una URL real con el codigo de
+produccion, hace el PUT con curl imprimiendo el error literal de Google,
+prueba variantes (sin x-goog-content-length-range, con otro Content-Type),
+confirma con gcloud storage ls, y revisa CORS, el permiso de firmar
+(iam.serviceAccountTokenCreator) y el desfase de reloj. Ya probe la logica
+en modo memoria (sin nube): corre sin errores.
+
+No lo pude correr contra el servicio real: este entorno de Claude Code no
+tiene ninguna sesion de gcloud activa (gcloud auth list -> ninguna cuenta),
+y aqui materializar o explorar credenciales esta bloqueado por politica
+del sandbox en el que corro (no es algo que pueda rodear). Comando exacto
+para correrlo, con las credenciales que SI reproducen exactamente la
+identidad que usa produccion (la cuenta de servicio, no tu usuario —
+EnGCS._firmar usa cred.service_account_email, que solo existe en
+credenciales con sabor de cuenta de servicio):
+
+  gcloud auth login
+  gcloud auth application-default login \
+    --impersonate-service-account=certeza-api@cinplag-v4-core.iam.gserviceaccount.com
+  cd ~/certeza && ./infra/diagnostico_subida.sh cinplag-v4-core us-central1
+
+(la ultima linea requiere que tu cuenta ya tenga roles/iam.serviceAccountTokenCreator
+sobre esa cuenta de servicio para poder impersonarla; si no lo tiene, el
+segundo comando lo dice explicitamente).
+
+El log completo queda en reportes/diagnostico_subida_<fecha>.log. Si el
+PUT con curl SI funciona ahi, el problema es del navegador (CORS) y el
+script lo dice con esas palabras; si falla, el cuerpo de error de Google
+queda completo en el log, sin recortar.
 
 === RESUELTO 2026-09-20 (tarde): la app ya no se cae en cada deploy ===
 El punto 1 de aqui (403 para todos los visitantes) y el punto 3
