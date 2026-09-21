@@ -1,0 +1,29 @@
+Updated IAM policy for serviceAccount [certeza-api@cinplag-v4-core.iam.gserviceaccount.com].
+bindings:
+- members:
+  - serviceAccount:certeza-api@cinplag-v4-core.iam.gserviceaccount.com
+  role: roles/iam.serviceAccountTokenCreator
+- members:
+  - serviceAccount:certeza-api@cinplag-v4-core.iam.gserviceaccount.com
+  role: roles/iam.serviceAccountUser
+etag: BwZcA9p9WUQ=
+version: 1
+--- verificacion
+{
+  "bindings": [
+    {
+      "members": [
+        "serviceAccount:certeza-api@cinplag-v4-core.iam.gserviceaccount.com"
+      ],
+      "role": "roles/iam.serviceAccountTokenCreator"
+    },
+    {
+      "members": [
+        "serviceAccount:certeza-api@cinplag-v4-core.iam.gserviceaccount.com"
+      ],
+      "role": "roles/iam.serviceAccountUser"
+    }
+  ],
+  "etag": "BwZcA9p9WUQ=",
+  "version": 1
+}
