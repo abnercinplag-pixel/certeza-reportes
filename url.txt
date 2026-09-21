@@ -1,0 +1,8 @@
+Deploying...
+Creating Revision.....................................................................................................................................................................................done
+Routing traffic.....done
+Done.
+Service [certeza-api] revision [certeza-api-00019-665] has been deployed and is serving 100 percent of traffic.
+Service URL: https://certeza-api-823365164197.us-central1.run.app
+--- variables finales
+{'name': 'GCP_PROJECT', 'value': 'cinplag-v4-core'};{'name': 'GCP_REGION', 'value': 'us-central1'};{'name': 'CERTEZA_BACKEND', 'value': 'nube'};{'name': 'CERTEZA_COBRO', 'value': 'off'};{'name': 'CUBETA_CUARENTENA', 'value': 'certeza-cuarentena-cinplag'};{'name': 'CUBETA_DOCUMENTOS', 'value': 'certeza-documentos-cinplag'};{'name': 'CUBETA_AISLADOS', 'value': 'certeza-aislados-cinplag'};{'name': 'URL_SERVICIO', 'value': 'https://certeza-api-l5t2gn5qnq-uc.a.run.app'}
