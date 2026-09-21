@@ -1,0 +1,54 @@
+CERTEZA — pendientes que requieren accion o decision de Abner
+Actualizado: 2026-09-20 19:36 hora de Ciudad de Mexico (CST)
+
+=== RESUELTO 2026-09-20 (tarde): la app ya no se cae en cada deploy ===
+El punto 1 de aqui (403 para todos los visitantes) y el punto 3
+(gcloud sin autenticar) ya no aplican:
+  - infra/deploy.sh (con --allow-unauthenticated) esta commiteado y
+    pusheado desde ayer (937ef52).
+  - Corri infra/deploy.sh hoy: el binding allUsers -> run.invoker
+    sigue ahi despues del deploy (lo verifique con
+    `gcloud run services get-iam-policy`, no solo confiando en que
+    el script no lo toco).
+  - infra/humo.sh contra el servicio real: 0 fallas.
+  - curl GET / -> 200, GET /entrar -> 200.
+Detalle completo en reportes/ultimo.txt. Si esto vuelve a pasar en un
+proximo deploy, es una regresion nueva, no la misma causa de antes.
+
+=== 1. T1: no pude confirmar con un archivo REAL que llega a "listo" ===
+No tengo forma de generar un token de sesion de un usuario real de
+Firebase sin materializar credenciales, y esa categoria de accion
+tambien esta bloqueada en mi entorno. Lo que si verifique con
+evidencia real:
+  - causa raiz exacta del atasco original (AttributeError firmando URLs
+    con las credenciales de Cloud Run)
+  - permiso IAM ya aplicado (roles/iam.serviceAccountTokenCreator en
+    certeza-api@cinplag-v4-core.iam.gserviceaccount.com)
+  - codigo nuevo desplegado (revision certeza-api-00016-tcc)
+  - los 2 documentos que estaban atorados ya se marcaron "fallido" con
+    motivo visible y boton de reintentar
+Recomendacion: ya que el acceso publico esta resuelto, sube un archivo
+de prueba desde tu cuenta real y confirma que llega a "listo". Si
+quieres que yo lo haga, dime como puedo autenticarme sin que tengas
+que darme un permiso amplio.
+
+=== 2. DECISION DE NEGOCIO: relay de correo para el aviso de T4 ===
+El aviso de "tu auditoria ya esta lista" (certeza/resumen.py,
+armar_auditoria_lista + enviar_correo) ya esta escrito y probado, pero
+enviar_correo() no manda nada sin los secretos certeza-smtp-host,
+certeza-smtp-usuario, certeza-smtp-clave y certeza-smtp-remitente en
+Secret Manager (hoy no existen). Sin ellos el codigo no falla: registra
+"no se envio" y sigue. Opciones:
+  a) SMTP de una cuenta de Gmail dedicada con contraseña de aplicacion.
+     Gratis, rapido de armar, pero limites bajos de envio y el remitente
+     se ve como Gmail, no como CERTEZA.
+  b) Un relay transaccional (Mailgun, SendGrid, Amazon SES, etc.) por su
+     SMTP normal (smtplib les sirve igual, no hace falta su SDK: sigue
+     siendo "sin dependencias nuevas"). Mejor entregabilidad, remitente
+     con dominio propio, mas confiable para algo que ve el cliente.
+Mi recomendacion: (b), aunque sea el mas barato de esos servicios,
+porque este correo es justo el que trae de vuelta a alguien que ya se
+iba a olvidar de la herramienta: si cae en spam o se ve como spam, no
+sirve. Decide cual y dame las credenciales; yo las subo a Secret
+Manager con `gcloud secrets create` (comandos ya listos en
+infra/instalar.sh como referencia del patron que ya se usa ahi).

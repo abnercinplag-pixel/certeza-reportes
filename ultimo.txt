@@ -1,0 +1,37 @@
+CERTEZA - ultimo.txt - 2026-09-20 20:22 hora de Ciudad de Mexico (CST)
+(el reloj de este entorno esta en UTC; los reportes se escriben en
+hora de Mexico para no confundir)
+
+Segunda corrida de la misma verificacion de deploy pedida hoy (no
+habia codigo nuevo desde la primera corrida a las 19:36: solo se
+genero una revision nueva a partir del mismo commit c910d4f, para
+reconfirmar en frio que el ciclo completo sigue en verde).
+
+1. infra/deploy.sh cinplag-v4-core
+   - Banco de pruebas corrio primero: 188 pasan, no bloqueo el deploy.
+   - Revision nueva: certeza-api-00018-8jv, sirviendo 100% del trafico
+     (la anterior, 00017-pnh, era la de la corrida de las 19:36).
+   - Verificacion de cubetas del propio script: las 4 sin allUsers, OK.
+
+2. infra/humo.sh cinplag-v4-core us-central1 certeza-api (contra el
+   servicio real, no local)
+   - [1/5] GET / -> 200, HTML: OK
+   - [2/5] GET /api/obras sin token -> 401 (nunca 500): OK
+   - [3/5] CSP trae storage.googleapis.com, sin unsafe-eval: OK
+   - [4/5] las 4 cubetas sin allUsers: OK
+   - [5/5] CERTEZA_BACKEND=nube en el servicio desplegado: OK
+   Resultado: "=== todo OK", 0 fallas.
+
+3. Verificacion independiente con curl:
+   - GET / -> 200
+   - GET /entrar -> 200
+   - IAM del servicio: sigue el mismo binding, allUsers -> run.invoker
+     (el acceso publico no se perdio en este segundo deploy tampoco)
+
+Los tres puntos pedidos quedaron en verde otra vez, en una revision
+distinta. Sin cambios de codigo, sin nada nuevo que anotar en
+reportes/pendiente.txt.
+
+PENDIENTE (sin tocar hoy): relay SMTP para el aviso de auditoria
+lista (punto 2 de reportes/pendiente.txt) y confirmar con un archivo
+real de un usuario real que llega a "listo" (punto 1 de ahi).

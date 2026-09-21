@@ -1,0 +1,121 @@
+CERTEZA — reporte 4
+Tarea: los dos cambios bloqueantes autorizados sobre el reporte 3
+(CSP para la subida de documentos, y persistir capital/advertencias
+del corte para que POST /auditar y GET /auditoria devuelvan la misma
+forma). No se tocó el motor ni las reglas.
+
+Resultado de la suite de pruebas
+---------------------------------
+Comando: .venv/bin/python -m pytest tests/ -q
+
+........................................................................ [ 49%]
+........................................................................ [ 99%]
+.                                                                        [100%]
+145 passed, 3 warnings in 12.17s
+
+(145 = 142 previas + 3 nuevas: test_auditar_y_releer_auditoria_da_el_
+mismo_capital, y las dos de tests/test_seguridad.py.)
+
+1. CSP: connect-src ahora incluye storage.googleapis.com
+------------------------------------------------------------
+Archivo: certeza/api.py, middleware cabeceras_seguras.
+
+Antes de tocar nada verifiqué algo que vale la pena decir: connect-src
+ya traía "https://*.googleapis.com", y las URL firmadas v4 que genera
+EnGCS.url_subida (google-cloud-storage, sin bucket_bound_hostname ni
+virtual_hosted_style) usan por default el host de un solo nivel
+"storage.googleapis.com" — que ese wildcard ya cubre. O sea que muy
+probablemente el navegador YA dejaba pasar el PUT antes de este
+cambio; mi señalamiento del reporte 3 pudo estar equivocado en el
+diagnóstico exacto (no alcancé a probarlo contra un bucket real de
+GCS, solo lo infería de la cabecera).
+
+Aun así apliqué el cambio que pediste, tal cual lo pediste: agregar
+"https://storage.googleapis.com" explícito a connect-src, sin tocar
+nada más de la política. Como es un subconjunto de lo que el wildcard
+ya permitía, no afloja nada — y deja el permiso documentado de forma
+explícita en vez de depender de que alguien recuerde que el wildcard
+lo cubre. No relajé unsafe-eval, no abrí connect-src con "*", no toqué
+script-src ni ninguna otra directiva.
+
+Prueba nueva (tests/test_seguridad.py):
+  - test_el_csp_permite_subir_a_storage_googleapis_com
+    Verifiqué que FALLA contra el CSP anterior (connect-src sin el
+    host explícito, solo el wildcard) — lo reproduje revirtiendo
+    temporalmente el cambio y corriendo la prueba antes de restaurar
+    el archivo. Con el CSP actual, pasa.
+  - test_el_csp_no_se_afloja_mas_de_lo_necesario
+    No pedida explícitamente; la agregué para que un cambio futuro al
+    CSP no pueda "resolver" este ticket abriendo connect-src de más.
+
+2. capital y advertencias persistidos; una sola forma de respuesta
+------------------------------------------------------------------
+Archivo: certeza/api.py, POST /api/obras/{obra_id}/auditar y
+GET /api/obras/{obra_id}/auditoria.
+
+Verifiqué la causa raíz corriendo el flujo completo con TestClient
+antes de tocar código (no la supuse): el corte que se guardaba en
+"cortes" NUNCA incluía "capital" ni "advertencias", y usaba nombres de
+campo distintos a los de la respuesta de POST /auditar
+(monto_impacto vs monto, conceptos_afectados vs conceptos, conceptos
+vs conceptos_leidos, valor_leido vs valor, sin "texto" precalculado).
+Por eso, al recargar la página, la cifra de exposición de capital
+desaparecía: no es que se recalculara mal, es que el dato ni se había
+guardado.
+
+Cambios:
+  - Se extrajo _serializar_hallazgo(h) para no repetir el armado del
+    hallazgo en dos sitios.
+  - El corte que se guarda en Firestore/memoria ahora incluye
+    "conceptos_leidos", "capital", "descartados", "hallazgos" (ya
+    serializados con el mismo formato que antes solo veía POST
+    /auditar) y "advertencias" — exactamente lo mismo que antes solo
+    vivía en la respuesta HTTP y se perdía.
+  - POST /auditar ya no arma su propia respuesta por separado: guarda
+    el corte y después hace obtener_datos().obtener(...) para
+    devolver EXACTAMENTE lo que quedó guardado (incluidos los campos
+    que agrega el almacén: id, actualizado). GET /auditoria lee el
+    mismo documento. Los dos endpoints devuelven, campo por campo, la
+    misma forma.
+  - El identificador del corte pasó de llamarse "corte_id" (solo en
+    la respuesta de POST) a "id" (el nombre que ya usa el almacén y
+    que ya usaba GET /auditoria). No encontré ninguna prueba ni
+    ningún otro código que dependiera del nombre "corte_id"
+    específicamente — el query param corte_id de GET .../informe es
+    un parámetro de URL sin relación con este campo, y sigue
+    funcionando igual porque ya comparaba contra "id".
+  - _datos_informe (usada por el PDF) leía corte.get("conceptos", 0)
+    y corte.get("conceptos_afectados", []) or corte.get("conceptos",
+    []) como parche para la forma vieja; con una sola forma esos
+    parches ya no hacían falta, así que los quité en vez de dejarlos
+    de adorno. informe.py no se tocó: ya soportaba evidencia en
+    forma de dict (_fuente ya distinguía dict vs objeto), así que
+    generar() sigue funcionando sin cambios ahí. Todas las pruebas de
+    tests/test_entregable.py siguen pasando.
+
+Prueba nueva (tests/test_camino_completo.py):
+  - test_auditar_y_releer_auditoria_da_el_mismo_capital
+    Le da a la obra un "contrato" con datos de corte (para que
+    calcular_capital produzca un Capital real, no None/{}), audita,
+    y compara byte a byte capital, advertencias, conceptos_leidos y
+    hallazgos entre la respuesta de POST /auditar y la de GET
+    /auditoria inmediatamente después.
+    Verifiqué que FALLA contra el código anterior: revertí
+    temporalmente auditar_obra/_datos_informe a su versión previa,
+    corrí la prueba y falló con KeyError: 'capital' (GET /auditoria
+    ni siquiera traía la llave), tal como se esperaba. Después
+    restauré el archivo desde una copia y confirmé que las 145
+    pruebas vuelven a pasar.
+
+Frontend (web/agente.html)
+-----------------------------
+Por instrucción explícita, se eliminó normalizarResultado(): ya no
+existe. abrir(o) y auditarAhora() ahora usan directamente lo que
+devuelve pedir(...) para poblar S.auditoria[obraId], sin adivinar
+nombres de campo alternativos. No quedó ningún rastro de
+monto_impacto/conceptos_afectados/valor_leido en el archivo (grep
+verificado). El comportamiento visible cambia para bien: la cifra de
+exposición de capital ahora sí aparece igual al recargar la página,
+no solo justo después de correr "Auditar".
+
+No se desplegó nada (bash ~/desplegar.sh no se ejecutó).

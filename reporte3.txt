@@ -1,0 +1,76 @@
+CERTEZA — reporte 3
+Tarea: construir en web/agente.html las pantallas faltantes
+(Documentos, Obras, Auditoria, Hallazgos, Entregables, Cuenta),
+solo frontend, sin tocar motor/reglas/API.
+
+Resultado de la suite de pruebas
+---------------------------------
+Comando: .venv/bin/python -m pytest tests/ -q
+
+........................................................................ [ 50%]
+......................................................................   [100%]
+142 passed, 3 warnings in 11.47s
+
+(warnings: deprecaciones de httpx/anyio en starlette.testclient y de
+HarfBuzz-Subset en weasyprint; no vienen de este cambio, ya existian
+antes de tocar el frontend.)
+
+No se modificó ningún archivo de certeza/ (motor, reglas ni API).
+Único archivo tocado: web/agente.html.
+
+Endpoints usados (todos ya existentes, ninguno inventado)
+-----------------------------------------------------------
+GET    /api/obras
+POST   /api/obras
+GET    /api/obras/{obra_id}
+DELETE /api/obras/{obra_id}?confirmacion=...
+POST   /api/obras/{obra_id}/subidas/intencion
+POST   /api/obras/{obra_id}/subidas/{doc_id}/confirmar
+GET    /api/obras/{obra_id}/documentos
+GET    /api/documentos/{doc_id}/descarga
+POST   /api/obras/{obra_id}/auditar[?doc_id=...]
+GET    /api/obras/{obra_id}/auditoria
+GET    /api/plantilla
+GET    /api/obras/{obra_id}/informe
+GET    /api/exportar
+GET    /api/aviso, /aviso
+POST   /api/arco
+POST   /api/obras/{obra_id}/hallazgos/{hallazgo_id}/revision-humana
+
+Hallazgo durante la construcción (documentado, no corregido en
+backend porque la instrucción fue "solo frontend"):
+  GET /api/obras/{obra_id}/auditoria devuelve una forma DISTINTA a la
+  de POST /api/obras/{obra_id}/auditar (verificado corriendo el flujo
+  completo con TestClient): usa "monto_impacto" en vez de "monto",
+  "conceptos_afectados" en vez de "conceptos", "conceptos" en vez de
+  "conceptos_leidos", evidencia con "valor_leido" en vez de "valor" y
+  sin el campo "texto" precalculado, y no trae "capital" ni
+  "advertencias" ni "descartados" (el corte guardado en Firestore/
+  memoria nunca los persiste). La interfaz normaliza ambas formas
+  (función normalizarResultado en agente.html) para no duplicar
+  pantallas, pero esto significa que al recargar una obra ya auditada
+  la sección de "exposición de capital" no puede mostrarse (los datos
+  de capital simplemente no están en lo que el GET devuelve): solo se
+  ve justo después de correr "Auditar" en la misma sesión.
+
+Punto que requiere una decisión de backend/infra, no de frontend:
+  La cabecera Content-Security-Policy que fija certeza/api.py
+  (cabeceras_seguras) no incluye storage.googleapis.com en
+  connect-src. Con backend="nube" (GCS), la subida de documentos hace
+  un PUT desde el navegador directo a esa URL firmada; con la CSP
+  actual el navegador bloqueará esa petición en producción. No lo
+  toqué porque es un cambio a certeza/api.py y la instrucción fue "no
+  toques ... la API"; lo señalo explícitamente en vez de arreglarlo
+  en silencio. (En local, backend="memoria" tiene el problema
+  simétrico: la URL firmada es "memoria://...", que tampoco es
+  alcanzable desde un fetch() real de navegador — solo funciona
+  dentro de las pruebas con TestClient.)
+
+Verificación adicional hecha (no pedida explícitamente, pero
+necesaria para no dejar XSS en las pantallas nuevas):
+  Se detectaron y corrigieron 3 puntos donde texto controlado por el
+  usuario (nombre de obra, contraparte) se iba a interpolar sin
+  escapar dentro de innerHTML (hoja de "Obras", hoja de "Mensaje" y
+  el pie del veredicto). Se cambiaron a asignación por textContent /
+  nodos de texto, que es como ya trabajaba el resto del archivo
+  original.

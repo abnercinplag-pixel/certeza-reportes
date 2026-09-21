@@ -1,0 +1,162 @@
+CERTEZA — reporte 5
+Tarea: arreglar el PDF en produccion. El informe es el entregable; hoy
+probablemente truena en el contenedor. No se toco el motor ni las
+reglas de negocio.
+
+Diagnostico (verificado, no supuesto)
+--------------------------------------
+certeza/informe.py importa weasyprint DENTRO de generar(), no al nivel
+de modulo — por eso el resto de la aplicacion arranca sin problema
+aunque falte la libreria; el reventon solo ocurre cuando alguien pide
+el PDF.
+
+.venv/bin/pip show weasyprint pypdf confirmo que las dos estan
+instaladas en el venv local (weasyprint 70.0, pypdf 6.19.0), pero
+NINGUNA de las dos aparece en requirements.txt. Alguien las puso ahi
+a mano — exactamente el "pip --user fuera del repositorio" que la
+tarea pedia evitar — asi que localmente todo funciona y en el
+contenedor (que solo corre "pip install -r requirements.txt") nunca
+se instalan.
+
+Ademas, weasyprint necesita librerias nativas (Pango, HarfBuzz,
+fontconfig) que el Dockerfile tampoco traia; el propio venv local ya
+avisa de esto en cada corrida de la suite:
+  DeprecationWarning: HarfBuzz-Subset will be required by future
+  versions of WeasyPrint. Please install this library with your
+  package manager.
+O sea: aunque se agregara weasyprint a requirements.txt sin tocar el
+Dockerfile, el import seguiria fallando en el contenedor por falta de
+libpango/libharfbuzz.
+
+Cambios
+-------
+1. requirements.txt
+   Se agregaron weasyprint>=70.0 y pypdf>=6.0 (pypdf lo usa
+   tests/test_entregable.py para verificar el contenido del PDF).
+
+2. Dockerfile
+   Se agregaron, en la MISMA capa de apt-get que ya existia (junto con
+   clamav/clamav-daemon/libmagic1, para no crear una capa nueva):
+     libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libharfbuzz-subset0
+     fontconfig fonts-dejavu-core libffi-dev
+   El "rm -rf /var/lib/apt/lists/*" que ya limpiaba despues de
+   clamav ahora limpia despues de estas tambien: no crecio una capa
+   nueva sin limpiar.
+
+3. Nada de pip --user fuera del repo
+   No se agrego ningun paso de instalacion fuera de requirements.txt.
+   Todo lo que hace falta para el PDF vive en el repositorio.
+
+4. infra/deploy.sh
+   "python3 -m pytest tests/ -q" -> ".venv/bin/python -m pytest
+   tests/ -q", para que el banco de pruebas que bloquea el deploy
+   corra con el mismo interprete y las mismas dependencias que ya se
+   verificaron en el venv del repositorio, no con el python3 del
+   sistema (que puede no tener nada instalado, o tener otra cosa).
+
+Resultado de la suite de pruebas
+---------------------------------
+Comando: .venv/bin/python -m pytest tests/ -q
+
+........................................................................ [ 49%]
+........................................................................ [ 99%]
+.                                                                        [100%]
+145 passed, 3 warnings in 9.67s
+
+(mismas 145 de antes; el cambio no toco tests ni motor ni reglas.)
+
+Verificacion que importa: no bastaba con que compilara
+---------------------------------------------------------
+Antes de desplegar, construi la imagen localmente con el Dockerfile
+ya corregido (docker build) y corri, DENTRO del contenedor y como el
+usuario "certeza" sin privilegios (el mismo con el que corre Cloud
+Run, no como root), certeza.informe.generar() con datos minimos:
+
+  docker run --rm -u certeza certeza-test:local python3 -c "..."
+  OK 12317 bytes, firma b'%PDF-1.7'
+
+Luego desplegue con bash infra/deploy.sh (que corrio el banco de
+pruebas primero y bloquea si algo falla):
+
+  Service [certeza-api] revision [certeza-api-00014-j9m] ha sido
+  desplegado.
+  Service URL: https://certeza-api-823365164197.us-central1.run.app
+  verificacion · el servicio NO debe estar abierto: allUsers=0 OK
+
+Generar el PDF en mi maquina no prueba nada sobre el contenedor real,
+asi que en vez de conformarme con "el deploy no fallo", extraje el
+digest EXACTO de la imagen que esa revision esta sirviendo:
+
+  gcloud run revisions describe certeza-api-00014-j9m ...
+  us-central1-docker.pkg.dev/cinplag-v4-core/cloud-run-source-deploy/
+  certeza-api@sha256:e05fba7ee231780e879a37345217a4bc3fee6454c7dbe6d
+  6a2ec196bed607841
+
+La descargue (docker pull por digest) y corri generar() DENTRO de esa
+imagen exacta, otra vez como el usuario certeza:
+
+  OK 12433 bytes, firma b'%PDF-1.7', cierre b'...12179\n%%EOF\n'
+
+Esto confirma que el binario que Cloud Run tiene cargado ahora mismo
+—no una copia local, no una version anterior— genera un PDF valido
+(cabecera %PDF-1.7 y cierre %%EOF correctos) con el usuario sin
+privilegios y sin ninguna dependencia instalada a mano fuera del
+repositorio.
+
+Lo que NO pude completar: la descarga real via HTTP
+-------------------------------------------------------
+La tarea pedia descargar el informe DESDE EL SERVICIO desplegado
+(GET /api/obras/{id}/informe) y confirmar los bytes ahi. Lo intente
+asi:
+
+  - Confirme que el servicio esta correctamente cerrado a nivel de
+    red: GET /salud sin token -> 403; con un identity token de IAM
+    (gcloud auth print-identity-token) -> 200, {"estado":"ok",
+    "version":"1.0.0","backend":"nube","cobro":"off"}.
+  - Pero /api/obras/{id}/informe exige ADEMAS una sesion de la
+    aplicacion (certeza/auth.py: sesion_con_empresa), que en la nube
+    solo acepta un ID token real de Firebase verificado con
+    firebase_admin.auth.verify_id_token — el token de IAM de gcloud
+    no sirve para eso, y el modo de "token local" (auth.py,
+    emitir_token_local) esta bloqueado a proposito cuando
+    CFG.en_nube es verdadero, que es exactamente el caso en
+    produccion.
+  - Para conseguir un ID token real sin pasar por el enlace de correo
+    (infra/terminar.sh dice que el sign-in es por enlace de correo,
+    sin contrasena) la unica via es minar un custom token y
+    canjearlo por accounts:signInWithCustomToken, lo que requiere la
+    Web API Key del proyecto. El entorno donde corro me bloqueo
+    explicitamente esa accion como "Credential Materialization"
+    (extraer la API key con
+    gcloud services api-keys get-key-string) — y no intente rodear
+    ese bloqueo por ninguna otra via (impersonar la cuenta de
+    servicio para firmar un custom token tampoco lo intente: es el
+    mismo tipo de accion).
+
+Dado el bloqueo, la verificacion mas fuerte que pude hacer sin usar
+una credencial de un usuario real es la de arriba: generar el PDF
+DENTRO de la imagen exacta con el digest que esa revision esta
+sirviendo, como el usuario de runtime. Lo que falta para cerrar el
+ciclo con una descarga HTTP real es uno de estos tres caminos, y la
+decision es tuya:
+
+  1. Tu entras a https://certeza-api-823365164197.us-central1.run.app
+     con tu cuenta real (enlace de correo), pides el informe de
+     cualquier obra con al menos una auditoria, y me confirmas si
+     llego el PDF (o me pasas el archivo).
+  2. Me das permiso para gcloud services api-keys get-key-string
+     (agregando una regla en tu configuracion de permisos), y
+     completo el intercambio de custom token -> ID token -> descarga,
+     con un usuario y empresa de prueba claramente identificados como
+     tales (para poder borrarlos despues).
+  3. Corres tu mismo el comando de la opcion 2 (con "! <comando>") y
+     me pasas el resultado.
+
+No se desplego nada mas alla de la revision certeza-api-00014-j9m ya
+mencionada.
+
+Decision: se le presentaron las tres opciones de arriba y eligio
+"con lo hecho basta" — la verificacion contra el digest exacto de la
+imagen desplegada, como usuario de runtime, se considera suficiente
+evidencia. La descarga HTTP real contra un token de Firebase queda
+pendiente, sin bloquear este cierre.
