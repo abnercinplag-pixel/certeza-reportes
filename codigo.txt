@@ -1,0 +1,22 @@
+=== encolar_escaneo
+def encolar_escaneo(empresa_id: str, obra_id: str, doc_id: str) -> None:
+    """En la nube encola en Cloud Tasks; en local corre de inmediato."""
+    if CFG.en_nube:
+        from google.cloud import tasks_v2
+        cli = tasks_v2.CloudTasksClient()
+        cola = cli.queue_path(CFG.proyecto, CFG.region, CFG.cola_escaneo)
+        import json as _json
+        cli.create_task(parent=cola, task={
+            "http_request": {
+                "http_method": tasks_v2.HttpMethod.POST,
+                "url": f"{CFG_URL_WORKER()}/worker/escanear",
+                "headers": {"Content-Type": "application/json"},
+                "body": _json.dumps({"empresa_id": empresa_id, "obra_id": obra_id,
+                                     "doc_id": doc_id}).encode(),
+                "oidc_token": {"service_account_email": CFG_SA()},
+            }})
+    else:
+        escanear_documento(empresa_id, obra_id, doc_id)
+
+
+def CFG_URL_WORKER() -> str:
