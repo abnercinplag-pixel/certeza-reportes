@@ -1,5 +1,27 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
-Actualizado: 2026-09-21 hora de Ciudad de Mexico (CST)
+Actualizado: 2026-09-22 hora de Ciudad de Mexico (CST)
+
+=== RESUELTO 2026-09-22: audiencia OIDC del worker + CERTEZA_URL faltante ===
+Ver reportes/ultimo.txt para el detalle. Desplegado (revision
+certeza-api-00022-27w) y verificado contra recursos reales: tarea real en
+la cola, 200 del worker; 4 intentos de llamar /worker/escanear sin
+credenciales validas, los 4 con 403.
+
+NOTA para otras sesiones: esta sesion SI tuvo gcloud autenticado (Cloud
+Shell, cuenta abnercinplag@gmail.com) y pudo desplegar y probar contra
+produccion. Si otra sesion reporta estar bloqueada por falta de
+credenciales (como el diagnostico de subida de abajo), vale la pena
+reintentar ese trabajo desde un entorno con sesion de gcloud activa antes
+de darlo por imposible.
+
+=== observacion menor, no urgente: GCP_REGION vs CERTEZA_REGION ===
+infra/deploy.sh fija GCP_REGION en el servicio; certeza/config.py lee
+CERTEZA_REGION. Hoy no causa nada visible porque los dos valores por
+omision coinciden ("us-central1"), pero si algun dia se despliega a otra
+region, CFG.region se quedaria en "us-central1" sin avisar (mismo patron
+que el bug de CERTEZA_URL que se arreglo hoy). No lo toque para no meter
+un cambio sin pedir: decidir si renombrar la variable en deploy.sh o leer
+GCP_REGION tambien en config.py.
 
 === NUEVO 2026-09-21: subida sigue rota, diagnostico en vivo pendiente ===
 Se pidio reproducir la cadena completa de subida (intencion -> PUT firmado

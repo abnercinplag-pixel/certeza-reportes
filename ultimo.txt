@@ -1,25 +1,34 @@
-CERTEZA - ultimo.txt - 2026-09-21 hora de Ciudad de Mexico (CST)
-(reloj del entorno en UTC; reportes en hora de Mexico)
+CERTEZA - ultimo.txt - 2026-09-22 08:11 hora de Ciudad de Mexico (CST)
 
-Tarea: reproducir la cadena de subida eslabon por eslabon (ya se
-parcho tres veces sin hallar la causa). No tocar codigo hasta
-terminar el diagnostico.
+Tarea: encolar_escaneo pedia un oidc_token sin "audience"; worker_escanear
+solo comprobaba X-CloudTasks-QueueName (cabecera falsificable). Reportado
+por Abner con el arreglo exacto.
 
-1. Revise almacenamiento.py, api.py, agente.html, instalar.sh: sin
-   bug a la vista (Content-Type y rango de tamano coinciden en
-   servidor/navegador, CORS declara el encabezado, CSP ya trae
-   storage.googleapis.com). Los dos defectos reales previos de esta
-   cadena solo se vieron probando en vivo: este probablemente igual.
+Encontrado ademas, no reportado: infra/deploy.sh nunca fijaba CERTEZA_URL
+en el servicio (habia una variable URL_SERVICIO que el codigo nunca lee).
+Con eso, CFG_URL_WORKER() caia a "http://localhost:8080" en produccion:
+ningun escaneo se habria entregado jamas, incluso arreglando la audiencia.
+Tambien rompia el enlace del correo "tu auditoria ya esta lista" (mismo
+CERTEZA_URL, en resumen.py).
 
-2. Escribi infra/diagnostico_subida.sh (firma real, PUT con curl y
-   error literal de Google, variantes, storage ls, CORS, permiso de
-   firmar, desfase de reloj). Logica probada en modo memoria: limpia.
+Arreglado y desplegado (revision certeza-api-00022-27w):
+1. oidc_token ahora pide audience=CFG_URL_WORKER() (URL base, sin ruta).
+2. worker_escanear verifica el token con google.oauth2.id_token: firma,
+   audiencia y que el email sea la cuenta de servicio esperada. Ya no
+   confia en la cabecera.
+3. infra/deploy.sh fija CERTEZA_URL con la URL real del servicio despues
+   del deploy (solo se conoce una vez que existe) y quita URL_SERVICIO.
+9 pruebas nuevas (tests/test_worker_escaneo.py). Suite completa: 196/196.
 
-BLOQUEADO: sin gcloud ni credenciales en este entorno; materializarlas
-esta prohibido por politica del sandbox. No corri el script contra el
-servicio real. Comando exacto en pendiente.txt.
+Prueba contra recursos reales, no supuesta:
+- Cree una tarea real en la cola certeza-escaneo contra el worker
+  desplegado: 200 (visto en logs de Cloud Run, no solo en gcloud tasks).
+- Sin Authorization, con la cabecera vieja falsificada, con un token mal
+  formado, y con un id-token real de MI cuenta (no la SA esperada): los
+  4 casos dieron 403. La vulnerabilidad que senalaba el reporte (cualquiera
+  en internet disparaba un escaneo) ya no existe.
+- Cubetas siguen privadas, allUsers de Cloud Run intacto, humo.sh en verde.
 
-Coordinado con dos sesiones paralelas que tomaron la misma tarea.
-
-SIGUE: correr el script con credenciales reales y, con eso, tocar
-codigo.
+Pendiente menor sin arreglar (no bloquea, ver pendiente.txt): deploy.sh
+fija GCP_REGION pero config.py lee CERTEZA_REGION; hoy no truena porque
+el default de ambos coincide (us-central1).

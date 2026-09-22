@@ -1,0 +1,27 @@
+=== audiencia en el codigo
+340:                # Sin audience, Cloud Tasks usa por omision la URL completa
+347:                               "audience": CFG_URL_WORKER()},
+492:            token, google_requests.Request(), audience=CFG_URL_WORKER())
+
+=== min-instances
+autoscaling.knative.dev/maxScale=20;autoscaling.knative.dev/minScale=1;run.googleapis.com/client-name=gcloud;run.googleapis.com/client-version=583.0.0;run.googleapis.com/startup-cpu-boost=true
+
+=== revision
+certeza-api-00022-27w
+
+=== logs
+    next_sleep = _retry_error_helper(
+  File "/usr/local/lib/python3.12/site-packages/google/api_core/retry/retry_base.py", line 215, in _retry_error_helper
+  File "/usr/local/lib/python3.12/site-packages/google/api_core/grpc_helpers.py", line 174, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 Resource id "__diagnostico_oidc__" is invalid because it is reserved.
+2026-09-22 14:11:15 POST 403 https://certeza-api-l5t2gn5qnq-uc.a.run.app/worker/escanear
+2026-09-22 14:11:15 INFO:     169.254.169.126:32046 - "POST /worker/escanear HTTP/1.1" 403 Forbidden
+2026-09-22 14:11:15 POST 403 https://certeza-api-l5t2gn5qnq-uc.a.run.app/worker/escanear
+2026-09-22 14:11:15 INFO:     169.254.169.126:32054 - "POST /worker/escanear HTTP/1.1" 403 Forbidden
+2026-09-22 14:11:15 POST 403 https://certeza-api-l5t2gn5qnq-uc.a.run.app/worker/escanear
+2026-09-22 14:11:15 token OIDC de /worker/escanear rechazado (MalformedError): Wrong number of segments in token: b'no-soy-un-token-de-google'
+2026-09-22 14:11:15 INFO:     169.254.169.126:32066 - "POST /worker/escanear HTTP/1.1" 403 Forbidden
+2026-09-22 14:11:17 POST 403 https://certeza-api-l5t2gn5qnq-uc.a.run.app/worker/escanear
+2026-09-22 14:11:17 token OIDC de /worker/escanear rechazado (InvalidValue): Token has wrong audience 618104708054-9r9s1c4alg36erliucho9t52n32n6dgq.apps.googleusercontent.com, expected one of ['https://certeza-api-l5t2gn5qnq-uc.a.run.app']
+2026-09-22 14:11:17 INFO:     169.254.169.126:32078 - "POST /worker/escanear HTTP/1.1" 403 Forbidden
