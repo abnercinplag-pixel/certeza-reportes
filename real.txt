@@ -1,0 +1,4 @@
+=== documentos listos
+ERROR: (gcloud.storage.ls) One or more URLs matched no objects.
+
+=== worker
