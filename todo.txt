@@ -1,0 +1,43 @@
+=== tareas en la cola
+Listed 0 items.
+
+=== cuarentena
+gs://certeza-cuarentena-cinplag/e_certeza_883366/o_cabana_emma_1eced8/90fcb9086fcb8de9/c21c22596c83e1245782ba712e036f09.pdf
+gs://certeza-cuarentena-cinplag/e_certeza_883366/o_cabana_emma_1eced8/abd946987c949514/ddf9293cd02764d124d88f572454fc89.pdf
+gs://certeza-cuarentena-cinplag/e_certeza_883366/o_cabana_emma_1eced8/cda95f26c98cdab5/f467ad5fe64a05f857b460841db1078c.pdf
+gs://certeza-cuarentena-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d469a3b7d1764c92/8a767da6a1ac9c04e45d83d21b456adf.pdf
+gs://certeza-cuarentena-cinplag/e_certeza_883366/o_cabana_emma_1eced8/e0c9a79c94023814/bbdc678ef26d60cc8ed980f98ffe1a95.pdf
+
+=== TODOS los logs recientes, sin filtro
+2026-09-22 19:34:20 INFO:     169.254.169.126:8322 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:34:24 INFO:     169.254.169.126:28372 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:34:29 INFO:     169.254.169.126:28388 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:39:44 INFO:     169.254.169.126:52982 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:39:45 INFO:     169.254.169.126:52990 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:39:49 INFO:     169.254.169.126:52998 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:39:59 POST 201 https://certeza-api-823365164197.us-central1.run.app/api/obras/o_cabana_emma_1eced8/subidas/intencion
+2026-09-22 19:39:59 POST 201 https://certeza-api-823365164197.us-central1.run.app/api/obras/o_cabana_emma_1eced8/subidas/intencion
+2026-09-22 19:40:00 INFO:     169.254.169.126:54170 - "POST /api/obras/o_cabana_emma_1eced8/subidas/intencion HTTP/1.1" 201 Created
+2026-09-22 19:40:00 INFO:     169.254.169.126:54178 - "POST /api/obras/o_cabana_emma_1eced8/subidas/intencion HTTP/1.1" 201 Created
+2026-09-22 19:40:00 INFO:     169.254.169.126:54182 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:40:01 INFO:     169.254.169.126:54192 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:40:01 POST 200 https://certeza-api-823365164197.us-central1.run.app/api/obras/o_cabana_emma_1eced8/subidas/d_concentrado_avance_y_pagos_04_08_2026_pd_39d174/confirmar
+2026-09-22 19:40:01 INFO:     169.254.169.126:54204 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:40:01 POST 200 https://certeza-api-823365164197.us-central1.run.app/api/obras/o_cabana_emma_1eced8/subidas/d_presupuesto_base_pca_02_06_2026_pdf_6b6d15/confirmar
+2026-09-22 19:40:02 INFO:     169.254.169.126:54212 - "POST /api/obras/o_cabana_emma_1eced8/subidas/d_concentrado_avance_y_pagos_04_08_2026_pd_39d174/confirmar HTTP/1.1" 200 OK
+2026-09-22 19:40:02 POST 200 https://certeza-api-l5t2gn5qnq-uc.a.run.app/worker/escanear
+2026-09-22 19:40:02 INFO:     169.254.169.126:54222 - "POST /api/obras/o_cabana_emma_1eced8/subidas/d_presupuesto_base_pca_02_06_2026_pdf_6b6d15/confirmar HTTP/1.1" 200 OK
+2026-09-22 19:40:02 INFO:     169.254.169.126:54236 - "POST /worker/escanear HTTP/1.1" 200 OK
+2026-09-22 19:40:03 POST 200 https://certeza-api-l5t2gn5qnq-uc.a.run.app/worker/escanear
+2026-09-22 19:40:03 INFO:     169.254.169.126:54248 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:40:03 INFO:     169.254.169.126:47906 - "POST /worker/escanear HTTP/1.1" 200 OK
+2026-09-22 19:40:08 INFO:     169.254.169.126:47910 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:40:11 INFO:     169.254.169.126:47918 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:40:16 INFO:     169.254.169.126:15282 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:40:19 INFO:     169.254.169.126:15298 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:40:21 INFO:     169.254.169.126:15304 - "GET /api/obras HTTP/1.1" 200 OK
+2026-09-22 19:40:21 INFO:     169.254.169.126:15308 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
+2026-09-22 19:40:22 GET 404 https://certeza-api-823365164197.us-central1.run.app/api/obras/o_cabana_emma_1eced8/auditoria
+2026-09-22 19:40:22 INFO:     169.254.169.126:15316 - "GET /api/obras/o_cabana_emma_1eced8/auditoria HTTP/1.1" 404 Not Found
+2026-09-22 19:40:25 INFO:     169.254.169.126:12920 - "GET /api/obras/o_cabana_emma_1eced8/cortes HTTP/1.1" 200 OK
+2026-09-22 19:40:32 INFO:     169.254.169.126:12936 - "GET /api/obras/o_cabana_emma_1eced8/documentos HTTP/1.1" 200 OK
