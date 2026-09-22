@@ -1,0 +1,29 @@
+=== clamd en Dockerfile
+3:      clamav clamav-daemon libmagic1 \
+
+=== como decide el escaner
+def analizar_amenazas(datos_archivo: bytes) -> tuple[bool | None, str]:
+    """Devuelve (True, ''), (False, motivo) o (None, '') si el escaner no responde.
+
+    None significa «no se pudo revisar», y el archivo se queda en cuarentena.
+    Nunca se interpreta como aprobado.
+    """
+    import shutil
+    import subprocess
+    clamscan = shutil.which("clamscan")
+    if clamscan is None:
+        # Sin antivirus disponible no se aprueba: se marca para reintento.
+        # En desarrollo se acepta explicitamente con una variable.
+        import os
+        if os.environ.get("CERTEZA_SIN_ANTIVIRUS") == "1":
+            return True, ""
+        return None, ""
+    try:
+        import tempfile
+        with tempfile.NamedTemporaryFile(delete=True) as tmp:
+            tmp.write(datos_archivo)
+            tmp.flush()
+            # clamscan es una ruta resuelta por shutil.which, no una cadena de
+            # PATH parcial, y el unico argumento variable es el nombre de un
+            # archivo temporal generado por el servidor: no hay entrada de
+            # usuario en la linea de comando.
