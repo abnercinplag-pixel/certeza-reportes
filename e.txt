@@ -1,0 +1,15 @@
+4df9da4 chore: checkpoint antes de mover el antivirus a certeza-escaner
+1f22c27 docs(reportes): worker de escaneo arreglado, desplegado y verificado en vivo
+6a2a310 fix(worker): audiencia OIDC correcta y verificacion real del token
+7bcec97 chore: checkpoint antes de arreglar audiencia OIDC del worker de escaneo
+d533bf0 docs(subida): diagnostico eslabon por eslabon de la cadena de subida
+1db7bda docs(reportes): segunda verificacion de deploy, misma revision de codigo
+c910d4f docs(reportes): deploy verificado, Cola T1-T6 cerrada
+5a57318 docs(reportes): estado al cierre de esta tarea
+?? reportes/diagnostico_subida_20260922_221735.log
+?? reportes/diagnostico_subida_20260922_222106.log
+?? reportes/diagnostico_subida_20260922_222442.log
+?? reportes/diagnostico_subida_20260922_222601.log
+?? reportes/diagnostico_subida_20260922_222619.log
+?? reportes/e.txt
+?? reportes/gemini.txt
