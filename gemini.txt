@@ -1,4 +1,3 @@
 
 
-cd ~/certeza && cat > reportes/gemini.txt
 
