@@ -1,0 +1,31 @@
+=== CERTEZA · diagnostico de subida === 2026-09-22 22:17:35 UTC
+proyecto=cinplag-v4-core region=us-central1 cubeta=certeza-cuarentena-cinplag cuenta_de_servicio=certeza-api@cinplag-v4-core.iam.gserviceaccount.com
+
+[environment: untagged] Read more to tag: g.co/cloud/project-env-tag.
+Updated property [core/project].
+[7] reloj del contenedor/shell vs. reloj de Google
+  local=Tue Sep 22 10:17:38 PM UTC 2026 google=Tue, 22 Sep 2026 22:17:38 GMT desfase=0s
+
+[6] permiso de la cuenta de servicio para firmar (roles/iam.serviceAccountTokenCreator)
+  OK: el binding existe en la politica de certeza-api@cinplag-v4-core.iam.gserviceaccount.com
+  miembros: ['serviceAccount:certeza-api@cinplag-v4-core.iam.gserviceaccount.com']
+
+[5] CORS de gs://certeza-cuarentena-cinplag
+null
+<string>:12: SyntaxWarning: invalid escape sequence '\/'
+Traceback (most recent call last):
+  File "<string>", line 7, in <module>
+AttributeError: 'NoneType' object has no attribute 'get'
+
+[1] generar URL firmada con el codigo de produccion (certeza/nube/almacenamiento.py)
+{"error": "TransportError: Error calling the IAM signBytes API: b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"Not found; Gaia id not found for email abnercinplag@gmail.com\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"}
+  FALLO AL FIRMAR: TransportError: Error calling the IAM signBytes API: b'{\n  "error": {\n    "code": 404,\n    "message": "Not found; Gaia id not found for email abnercinplag@gmail.com",\n    "status": "NOT_FOUND"\n  }\n}\n'
+  (si dice 'you need a private key to sign credentials' o menciona
+   service_account_email: faltan credenciales de cuenta de servicio.
+   Si estas corriendo con tu propio usuario y no impersonaste a
+   certeza-api@..., repite con 'gcloud auth application-default login
+   --impersonate-service-account=...' (ver encabezado de este script).
+   Si YA impersonaste y sigue igual, falta el paso [6] en produccion.
+   Si dice otra cosa, esta es la causa raiz real: es codigo, no CORS.)
+
+=== diagnostico incompleto: no se pudo firmar la URL, no hay PUT que probar ===
