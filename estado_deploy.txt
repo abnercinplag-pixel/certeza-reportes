@@ -129,3 +129,34 @@ hallazgo en Firestore: los 231 registros de documentos de la obra tienen
 requisito = None; ninguno trae requisito 'presupuesto_base' ni hay un
 documento con ese id. Hay 5 registros 'listo' de
 Presupuesto_Base_PCA_02-06-2026.pdf (duplicados) y 221 en 'esperando'.
+
+==== 2026-09-24T22:20Z · deduplicacion (Adrian Herrera) + onboarding Auditoria
+Cuenta: adrián.herrera@calpinissan.com (rol inversionista) -> empresa
+e_bolo_s_inc_42ff33 "Bolo's inc". 1 obra: o_mazamitla_cabana_emma_0f6795.
+70 documentos (65 listo, 5 fallido).
+
+Criterio: misma obra + nombre + CONTENIDO (md5 de GCS). La "huella" de la
+ruta NO es hash del contenido: el navegador no manda sha256_cliente y sale
+distinta en cada subida. Por nombre+huella literal habia 0 duplicados.
+
+Duplicados encontrados: 1. Limpiados: 1.
+  PXL_20260916_142742529.jpg (md5 YZt7tkdFXHT5Z29IYAC2Kg==)
+  conserva  d_pxl_20260916_142742529_jpg_7094e5 (19:30:37)
+  descarta  d_pxl_20260916_142742529_jpg_9e7e7a (19:10:32) -> estado
+            duplicado_descartado, estado_previo=listo, duplicado_de=...7094e5
+  archivo fisico intacto: gs://certeza-documentos-cinplag/.../f4f67a23c8f827e1/e31f0fcf...jpg
+No tocados: 5 "fallido" con el mismo nombre que otra copia "listo"; no
+tienen archivo fisico (la subida fallo y se reintento), no son duplicados
+de contenido. Script: infra/deduplicar_documentos.py (sin --aplicar solo reporta).
+
+Onboarding Auditoria: ya estaba hecho y desplegado (b6a04d5, rev 00039):
+presupuesto preseleccionado, guia sobre Auditar mientras la obra no tenga
+cortes en Firestore, desaparece tras la primera auditoria. Sin modales.
+Nuevo: etiqueta "copia repetida" para duplicado_descartado en Documentos.
+
+Pruebas: 239 passed. Deploy: certeza-api-00041-kk7. humo.sh: todo OK.
+Commit 3869e0d.
+
+HALLAZGO: bitacora de e_bolo_s_inc_42ff33 con cadena rota desde el evento
+53 (17:52:55): numeros n repetidos 53,66,69,84,114 por subidas concurrentes.
+Previo a esta tarea. Ver reportes/pendiente.txt punto 4.

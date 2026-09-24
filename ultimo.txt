@@ -1,17 +1,12 @@
-2026-09-24 · verificacion PDF Cabana Emma y deploy
-
-Terminado:
-- Deploy: revision certeza-api-00037-rl9, 239 pruebas en verde, /salud ok,
-  ninguna cubeta publica.
-- infra/verificar_pdf_cabana.sh ya no usa un hash fijo (la limpieza de
-  duplicados lo borro): busca el presupuesto de la obra en Firestore
-  (requisito presupuesto_base; si no hay, por nombre) y usa el mas
-  reciente en estado listo. Resultado real: 88 conceptos, 11 capitulos, OK.
-- Hallazgo: ningun documento de la obra trae requisito (231 con None);
-  hay 5 copias listas del mismo presupuesto y 221 registros en esperando.
-
-Pendiente (reportes/pendiente.txt, punto 3):
-- POST /api/obras/o_cabana_emma_1eced8/auditar contra produccion: necesita
-  un ID token de Firebase de la sesion de Abner. Comando exacto anotado.
-
-Detalle completo: reportes/estado_deploy.txt
+Tarea: deduplicar documentos de Adrian Herrera + onboarding de Auditoria.
+Empresa e_bolo_s_inc_42ff33 (Bolo's inc), obra MAZAMITLA_ CABANA EMMA.
+Duplicados (obra+nombre+md5 real): 1 encontrado, 1 marcado
+duplicado_descartado (archivo fisico intacto, reversible con estado_previo).
+La huella de la ruta no sirve para deduplicar: no es hash del contenido.
+5 subidas fallidas con nombre repetido no se tocaron: no tienen archivo.
+Onboarding: ya estaba desplegado (b6a04d5); se agrego la etiqueta
+"copia repetida" en Documentos.
+Pruebas 239 en verde. Desplegado certeza-api-00041-kk7, humo.sh OK.
+Hallazgo: bitacora de esa empresa con cadena rota por eventos concurrentes
+(pendiente.txt punto 4).
+Sigue: cola vacia.
