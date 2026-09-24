@@ -104,3 +104,28 @@ gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d469a3b7d1
 gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/e0c9a79c94023814/:
 gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/e0c9a79c94023814/bbdc678ef26d60cc8ed980f98ffe1a95.pdf
 [codigo de salida: 0]
+
+---- 2026-09-24T14:00:16+00:00
+$ bash infra/verificar_pdf_cabana.sh   (version nueva: busca el presupuesto en Firestore, sin hash fijo)
+criterio: nombre_original contiene 'presupuesto' (ningun registro trae requisito)
+candidatos: 5  elegido: d_presupuesto_base_pca_02_06_2026_pdf_81c148  (Presupuesto_Base_PCA_02-06-2026.pdf, subido 2026-09-24T03:28:29+00:00)
+objeto: gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d26029b0f0354a52/68c880eabd1ea17871a0ffef644f1cb2.pdf
+Copying gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d26029b0f0354a52/68c880eabd1ea17871a0ffef644f1cb2.pdf to file:///tmp/cabana_emma_presupuesto.pdf
+  
+
+conceptos: 88  capitulos: 11
+advertencia: El catálogo se leyó de un PDF: la «fila» de cada hallazgo es el número de renglón del catálogo contando desde el encabezado, no la fila de la hoja de cálculo original.
+OK
+[codigo de salida: 0]
+
+$ POST /api/obras/o_cabana_emma_1eced8/auditar
+NO SE CORRIO. El endpoint exige un ID token de Firebase de un miembro de
+la empresa e_certeza_883366; no hay forma de obtenerlo sin la sesion de
+Abner (la alternativa seria acuñar un token a su nombre suplantando la
+cuenta de servicio, y no se hizo sin su autorizacion). Comando exacto en
+reportes/pendiente.txt, punto 3.
+
+hallazgo en Firestore: los 231 registros de documentos de la obra tienen
+requisito = None; ninguno trae requisito 'presupuesto_base' ni hay un
+documento con ese id. Hay 5 registros 'listo' de
+Presupuesto_Base_PCA_02-06-2026.pdf (duplicados) y 221 en 'esperando'.

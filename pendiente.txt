@@ -194,3 +194,24 @@ iba a olvidar de la herramienta: si cae en spam o se ve como spam, no
 sirve. Decide cual y dame las credenciales; yo las subo a Secret
 Manager con `gcloud secrets create` (comandos ya listos en
 infra/instalar.sh como referencia del patron que ya se usa ahi).
+
+=== 3. ACCION DE ABNER: correr POST /auditar de Cabana Emma contra produccion (2026-09-24) ===
+El endpoint exige un ID token de Firebase de un miembro de e_certeza_883366.
+No hay forma de sacarlo sin tu sesion: la alternativa seria acuñar un token
+a tu nombre suplantando la cuenta de servicio, y eso no lo hago sin que lo
+autorices. Ademas la auditoria escribe un corte en Firestore y una entrada
+en bitacora a tu nombre.
+Pasos:
+  1) Abre https://certeza-api-823365164197.us-central1.run.app/agente con tu
+     sesion iniciada, DevTools > Consola, y corre:
+       copy(await AUTH.currentUser.getIdToken(true))
+     (queda el token en el portapapeles; dura 1 hora)
+  2) En Cloud Shell:
+       cd ~/certeza && TOKEN='<pega aqui>' && \
+       curl -s -w '\n[HTTP %{http_code}]\n' -X POST \
+         -H "Authorization: Bearer $TOKEN" \
+         https://certeza-api-823365164197.us-central1.run.app/api/obras/o_cabana_emma_1eced8/auditar \
+         | tee -a reportes/estado_deploy.txt
+Nota: sin doc_id la API audita el documento "listo" mas reciente de la obra;
+hoy es d_presupuesto_base_pca_02_06_2026_pdf_81c148 (el mismo que valido
+infra/verificar_pdf_cabana.sh: 88 conceptos, 11 capitulos).
