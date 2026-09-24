@@ -69,3 +69,38 @@ $ curl -s https://certeza-api-823365164197.us-central1.run.app/salud
 
 
 nota: el "?? reportes/estado_deploy.txt.tmp" del paso 1 es el archivo temporal donde se capturo esta misma salida; no es un cambio real del repo (antes de correr, git status estaba limpio).
+
+---- 2026-09-24T13:57:42+00:00
+$ gcloud storage ls gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/ --recursive
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/:
+
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/2603ecafd00430e0/:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/2603ecafd00430e0/3d6a0536cb715582ecd8ed143d768639.pdf
+
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/5d115c5fdbf03654/:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/5d115c5fdbf03654/3ce6179ec79f72a9f192714dca2f17c4.pdf
+
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/9de9edf313a6bde5/:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/9de9edf313a6bde5/a3a8a07d11ff0b2a117b61a32ee563a3.pdf
+
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/abd946987c949514/:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/abd946987c949514/ddf9293cd02764d124d88f572454fc89.pdf
+
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/cda95f26c98cdab5/:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/cda95f26c98cdab5/f467ad5fe64a05f857b460841db1078c.pdf
+
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/cfb84535563391d5/:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/cfb84535563391d5/9b9c167ad7287fb43e25b0df1082bf22.pdf
+
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d26029b0f0354a52/:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d26029b0f0354a52/68c880eabd1ea17871a0ffef644f1cb2.pdf
+
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d365bd8458493f5f/:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d365bd8458493f5f/76a59a768949c5cf2010752f9f6ab522.pdf
+
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d469a3b7d1764c92/:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d469a3b7d1764c92/8a767da6a1ac9c04e45d83d21b456adf.pdf
+
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/e0c9a79c94023814/:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/e0c9a79c94023814/bbdc678ef26d60cc8ed980f98ffe1a95.pdf
+[codigo de salida: 0]
