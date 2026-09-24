@@ -1,0 +1,71 @@
+estado_deploy · 2026-09-24T13:47:58+00:00
+
+$ git status --short
+?? reportes/estado_deploy.txt.tmp
+[codigo de salida: 0]
+
+$ git log --oneline -5
+8e062a3 adaptador PDF + cola persistente
+aece9fa feat: adaptador de PDF con texto y arreglo del Expediente
+4696deb feat(auditoria): leer presupuestos en PDF con texto y decir la verdad cuando no se puede
+9084d20 chore: checkpoint antes del adaptador de PDF con texto
+8fc808b docs(reportes): error exacto al auditar Cabana Emma (PDF) y cola de subidas persistente
+[codigo de salida: 0]
+
+$ bash infra/verificar_pdf_cabana.sh
+ERROR: (gcloud.storage.cp) The following URLs matched no objects or files:
+gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/28c6f37026c3c000/a066b261cd894812def87c1dd54288a2.pdf
+[codigo de salida: 1]
+
+$ bash infra/deploy.sh
+verificando antes de desplegar…
+........................................................................ [ 30%]
+........................................................................ [ 60%]
+........................................................................ [ 90%]
+.......................                                                  [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+.venv/lib/python3.12/site-packages/starlette/testclient.py:53
+  /home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+tests/test_entregable.py::test_el_informe_se_genera_y_tiene_contenido
+  /home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/weasyprint/text/ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+239 passed, 3 warnings in 17.27s
+Building using Dockerfile and deploying container to Cloud Run service [certeza-api] in project [cinplag-v4-core] region [us-central1]
+Building and deploying...
+Validating configuration......done
+Uploading sources..................done
+Building Container..................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................done
+Setting IAM Policy..........done
+Creating Revision..............................................................................................................................................................................done
+Routing traffic.....done
+Done.
+Service [certeza-api] revision [certeza-api-00036-cbd] has been deployed and is serving 100 percent of traffic.
+Service URL: https://certeza-api-823365164197.us-central1.run.app
+Deploying...
+Creating Revision.......................................................................................................................done
+Routing traffic.....done
+Done.
+Service [certeza-api] revision [certeza-api-00037-rl9] has been deployed and is serving 100 percent of traffic.
+Service URL: https://certeza-api-823365164197.us-central1.run.app
+
+verificacion · ninguna cubeta de almacenamiento es publica:
+  cuarentena   allUsers=0 OK
+  documentos   allUsers=0 OK
+  aislados     allUsers=0 OK
+  respaldos    allUsers=0 OK
+[codigo de salida: 0]
+
+$ curl -s https://certeza-api-823365164197.us-central1.run.app/salud
+{"estado":"ok","version":"1.0.0","backend":"nube","cobro":"off"}[codigo de salida: 0]
+
+
+
+nota: el "?? reportes/estado_deploy.txt.tmp" del paso 1 es el archivo temporal donde se capturo esta misma salida; no es un cambio real del repo (antes de correr, git status estaba limpio).
