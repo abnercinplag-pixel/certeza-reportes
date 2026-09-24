@@ -1,26 +1,25 @@
-CERTEZA - ultimo.txt - 2026-09-23 19:10 CST. Por que no subieron las 221 fotos.
-CAUSA (medida en logs de Cloud Run y en la cubeta):
-- 19:32:54-19:33:00 UTC el navegador pidio 225 intenciones en 6 s: todas 201.
-- Ni un /confirmar ni un /fallo para esas 221, y ningun objeto en la
-  cuarentena (tampoco entre los borrados). El PUT nunca termino y el
-  navegador nunca aviso: si el PUT hubiera fallado, su catch llama /fallo.
-- Ese navegador dejo de hablar con el servidor a las 19:41 y no volvio.
-- agente.html lanzaba TODAS las subidas a la vez (Promise.all): 220 fotos,
-  892 MB, repartiendo el ancho de subida entre todas. Ninguna termina hasta
-  que casi terminan todas; al cerrarse o suspenderse la pagina (~8 min) se
-  pierden las 220 sin una sola completa.
-- Descartado: tamano (limite 25 MB, foto mayor 10.6 MB), tipo (jpg/png/heic
-  permitidos, CORS sin restriccion de tipo; la PDF paso con el mismo CORS),
-  servidor (0 errores), Cloud Tasks (no participa antes de confirmar).
-ARREGLO (commit, pruebas 222/222, NO desplegado: no venia marcado [DESPLEGAR]):
-1. agente.html: subidas de 3 en 3; cada foto termina y se confirma sola.
-   Aviso al cerrar la pestana mientras hay subidas en curso.
-2. api.py: "esperando" con mas de 10+120 min se cierra al listar: sin
-   archivo -> "fallido" con motivo y reintentar; con archivo -> se escanea.
-3. Bug latente encontrado: en GCS, leer() de un objeto inexistente lanzaba
-   NotFound, no FileNotFoundError; los except de api.py nunca se activaban
-   en la nube. Traducido en almacenamiento.py, con prueba que lo cubre.
-Al desplegar, las 221 pasan a "fallido" con motivo cuando abras la obra.
-Hay que volver a subirlas: no hay archivo que recuperar.
-Sin medir: si fue cierre de pestana, suspension del equipo o corte de red.
-Sigue: desplegar (pendiente.txt) y re-subir las fotos.
+CERTEZA - ultimo.txt - 2026-09-24 02:10 UTC. Por que Cabana Emma no se puede auditar.
+COMO SE MIDIO: mismo codigo que POST /api/obras/{obra}/auditar (revision desplegada
+00031-djd; _leer_catalogo no cambio desde entonces), listado real de Firestore y los
+bytes reales de GCS. Solo lectura: no se llamo al endpoint porque escribe un corte.
+Los 9 documentos "listo" de la obra son PDF (4 copias identicas del presupuesto).
+Con cualquiera elegido en el selector, o sin elegir, la respuesta es la misma:
+  HTTP 409
+  {"mensaje": "Todavía no hay un presupuesto que podamos leer.",
+   "sugerencia": "Sube el catálogo en Excel, CSV o BC3. Con eso solo ya podemos
+     revisar aritmética, precios repetidos y bases de cálculo.",
+   "plantilla": "/api/plantilla"}
+LO QUE VE EL USUARIO (mostrarErrorAuditoria, agente.html), banner rojo:
+  Todavía no hay un presupuesto que podamos leer.
+  Sube el catálogo en Excel, CSV o BC3. Con eso solo ya podemos revisar
+  aritmética, precios repetidos y bases de cálculo.
+  [Descargar plantilla]
+CAUSA: _leer_catalogo solo reconoce bc3, xlsx, xls y csv. Un PDF, tenga o no
+tabla, no entra en ninguna rama y cae al 409. El mensaje engana: dice que no hay
+presupuesto aunque el usuario acaba de elegir el suyo.
+EL PDF NO ES ESCANEADO: salio de "Microsoft: Print To PDF", 5 paginas con texto
+real. OCR no hace falta. Prueba con pypdf (ya en requirements): 88 de 88 conceptos
+con clave, unidad, cantidad, P.U. e importe; cantidad x P.U. = importe en todos.
+OPCIONES (decision en pendiente.txt): hoy mismo, subir el Excel del que salio el
+PDF; o un adaptador de PDF con texto, sin OCR ni extraccion de tablas.
+Tambien: cola de subidas persistente lista (ver cola_persistente_20260924.txt).

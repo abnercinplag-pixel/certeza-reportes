@@ -1,0 +1,55 @@
+CERTEZA - cola de subida persistente - 2026-09-24. Commit bc771d9. NO desplegado.
+
+QUE CAMBIO (web/agente.html)
+- Cada archivo elegido se escribe en IndexedDB (almacenes "cola" y "archivos")
+  con un id estable ANTES de intentar subirlo. Estados: en_cola, subiendo,
+  listo, fallido. Si la pestana muere, la cola sigue en el dispositivo.
+- Se retoma sola al abrir la app (al abrir una obra y la pestana Documentos).
+  Un "subiendo" interrumpido se repite completo sobre el MISMO documento.
+- Maximo 3 a la vez. Avance real en bytes por archivo (XMLHttpRequest).
+  Contador "N de M subidas, K en curso" y barra global.
+- Mas de 30 archivos: tandas de 20, cada una con su barra.
+- Reintento automatico con espera creciente (2-4-8-16-32 s, 5 intentos) si
+  falla por red, 5xx, 408, 429 o firma vencida (403). Sin red espera a que
+  vuelva sin gastar intentos. Agotado o rechazo definitivo: "fallido" con el
+  motivo y botones Reintentar / Quitar.
+- Cancelar en curso, quitar de la cola: por archivo, sin tocar a los demas;
+  el documento a medias se borra en el servidor.
+- Aviso de beforeunload si hay subidas activas (advierte, no bloquea).
+- Candado entre pestanas (Web Locks): con dos pestanas no se sube doble.
+- Si IndexedDB no esta disponible (ventana privada) o no cabe el archivo, se
+  dice en pantalla y se sube desde memoria; nada falla en silencio.
+
+SERVIDOR (certeza/api.py)
+- El pedido decia que "el servidor ya soporta reanudar por doc_id": NO
+  existia. Solo habia intencion, confirmar y fallo, y la URL firmada vence a
+  los 10 min. Se agrego POST /api/obras/{obra}/subidas/{doc_id}/url: vuelve
+  a firmar la subida de un documento en esperando/fallido (409 si ya se
+  recibio). Sin esto, retomar crearia un documento nuevo por foto.
+- /confirmar idempotente. Bug real: un segundo confirmar regresaba un
+  "listo" a "procesando" y el escaner (idempotente) ya no lo tocaba: quedaba
+  en "procesando" para siempre. Ahora solo avanza desde esperando/fallido.
+- El cierre de esperas vencidas cuenta desde la ultima URL emitida.
+- 4 pruebas nuevas. Suite: 226/226.
+
+PRUEBA REAL (Chromium, app local con receptor PUT lento en el mismo origen)
+1) 20 fotos (1.5 MB c/u). Con 9 listas y 3 en curso se cerro la pestana
+   (el navegador pidio confirmacion: beforeunload) y se mato el navegador.
+   IndexedDB al reabrir: 20 registros (9 listo, 8 en_cola, 3 subiendo),
+   11 archivos guardados, 12 con doc_id. Se abrio la app sin tocar nada:
+   retomo y termino en 13 s. Servidor: 20 documentos, 20 listo, 20 nombres
+   unicos, 0 duplicados. Los 3 interrumpidos se re-subieron a su mismo
+   documento. IndexedDB final: vacio.
+2) 35 archivos: 2 tandas (20 + 15). Cancelado uno en curso y quitado uno en
+   cola: ninguno de los dos quedo en el servidor. Un archivo con 503 x2 se
+   reintento solo (3 PUT) y llego a listo. Uno con 400 quedo "fallido" con
+   motivo en la cola y en el servidor; Reintentar a mano -> listo. Final:
+   33 de 33 listo.
+
+LIMITES / SIN MEDIR
+- El cierre fue de Chromium de escritorio. Sin probar en Safari de iPhone,
+  que puede vaciar IndexedDB si el equipo se queda sin espacio (se pide
+  navigator.storage.persist, pero el navegador puede negarlo).
+- Sin probar contra GCS real (falta deploy). La carrera de dos /confirmar
+  simultaneos del mismo documento sigue posible en teoria (no hay
+  transaccion en Datos); el cliente nunca los manda en paralelo.
