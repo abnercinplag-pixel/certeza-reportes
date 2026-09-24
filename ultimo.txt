@@ -1,23 +1,25 @@
-CERTEZA - ultimo.txt - 2026-09-24. Adaptador de PDF con texto + bug de Expediente.
-PRUEBAS: .venv/bin/python -m pytest tests/ -q -> 239 passed, 0 fallas
-  (238 antes de esta sesion + 1 prueba nueva de regresion).
-ADAPTADOR PDF (certeza/adaptadores/pdf.py): las pruebas pasaron sin tocar nada.
-  Queda listo para commit junto con los cambios de api.py/excel.py que lo conectan y sus pruebas
-  (tests/test_adaptador_pdf.py, tests/_pdf_texto.py, test_camino_completo.py).
-PDF REAL DE CABANA EMMA: NO VERIFICADO. gcloud storage cp pidio aprobacion en esta
-  sesion y no se dio. No afirmo 88 conceptos / 11 capitulos sobre el archivo real:
-  las pruebas usan un PDF sintetico con el acomodo de PCA. Deje el comando listo:
-    cd ~/certeza && bash infra/verificar_pdf_cabana.sh
-  Baja el PDF, lo lee con el adaptador y falla si no da 88 y 11 (en pendiente.txt).
-BUG EXPEDIENTE (api.py, auditar_obra): se armaba con
-  declarados=set(obra["hechos_declarados"]), pero Expediente espera
-  dict doc_id -> texto. Con un set, declarado() y solicitud() revientan
-  (AttributeError: set no tiene .get) en cuanto una regla consulta lo declarado
-  (p. ej. reglas/proyecto.py con "escritura_predio"). Ahora dict(... or {}).
-  Prueba nueva: test_los_hechos_declarados_llegan_al_motor_con_su_texto verifica
-  que el texto declarado llega al motor.
-GIT: SIN COMMIT. git add pidio aprobacion y no se dio; comando exacto en
-  pendiente.txt. Sin push ni deploy, como se pidio.
-  No agregue cola2.sh, cola_nocturna.sh, cola_nocturna2.sh ni reportes/nocturno.log
-  (ya estaban sin rastrear desde antes y no son parte de esta tarea).
-SIGUE: correr infra/verificar_pdf_cabana.sh; si da OK, push + deploy del adaptador.
+CERTEZA - ultimo.txt - 2026-09-24 05:40 UTC. Adaptador de PDF con texto: Cabana Emma ya se audita.
+HECHO (commit 4696deb): _leer_catalogo lee PDF con texto (adaptadores/pdf.py, pypdf, sin OCR).
+  El borrador daba 49/88: unidad de una letra ("M 46.08 ...") tomada como clave, y
+  "de 3.10 x 1.00 fabricada" tomada como clave 3.10. Corregidos, con prueba cada uno.
+  PDF real: 88/88 con clave, cantidad, P.U. e importe identicos al texto; suma
+  $2,061,265.27 = SUBTOTAL impreso; 11 capitulos/subcapitulos.
+MENSAJES: escaneado elegido -> 422 "parece ser una imagen escaneada; sube el Excel
+  original o un PDF con texto seleccionable". Elegido que no es catalogo -> nombra ese
+  documento. Sin eleccion -> salta planos/concentrados; si nada sirve, dice cuantos
+  reviso y por que. "Todavia no hay presupuesto" ya solo sale con la obra vacia.
+AUDITORIA REAL: codigo de POST /api/obras/{obra}/auditar en proceso, Firestore y GCS
+  reales, doc d_presupuesto_base_pca_02_06_2026_pdf_81c148. NO es la revision
+  desplegada (00031-djd no tiene este cambio; deploy sin [DESPLEGAR]). Sesion sustituida
+  por el miembro real: los tokens locales estan prohibidos en nube.
+  HTTP 200, corte c_corte_2026_09_24t05_32_59_00_00_03058e (queda en la obra).
+  88 conceptos, 10 hallazgos, sin capital: no hay corte de avance capturado.
+HALLAZGOS: R22 precio distinto mismo concepto x6 ($43,105.60 cancel 8.03/8.04; $6,300
+  puertas 9.01/9.02; $5,520 boquilla 5.07/5.14; $1,680 acero 2.11/4.04; $1,120.39 firme
+  5.02/5.13; $980 acarreo 1.03/2.06). R28 aplanado incluido en pretil 5.12 cobrado en
+  5.13 ($16,341.60). R23 5.14 fuera de capitulo. R27 aplanado en M2 y en M (5.06/5.13).
+  R26 9 claves repetidas. Contra el CSV de referencia (12): mismos 10; faltan 2 R28
+  que cruzaban P.B./azotea porque el CSV no trae capitulos. La regla pide mismo subcap.
+PRUEBAS: 238 + 12 nuevas en verde (tests/test_adaptador_pdf.py, test_camino_completo).
+  ruff y mypy no estan instalados en este entorno: no se corrieron.
+SIGUE: desplegar (ver pendiente.txt). Motor de reglas sin tocar.
