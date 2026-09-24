@@ -1,34 +1,42 @@
-CERTEZA - ultimo.txt - 2026-09-22 08:11 hora de Ciudad de Mexico (CST)
+CERTEZA - ultimo.txt - 2026-09-23 18:00 hora de Ciudad de Mexico (CST)
 
-Tarea: encolar_escaneo pedia un oidc_token sin "audience"; worker_escanear
-solo comprobaba X-CloudTasks-QueueName (cabecera falsificable). Reportado
-por Abner con el arreglo exacto.
+Tareas: (1) unificar GCP_REGION/CERTEZA_REGION; (2) certeza-escaner
+respondiendo; (3) un archivo real de Cabana Emma hasta "listo".
 
-Encontrado ademas, no reportado: infra/deploy.sh nunca fijaba CERTEZA_URL
-en el servicio (habia una variable URL_SERVICIO que el codigo nunca lee).
-Con eso, CFG_URL_WORKER() caia a "http://localhost:8080" en produccion:
-ningun escaneo se habria entregado jamas, incluso arreglando la audiencia.
-Tambien rompia el enlace del correo "tu auditoria ya esta lista" (mismo
-CERTEZA_URL, en resumen.py).
+1. REGION - arreglado en codigo, NO desplegado
+   infra/deploy.sh e infra/diagnostico_subida.sh ahora fijan CERTEZA_REGION,
+   el nombre que ya lee certeza/config.py. GCP_REGION no la leia nadie.
+   La causa de que el test de variables fantasma no lo viera: GCP_REGION
+   estaba en su lista de excepciones (_AJENAS_A_CONFIG). Se quito.
+   Comprobado que el test ahora SI truena si alguien vuelve a poner
+   GCP_REGION en deploy.sh (lo puse a proposito, fallo, lo regrese).
+   Suite: 219/219. Commit 453510c.
+   El despliegue lo bloqueo el control de permisos de mi sesion. El
+   servicio vivo (certeza-api-00025-z4q) sigue con GCP_REGION; no truena
+   porque el default coincide. Para desplegar:
+     cd ~/certeza && bash infra/deploy.sh
 
-Arreglado y desplegado (revision certeza-api-00022-27w):
-1. oidc_token ahora pide audience=CFG_URL_WORKER() (URL base, sin ruta).
-2. worker_escanear verifica el token con google.oauth2.id_token: firma,
-   audiencia y que el email sea la cuenta de servicio esperada. Ya no
-   confia en la cabecera.
-3. infra/deploy.sh fija CERTEZA_URL con la URL real del servicio despues
-   del deploy (solo se conoce una vez que existe) y quita URL_SERVICIO.
-9 pruebas nuevas (tests/test_worker_escaneo.py). Suite completa: 196/196.
+2. certeza-escaner - ya estaba desplegado y responde
+   Revision certeza-escaner-00004-kvl. Log de arranque: ClamAV 1.5.4,
+   definiciones de hace 7.9 h. Trabajo certeza-espejo-clamav en Scheduler
+   sin error en su ultima corrida.
 
-Prueba contra recursos reales, no supuesta:
-- Cree una tarea real en la cola certeza-escaneo contra el worker
-  desplegado: 200 (visto en logs de Cloud Run, no solo en gcloud tasks).
-- Sin Authorization, con la cabecera vieja falsificada, con un token mal
-  formado, y con un id-token real de MI cuenta (no la SA esperada): los
-  4 casos dieron 403. La vulnerabilidad que senalaba el reporte (cualquiera
-  en internet disparaba un escaneo) ya no existe.
-- Cubetas siguen privadas, allUsers de Cloud Run intacto, humo.sh en verde.
+3. Archivo real de Cabana Emma -> "listo": CONFIRMADO
+   Hallazgo: 8 PDFs reales de o_cabana_emma_1eced8, subidos desde tu
+   navegador el 22 y 23 de sep (o sea, el PUT del navegador SI funciona),
+   estaban en la cuarentena con estado "en_revision", intentos=1, y la
+   cola de Cloud Tasks vacia. Se revisaron con las revisiones 00022/00023,
+   antes de que existiera el escaner (creado 23-sep 13:37 UTC). El worker
+   viejo respondia 200, asi que Cloud Tasks dio la tarea por hecha. El
+   arreglo de 503+reintento (00024/00025) solo sirve para subidas nuevas:
+   estos 8 ya nadie los reencola, se iban a quedar asi para siempre.
+   Reencole UNO con encolar_escaneo (la misma tarea que crea la subida):
+     Plano_Arquitectonico_Planta_Baja_CAC08-101.pdf
+     en_revision -> listo (2026-09-23T23:59:38Z)
+     objeto movido a gs://certeza-documentos-cinplag/.../ddf9293c...pdf
+   Recorrio la cadena real: Cloud Tasks -> /worker/escanear (OIDC) ->
+   certeza-escaner -> promocion a documentos.
+   Lo que NO recorri: login de Firebase + PUT desde el navegador. Pero
+   estos 8 archivos son evidencia de que ese tramo funciono el 22 y 23.
 
-Pendiente menor sin arreglar (no bloquea, ver pendiente.txt): deploy.sh
-fija GCP_REGION pero config.py lee CERTEZA_REGION; hoy no truena porque
-el default de ambos coincide (us-central1).
+Ver pendiente.txt: los otros 7 atorados y las 221 fotos "esperando".

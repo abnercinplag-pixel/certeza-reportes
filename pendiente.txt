@@ -1,5 +1,35 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
-Actualizado: 2026-09-22 hora de Ciudad de Mexico (CST)
+Actualizado: 2026-09-23 18:00 hora de Ciudad de Mexico (CST)
+
+=== NUEVO 2026-09-23 (tarde) ===
+A. Desplegar el arreglo de region (commit 453510c): bash infra/deploy.sh
+   El control de permisos de mi sesion me bloqueo el deploy.
+B. Quedan 7 PDFs de Cabana Emma en "en_revision" que ya estan en la
+   cuarentena pero nadie va a reencolar (ver ultimo.txt). Con uno ya
+   comprobe que reencolar funciona. Pideme que reencole los 7, o dales
+   "reintentar" desde la app.
+C. (propuesta) Barrido que reencole documentos en "en_revision" con mas
+   de X minutos sin cambio, para que un atasco como este no dependa de
+   que alguien lo encuentre a mano. No lo implemente, porque no se pidio.
+D. El punto 2 de abajo ya son 221 (no ~180) en "esperando": no hay
+   objeto en la cuarentena. Hay que volver a subirlas desde el navegador.
+
+=== NUEVO 2026-09-23: antivirus en certeza-escaner — que falta de tu lado ===
+1. Probar una subida desde el navegador con tu cuenta real (un PDF). Yo
+   probe la cadena desde la cola en adelante con EICAR y un PDF limpio
+   (ver ultimo.txt), pero no puedo entrar con Firebase: el PUT del
+   navegador y el login no los recorri.
+2. Unas 180 fotos PXL_*.jpg de la obra o_cabana_emma estan en "esperando"
+   desde el 2026-09-22: el navegador nunca termino de subirlas (no hay
+   objeto en la cuarentena). No es el antivirus. Hay que volver a subirlas;
+   no las toque.
+3. DECISION (menor): definiciones de mas de 7 dias = el escaner responde
+   "no pude revisar" en vez de "limpio" (umbral de ClamAV). Si el espejo
+   falla una semana seguida, nadie sube nada hasta que se arregle.
+   Alternativa: aprobar con definiciones viejas y solo alertar.
+   Recomendacion: dejarlo como esta; Cloud Scheduler marca el trabajo
+   certeza-espejo-clamav como fallido desde el primer dia y se ve en la
+   consola.
 
 === RESUELTO 2026-09-22: audiencia OIDC del worker + CERTEZA_URL faltante ===
 Ver reportes/ultimo.txt para el detalle. Desplegado (revision
@@ -14,7 +44,7 @@ credenciales (como el diagnostico de subida de abajo), vale la pena
 reintentar ese trabajo desde un entorno con sesion de gcloud activa antes
 de darlo por imposible.
 
-=== observacion menor, no urgente: GCP_REGION vs CERTEZA_REGION ===
+=== RESUELTO en codigo 2026-09-23 (falta deploy, ver A): GCP_REGION vs CERTEZA_REGION ===
 infra/deploy.sh fija GCP_REGION en el servicio; certeza/config.py lee
 CERTEZA_REGION. Hoy no causa nada visible porque los dos valores por
 omision coinciden ("us-central1"), pero si algun dia se despliega a otra
