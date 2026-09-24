@@ -1,34 +1,26 @@
-CERTEZA - ultimo.txt - 2026-09-23 18:25 hora de Ciudad de Mexico (CST)
-
-Tareas: desplegar el arreglo de region; reencolar los 7 PDFs atorados y
-las fotos en "esperando" de Cabana Emma; confirmar estado final de todos.
-
-1. DESPLEGADO: certeza-api-00029-hpr
-   Variables en el servicio vivo: CERTEZA_REGION=us-central1, GCP_REGION ya
-   no existe. CERTEZA_URL y CERTEZA_ESCANER_URL intactas. Suite 219/219
-   (la corre deploy.sh), humo.sh "todo OK", cubetas sin allUsers.
-
-2. LOS 8 PDFs DE CABANA EMMA: 8/8 "listo"
-   Reencolados con encolar_escaneo (Cloud Tasks -> /worker/escanear con
-   OIDC -> certeza-escaner -> promocion). Estado final medido en Firestore:
-     Plano_Arquitectonico_Planta_Baja_CAC08-101.pdf    listo (ayer)
-     Plano_Estructural_Cimentacion_CAC08.pdf           listo
-     Plano_Estructural_Trabes_Nervaduras_CAC08.pdf     listo
-     Concentrado_Avance_y_Pagos_04-08-2026.pdf  x2     listo
-     Presupuesto_Base_PCA_02-06-2026.pdf        x3     listo
-   Cubetas: cuarentena 0 objetos de la empresa, documentos 8, aislados 0.
-   Ninguno rechazado por el antivirus.
-   Nota: Concentrado y Presupuesto estan subidos 2 y 3 veces (mismos bytes).
-   Ahora son 5 documentos "listo" repetidos en la lista de la obra.
-
-3. LAS 221 FOTOS EN "esperando": NO se pueden reencolar. No las toque.
-   Medido: 221 registros, los 221 sin objeto en la cuarentena. El
-   navegador creo el registro (22-sep 19:29 a 19:33 UTC) pero el archivo
-   nunca subio. Reencolarlas no sirve: escanear_documento no encuentra el
-   archivo y las deja otra vez en "esperando" (certeza/api.py:382). No hay
-   nada que escanear, y marcarlas "listo" o "rechazado" seria inventar un
-   resultado. Solo se resuelven volviendo a subir las fotos desde el
-   navegador. No es un atasco de antes del escaner: nunca llegaron a el.
-
-Estado final de la empresa e_certeza_883366: listo 8, esperando 221,
-en_revision 0.
+CERTEZA - ultimo.txt - 2026-09-23 19:10 CST. Por que no subieron las 221 fotos.
+CAUSA (medida en logs de Cloud Run y en la cubeta):
+- 19:32:54-19:33:00 UTC el navegador pidio 225 intenciones en 6 s: todas 201.
+- Ni un /confirmar ni un /fallo para esas 221, y ningun objeto en la
+  cuarentena (tampoco entre los borrados). El PUT nunca termino y el
+  navegador nunca aviso: si el PUT hubiera fallado, su catch llama /fallo.
+- Ese navegador dejo de hablar con el servidor a las 19:41 y no volvio.
+- agente.html lanzaba TODAS las subidas a la vez (Promise.all): 220 fotos,
+  892 MB, repartiendo el ancho de subida entre todas. Ninguna termina hasta
+  que casi terminan todas; al cerrarse o suspenderse la pagina (~8 min) se
+  pierden las 220 sin una sola completa.
+- Descartado: tamano (limite 25 MB, foto mayor 10.6 MB), tipo (jpg/png/heic
+  permitidos, CORS sin restriccion de tipo; la PDF paso con el mismo CORS),
+  servidor (0 errores), Cloud Tasks (no participa antes de confirmar).
+ARREGLO (commit, pruebas 222/222, NO desplegado: no venia marcado [DESPLEGAR]):
+1. agente.html: subidas de 3 en 3; cada foto termina y se confirma sola.
+   Aviso al cerrar la pestana mientras hay subidas en curso.
+2. api.py: "esperando" con mas de 10+120 min se cierra al listar: sin
+   archivo -> "fallido" con motivo y reintentar; con archivo -> se escanea.
+3. Bug latente encontrado: en GCS, leer() de un objeto inexistente lanzaba
+   NotFound, no FileNotFoundError; los except de api.py nunca se activaban
+   en la nube. Traducido en almacenamiento.py, con prueba que lo cubre.
+Al desplegar, las 221 pasan a "fallido" con motivo cuando abras la obra.
+Hay que volver a subirlas: no hay archivo que recuperar.
+Sin medir: si fue cierre de pestana, suspension del equipo o corte de red.
+Sigue: desplegar (pendiente.txt) y re-subir las fotos.

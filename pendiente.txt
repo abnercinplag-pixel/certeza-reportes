@@ -1,15 +1,22 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
-Actualizado: 2026-09-23 18:25 hora de Ciudad de Mexico (CST)
+Actualizado: 2026-09-23 19:10 hora de Ciudad de Mexico (CST)
+
+=== 2026-09-23 19:10: causa de las 221 fotos (ver ultimo.txt) ===
+A. DESPLEGAR el arreglo (subidas de 3 en 3 + cierre de "esperando"
+   vencidos + NotFound de GCS). No venia marcado [DESPLEGAR]:
+     cd ~/certeza && bash infra/deploy.sh
+   Por que: sin esto el navegador sigue lanzando todo a la vez y la
+   siguiente subida masiva se puede perder igual.
+B. Despues del deploy: abrir Cabana Emma (las 221 pasan a "fallido" con
+   motivo) y volver a subir las fotos. Recomendacion: desde una computadora
+   con la pestana abierta hasta que termine; el aviso de cierre ya lo pide.
+C. Siguen en pie: duplicados por sha256 (Presupuesto x3, Concentrado x2).
 
 === 2026-09-23 (noche) ===
 RESUELTO: region desplegada (certeza-api-00029-hpr); los 8 PDFs de
 Cabana Emma en "listo". Ver ultimo.txt.
 
-A. 221 fotos PXL_*.jpg de Cabana Emma en "esperando": el archivo nunca
-   llego a la cuarentena. Hay que volver a subirlas desde el navegador.
-   DECISION: los 221 registros vacios, ¿los borro o los marco "fallido"
-   con motivo visible para que no parezcan en proceso? Hoy la app los
-   muestra como si siguieran subiendo.
+A. (resuelto por el arreglo de las 19:10: pasan a "fallido" al desplegar)
 B. Duplicados: Presupuesto_Base (x3) y Concentrado_Avance (x2), con los
    mismos bytes. Decide si la subida debe detectar el sha256 repetido.
 C. (propuesta, sigue en pie) Barrido que reencole documentos en
