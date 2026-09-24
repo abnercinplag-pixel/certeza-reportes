@@ -1,5 +1,20 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
-Actualizado: 2026-09-24 02:10 UTC
+Actualizado: 2026-09-24
+
+=== 2026-09-24: adaptador de PDF, falta verificarlo con el PDF real ===
+A. En esta sesion gcloud storage cp pidio aprobacion y nadie la dio: no
+   pude bajar el PDF real de Cabana Emma. Las pruebas pasan con un PDF
+   sintetico del mismo acomodo, pero eso NO confirma los 88/11 reales.
+   Correr (baja el PDF, lo lee y falla si no da 88 conceptos y 11 capitulos):
+     cd ~/certeza && bash infra/verificar_pdf_cabana.sh
+   Si dice OK, el adaptador se puede desplegar (no desplegado, no pusheado).
+B. git add tambien pidio aprobacion: el trabajo esta en disco SIN COMMIT
+   (239 pruebas en verde). Para guardarlo:
+     cd ~/certeza && git add certeza/adaptadores/pdf.py certeza/adaptadores/excel.py \
+       certeza/api.py tests/_pdf_texto.py tests/test_adaptador_pdf.py \
+       tests/test_camino_completo.py infra/verificar_pdf_cabana.sh \
+       reportes/ultimo.txt reportes/pendiente.txt && \
+     git commit -m "feat(pdf): adaptador de catalogos en PDF con texto; fix Expediente con dict de declarados"
 
 === 2026-09-24: auditoria de Cabana Emma y cola de subidas ===
 A. DECISION: presupuesto en PDF (ver ultimo.txt). Opciones:

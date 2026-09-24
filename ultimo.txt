@@ -1,25 +1,23 @@
-CERTEZA - ultimo.txt - 2026-09-24 02:10 UTC. Por que Cabana Emma no se puede auditar.
-COMO SE MIDIO: mismo codigo que POST /api/obras/{obra}/auditar (revision desplegada
-00031-djd; _leer_catalogo no cambio desde entonces), listado real de Firestore y los
-bytes reales de GCS. Solo lectura: no se llamo al endpoint porque escribe un corte.
-Los 9 documentos "listo" de la obra son PDF (4 copias identicas del presupuesto).
-Con cualquiera elegido en el selector, o sin elegir, la respuesta es la misma:
-  HTTP 409
-  {"mensaje": "Todavía no hay un presupuesto que podamos leer.",
-   "sugerencia": "Sube el catálogo en Excel, CSV o BC3. Con eso solo ya podemos
-     revisar aritmética, precios repetidos y bases de cálculo.",
-   "plantilla": "/api/plantilla"}
-LO QUE VE EL USUARIO (mostrarErrorAuditoria, agente.html), banner rojo:
-  Todavía no hay un presupuesto que podamos leer.
-  Sube el catálogo en Excel, CSV o BC3. Con eso solo ya podemos revisar
-  aritmética, precios repetidos y bases de cálculo.
-  [Descargar plantilla]
-CAUSA: _leer_catalogo solo reconoce bc3, xlsx, xls y csv. Un PDF, tenga o no
-tabla, no entra en ninguna rama y cae al 409. El mensaje engana: dice que no hay
-presupuesto aunque el usuario acaba de elegir el suyo.
-EL PDF NO ES ESCANEADO: salio de "Microsoft: Print To PDF", 5 paginas con texto
-real. OCR no hace falta. Prueba con pypdf (ya en requirements): 88 de 88 conceptos
-con clave, unidad, cantidad, P.U. e importe; cantidad x P.U. = importe en todos.
-OPCIONES (decision en pendiente.txt): hoy mismo, subir el Excel del que salio el
-PDF; o un adaptador de PDF con texto, sin OCR ni extraccion de tablas.
-Tambien: cola de subidas persistente lista (ver cola_persistente_20260924.txt).
+CERTEZA - ultimo.txt - 2026-09-24. Adaptador de PDF con texto + bug de Expediente.
+PRUEBAS: .venv/bin/python -m pytest tests/ -q -> 239 passed, 0 fallas
+  (238 antes de esta sesion + 1 prueba nueva de regresion).
+ADAPTADOR PDF (certeza/adaptadores/pdf.py): las pruebas pasaron sin tocar nada.
+  Queda listo para commit junto con los cambios de api.py/excel.py que lo conectan y sus pruebas
+  (tests/test_adaptador_pdf.py, tests/_pdf_texto.py, test_camino_completo.py).
+PDF REAL DE CABANA EMMA: NO VERIFICADO. gcloud storage cp pidio aprobacion en esta
+  sesion y no se dio. No afirmo 88 conceptos / 11 capitulos sobre el archivo real:
+  las pruebas usan un PDF sintetico con el acomodo de PCA. Deje el comando listo:
+    cd ~/certeza && bash infra/verificar_pdf_cabana.sh
+  Baja el PDF, lo lee con el adaptador y falla si no da 88 y 11 (en pendiente.txt).
+BUG EXPEDIENTE (api.py, auditar_obra): se armaba con
+  declarados=set(obra["hechos_declarados"]), pero Expediente espera
+  dict doc_id -> texto. Con un set, declarado() y solicitud() revientan
+  (AttributeError: set no tiene .get) en cuanto una regla consulta lo declarado
+  (p. ej. reglas/proyecto.py con "escritura_predio"). Ahora dict(... or {}).
+  Prueba nueva: test_los_hechos_declarados_llegan_al_motor_con_su_texto verifica
+  que el texto declarado llega al motor.
+GIT: SIN COMMIT. git add pidio aprobacion y no se dio; comando exacto en
+  pendiente.txt. Sin push ni deploy, como se pidio.
+  No agregue cola2.sh, cola_nocturna.sh, cola_nocturna2.sh ni reportes/nocturno.log
+  (ya estaban sin rastrear desde antes y no son parte de esta tarea).
+SIGUE: correr infra/verificar_pdf_cabana.sh; si da OK, push + deploy del adaptador.
