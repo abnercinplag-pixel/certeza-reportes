@@ -216,13 +216,18 @@ Nota: sin doc_id la API audita el documento "listo" mas reciente de la obra;
 hoy es d_presupuesto_base_pca_02_06_2026_pdf_81c148 (el mismo que valido
 infra/verificar_pdf_cabana.sh: 88 conceptos, 11 capitulos).
 
-=== 4. DECISION TECNICA: bitacora con cadena rota por concurrencia (2026-09-24) ===
-Bitacora.verificar('e_bolo_s_inc_42ff33') -> "cadena rota en el evento 53".
-Causa: Encadenada.registrar lee la cadena y escribe sin transaccion; con
-subidas en paralelo dos eventos toman el mismo n y el mismo hash_previo
-(n repetidos: 53,66,69,84,114). Nadie altero nada, pero la cadena ya no
-prueba integridad. Recomendacion: registrar dentro de una transaccion de
-Firestore con un documento contador por empresa. Las cadenas ya bifurcadas
-no se pueden "arreglar" sin reescribir eventos; propongo documentarlas y
-verificar a partir del siguiente evento. No lo hice: toca el registro de
-auditoria, prefiero tu visto bueno.
+=== 4. RESUELTO 2026-09-24: bitacora con n repetidos por concurrencia ===
+Arreglado y desplegado (certeza-api-00043-8sh, commit dd8e60c): el n se
+asigna dentro de una transaccion de Firestore con cabeza por empresa y el
+evento se crea con id = n, asi que la base rechaza cualquier n repetido.
+Probado con 30 escrituras simultaneas contra Firestore real: 0 repetidos.
+Detalle en estado_deploy.txt.
+QUEDA UNA DECISION: las 5 ramas historicas de e_bolo_s_inc_42ff33
+(n=53,66,69,84,114; ninguna con contenido alterado) hacen que verificar()
+diga "cadena rota en el evento 53" para siempre. Opciones:
+  a) Dejarlo: es la verdad de lo que paso; se explica en el informe.
+  b) Que verificar() distinga "rama por concurrencia" (mismo n, mismo
+     hash_previo, huella propia valida, ya nadie cuelga de ella) de
+     "alteracion", y lo reporte aparte sin decir "integra".
+  c) Reescribir la cadena: NO recomendado, destruye la prueba.
+Recomendacion: b, con el mensaje explicito de cuantas ramas hay y fechas.

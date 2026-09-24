@@ -1,12 +1,11 @@
-Tarea: deduplicar documentos de Adrian Herrera + onboarding de Auditoria.
-Empresa e_bolo_s_inc_42ff33 (Bolo's inc), obra MAZAMITLA_ CABANA EMMA.
-Duplicados (obra+nombre+md5 real): 1 encontrado, 1 marcado
-duplicado_descartado (archivo fisico intacto, reversible con estado_previo).
-La huella de la ruta no sirve para deduplicar: no es hash del contenido.
-5 subidas fallidas con nombre repetido no se tocaron: no tienen archivo.
-Onboarding: ya estaba desplegado (b6a04d5); se agrego la etiqueta
-"copia repetida" en Documentos.
-Pruebas 239 en verde. Desplegado certeza-api-00041-kk7, humo.sh OK.
-Hallazgo: bitacora de esa empresa con cadena rota por eventos concurrentes
-(pendiente.txt punto 4).
-Sigue: cola vacia.
+ultimo · 2026-09-24 · bitacora sin numeros de evento repetidos
+
+TERMINADO: pendiente #4. Causa: Encadenada.registrar leia la cadena y
+escribia sin transaccion; subidas simultaneas tomaban el mismo n y el
+mismo hash_previo (e_bolo_s_inc_42ff33: n=53,66,69,84,114).
+Arreglo: transaccion de Firestore con cabeza por empresa + id de evento
+= n (create rechaza un n repetido). 30 escrituras simultaneas contra
+Firestore real: 0 repetidos, cadena integra.
+Pruebas 243 en verde. Desplegado certeza-api-00043-8sh, humo.sh OK.
+Pendiente de Abner: que hacer con las 5 ramas historicas (pendiente #4).
+Detalle en estado_deploy.txt.

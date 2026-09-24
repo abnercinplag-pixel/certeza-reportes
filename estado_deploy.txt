@@ -1,162 +1,42 @@
-estado_deploy · 2026-09-24T13:47:58+00:00
+estado_deploy · 2026-09-24 · bitacora sin numeros repetidos (pendiente punto 4)
 
-$ git status --short
-?? reportes/estado_deploy.txt.tmp
-[codigo de salida: 0]
+DESPLEGADO: certeza-api-00043-8sh (commit dd8e60c), 100% del trafico.
+Suite: 243 pruebas en verde (deploy.sh la corre y bloquea si falla).
+infra/humo.sh contra produccion: todo OK. Ninguna cubeta publica.
 
-$ git log --oneline -5
-8e062a3 adaptador PDF + cola persistente
-aece9fa feat: adaptador de PDF con texto y arreglo del Expediente
-4696deb feat(auditoria): leer presupuestos en PDF con texto y decir la verdad cuando no se puede
-9084d20 chore: checkpoint antes del adaptador de PDF con texto
-8fc808b docs(reportes): error exacto al auditar Cabana Emma (PDF) y cola de subidas persistente
-[codigo de salida: 0]
+CAUSA RAIZ (medida en Firestore, no supuesta)
+Encadenada.registrar leia TODA la cadena, calculaba n = len(cadena)+1 y
+hash_previo = huella del ultimo, y escribia despues, sin transaccion. Dos
+subidas que se confirman en el mismo instante leian la misma cadena y
+escribian el mismo n con el mismo hash_previo. El id del documento llevaba
+sufijo aleatorio, asi que la base nunca rechazaba el choque.
+e_bolo_s_inc_42ff33: 144 eventos; n repetidos 53, 66, 69, 84, 114 (ej. los
+dos n=53 son archivo_listo de dos fotos distintas a las 17:52:55). Cada
+choque dejo una rama de un solo evento; ningun contenido alterado; la
+cadena principal sigue hasta n=144.
 
-$ bash infra/verificar_pdf_cabana.sh
-ERROR: (gcloud.storage.cp) The following URLs matched no objects or files:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/28c6f37026c3c000/a066b261cd894812def87c1dd54288a2.pdf
-[codigo de salida: 1]
+ARREGLO
+- Datos.agregar_secuencial: en Firestore, una transaccion lee la cabeza
+  de la empresa (bitacora_cabeza/actual), arma el evento siguiente,
+  lo CREA con id = n ("00000145") y actualiza la cabeza. Si otra peticion
+  cambio la cabeza, Firestore aborta y reintenta (hasta 30 intentos; si
+  se agotan, error visible, no se pierde en silencio).
+- Doble candado: aun saltandose la cabeza, un n repetido chocaria con el
+  mismo id y create() lo rechaza.
+- Primera vez (sin cabeza): arranca del n maximo existente; si ese maximo
+  estuviera repetido se detiene en vez de adivinar.
+- En memoria (pruebas): mismo contrato con un Lock.
 
-$ bash infra/deploy.sh
-verificando antes de desplegar…
-........................................................................ [ 30%]
-........................................................................ [ 60%]
-........................................................................ [ 90%]
-.......................                                                  [100%]
-=============================== warnings summary ===============================
-.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
-  /home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
-    from starlette.testclient import TestClient as TestClient  # noqa
+VERIFICACION
+- Prueba nueva con 40 hilos simultaneos: con el codigo viejo FALLA (n
+  repetidos), con el nuevo pasa. +3 pruebas (n repetido rechazado,
+  continuacion de cadena vieja, maximo ambiguo).
+- Firestore real, empresa desechable e_prueba_concurrencia_tmp: 2 eventos
+  viejos + 30 registros simultaneos -> 0 errores, n = 1..32 sin repetir,
+  verificar = "cadena integra". Datos de prueba borrados (0 restantes).
 
-.venv/lib/python3.12/site-packages/starlette/testclient.py:53
-  /home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
-    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
-
-tests/test_entregable.py::test_el_informe_se_genera_y_tiene_contenido
-  /home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/weasyprint/text/ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
-    warnings.warn(
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-239 passed, 3 warnings in 17.27s
-Building using Dockerfile and deploying container to Cloud Run service [certeza-api] in project [cinplag-v4-core] region [us-central1]
-Building and deploying...
-Validating configuration......done
-Uploading sources..................done
-Building Container..................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................done
-Setting IAM Policy..........done
-Creating Revision..............................................................................................................................................................................done
-Routing traffic.....done
-Done.
-Service [certeza-api] revision [certeza-api-00036-cbd] has been deployed and is serving 100 percent of traffic.
-Service URL: https://certeza-api-823365164197.us-central1.run.app
-Deploying...
-Creating Revision.......................................................................................................................done
-Routing traffic.....done
-Done.
-Service [certeza-api] revision [certeza-api-00037-rl9] has been deployed and is serving 100 percent of traffic.
-Service URL: https://certeza-api-823365164197.us-central1.run.app
-
-verificacion · ninguna cubeta de almacenamiento es publica:
-  cuarentena   allUsers=0 OK
-  documentos   allUsers=0 OK
-  aislados     allUsers=0 OK
-  respaldos    allUsers=0 OK
-[codigo de salida: 0]
-
-$ curl -s https://certeza-api-823365164197.us-central1.run.app/salud
-{"estado":"ok","version":"1.0.0","backend":"nube","cobro":"off"}[codigo de salida: 0]
-
-
-
-nota: el "?? reportes/estado_deploy.txt.tmp" del paso 1 es el archivo temporal donde se capturo esta misma salida; no es un cambio real del repo (antes de correr, git status estaba limpio).
-
----- 2026-09-24T13:57:42+00:00
-$ gcloud storage ls gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/ --recursive
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/:
-
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/2603ecafd00430e0/:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/2603ecafd00430e0/3d6a0536cb715582ecd8ed143d768639.pdf
-
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/5d115c5fdbf03654/:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/5d115c5fdbf03654/3ce6179ec79f72a9f192714dca2f17c4.pdf
-
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/9de9edf313a6bde5/:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/9de9edf313a6bde5/a3a8a07d11ff0b2a117b61a32ee563a3.pdf
-
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/abd946987c949514/:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/abd946987c949514/ddf9293cd02764d124d88f572454fc89.pdf
-
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/cda95f26c98cdab5/:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/cda95f26c98cdab5/f467ad5fe64a05f857b460841db1078c.pdf
-
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/cfb84535563391d5/:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/cfb84535563391d5/9b9c167ad7287fb43e25b0df1082bf22.pdf
-
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d26029b0f0354a52/:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d26029b0f0354a52/68c880eabd1ea17871a0ffef644f1cb2.pdf
-
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d365bd8458493f5f/:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d365bd8458493f5f/76a59a768949c5cf2010752f9f6ab522.pdf
-
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d469a3b7d1764c92/:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d469a3b7d1764c92/8a767da6a1ac9c04e45d83d21b456adf.pdf
-
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/e0c9a79c94023814/:
-gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/e0c9a79c94023814/bbdc678ef26d60cc8ed980f98ffe1a95.pdf
-[codigo de salida: 0]
-
----- 2026-09-24T14:00:16+00:00
-$ bash infra/verificar_pdf_cabana.sh   (version nueva: busca el presupuesto en Firestore, sin hash fijo)
-criterio: nombre_original contiene 'presupuesto' (ningun registro trae requisito)
-candidatos: 5  elegido: d_presupuesto_base_pca_02_06_2026_pdf_81c148  (Presupuesto_Base_PCA_02-06-2026.pdf, subido 2026-09-24T03:28:29+00:00)
-objeto: gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d26029b0f0354a52/68c880eabd1ea17871a0ffef644f1cb2.pdf
-Copying gs://certeza-documentos-cinplag/e_certeza_883366/o_cabana_emma_1eced8/d26029b0f0354a52/68c880eabd1ea17871a0ffef644f1cb2.pdf to file:///tmp/cabana_emma_presupuesto.pdf
-  
-
-conceptos: 88  capitulos: 11
-advertencia: El catálogo se leyó de un PDF: la «fila» de cada hallazgo es el número de renglón del catálogo contando desde el encabezado, no la fila de la hoja de cálculo original.
-OK
-[codigo de salida: 0]
-
-$ POST /api/obras/o_cabana_emma_1eced8/auditar
-NO SE CORRIO. El endpoint exige un ID token de Firebase de un miembro de
-la empresa e_certeza_883366; no hay forma de obtenerlo sin la sesion de
-Abner (la alternativa seria acuñar un token a su nombre suplantando la
-cuenta de servicio, y no se hizo sin su autorizacion). Comando exacto en
-reportes/pendiente.txt, punto 3.
-
-hallazgo en Firestore: los 231 registros de documentos de la obra tienen
-requisito = None; ninguno trae requisito 'presupuesto_base' ni hay un
-documento con ese id. Hay 5 registros 'listo' de
-Presupuesto_Base_PCA_02-06-2026.pdf (duplicados) y 221 en 'esperando'.
-
-==== 2026-09-24T22:20Z · deduplicacion (Adrian Herrera) + onboarding Auditoria
-Cuenta: adrián.herrera@calpinissan.com (rol inversionista) -> empresa
-e_bolo_s_inc_42ff33 "Bolo's inc". 1 obra: o_mazamitla_cabana_emma_0f6795.
-70 documentos (65 listo, 5 fallido).
-
-Criterio: misma obra + nombre + CONTENIDO (md5 de GCS). La "huella" de la
-ruta NO es hash del contenido: el navegador no manda sha256_cliente y sale
-distinta en cada subida. Por nombre+huella literal habia 0 duplicados.
-
-Duplicados encontrados: 1. Limpiados: 1.
-  PXL_20260916_142742529.jpg (md5 YZt7tkdFXHT5Z29IYAC2Kg==)
-  conserva  d_pxl_20260916_142742529_jpg_7094e5 (19:30:37)
-  descarta  d_pxl_20260916_142742529_jpg_9e7e7a (19:10:32) -> estado
-            duplicado_descartado, estado_previo=listo, duplicado_de=...7094e5
-  archivo fisico intacto: gs://certeza-documentos-cinplag/.../f4f67a23c8f827e1/e31f0fcf...jpg
-No tocados: 5 "fallido" con el mismo nombre que otra copia "listo"; no
-tienen archivo fisico (la subida fallo y se reintento), no son duplicados
-de contenido. Script: infra/deduplicar_documentos.py (sin --aplicar solo reporta).
-
-Onboarding Auditoria: ya estaba hecho y desplegado (b6a04d5, rev 00039):
-presupuesto preseleccionado, guia sobre Auditar mientras la obra no tenga
-cortes en Firestore, desaparece tras la primera auditoria. Sin modales.
-Nuevo: etiqueta "copia repetida" para duplicado_descartado en Documentos.
-
-Pruebas: 239 passed. Deploy: certeza-api-00041-kk7. humo.sh: todo OK.
-Commit 3869e0d.
-
-HALLAZGO: bitacora de e_bolo_s_inc_42ff33 con cadena rota desde el evento
-53 (17:52:55): numeros n repetidos 53,66,69,84,114 por subidas concurrentes.
-Previo a esta tarea. Ver reportes/pendiente.txt punto 4.
+LO QUE NO CAMBIA
+Las 5 ramas historicas de e_bolo_s_inc_42ff33 siguen ahi: arreglarlas
+exige reescribir eventos de auditoria y no lo hice. verificar() seguira
+diciendo "cadena rota en el evento 53". Los eventos nuevos cuelgan de la
+punta principal (n=144, unica). Decision pendiente en pendiente.txt #4.
