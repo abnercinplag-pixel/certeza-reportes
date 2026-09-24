@@ -1,18 +1,20 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
-Actualizado: 2026-09-23 18:00 hora de Ciudad de Mexico (CST)
+Actualizado: 2026-09-23 18:25 hora de Ciudad de Mexico (CST)
 
-=== NUEVO 2026-09-23 (tarde) ===
-A. Desplegar el arreglo de region (commit 453510c): bash infra/deploy.sh
-   El control de permisos de mi sesion me bloqueo el deploy.
-B. Quedan 7 PDFs de Cabana Emma en "en_revision" que ya estan en la
-   cuarentena pero nadie va a reencolar (ver ultimo.txt). Con uno ya
-   comprobe que reencolar funciona. Pideme que reencole los 7, o dales
-   "reintentar" desde la app.
-C. (propuesta) Barrido que reencole documentos en "en_revision" con mas
-   de X minutos sin cambio, para que un atasco como este no dependa de
-   que alguien lo encuentre a mano. No lo implemente, porque no se pidio.
-D. El punto 2 de abajo ya son 221 (no ~180) en "esperando": no hay
-   objeto en la cuarentena. Hay que volver a subirlas desde el navegador.
+=== 2026-09-23 (noche) ===
+RESUELTO: region desplegada (certeza-api-00029-hpr); los 8 PDFs de
+Cabana Emma en "listo". Ver ultimo.txt.
+
+A. 221 fotos PXL_*.jpg de Cabana Emma en "esperando": el archivo nunca
+   llego a la cuarentena. Hay que volver a subirlas desde el navegador.
+   DECISION: los 221 registros vacios, ¿los borro o los marco "fallido"
+   con motivo visible para que no parezcan en proceso? Hoy la app los
+   muestra como si siguieran subiendo.
+B. Duplicados: Presupuesto_Base (x3) y Concentrado_Avance (x2), con los
+   mismos bytes. Decide si la subida debe detectar el sha256 repetido.
+C. (propuesta, sigue en pie) Barrido que reencole documentos en
+   "en_revision" viejos, y que marque "fallido" los "esperando" sin
+   archivo despues de X horas. Asi este limbo no se vuelve a acumular.
 
 === NUEVO 2026-09-23: antivirus en certeza-escaner — que falta de tu lado ===
 1. Probar una subida desde el navegador con tu cuenta real (un PDF). Yo

@@ -1,42 +1,34 @@
-CERTEZA - ultimo.txt - 2026-09-23 18:00 hora de Ciudad de Mexico (CST)
+CERTEZA - ultimo.txt - 2026-09-23 18:25 hora de Ciudad de Mexico (CST)
 
-Tareas: (1) unificar GCP_REGION/CERTEZA_REGION; (2) certeza-escaner
-respondiendo; (3) un archivo real de Cabana Emma hasta "listo".
+Tareas: desplegar el arreglo de region; reencolar los 7 PDFs atorados y
+las fotos en "esperando" de Cabana Emma; confirmar estado final de todos.
 
-1. REGION - arreglado en codigo, NO desplegado
-   infra/deploy.sh e infra/diagnostico_subida.sh ahora fijan CERTEZA_REGION,
-   el nombre que ya lee certeza/config.py. GCP_REGION no la leia nadie.
-   La causa de que el test de variables fantasma no lo viera: GCP_REGION
-   estaba en su lista de excepciones (_AJENAS_A_CONFIG). Se quito.
-   Comprobado que el test ahora SI truena si alguien vuelve a poner
-   GCP_REGION en deploy.sh (lo puse a proposito, fallo, lo regrese).
-   Suite: 219/219. Commit 453510c.
-   El despliegue lo bloqueo el control de permisos de mi sesion. El
-   servicio vivo (certeza-api-00025-z4q) sigue con GCP_REGION; no truena
-   porque el default coincide. Para desplegar:
-     cd ~/certeza && bash infra/deploy.sh
+1. DESPLEGADO: certeza-api-00029-hpr
+   Variables en el servicio vivo: CERTEZA_REGION=us-central1, GCP_REGION ya
+   no existe. CERTEZA_URL y CERTEZA_ESCANER_URL intactas. Suite 219/219
+   (la corre deploy.sh), humo.sh "todo OK", cubetas sin allUsers.
 
-2. certeza-escaner - ya estaba desplegado y responde
-   Revision certeza-escaner-00004-kvl. Log de arranque: ClamAV 1.5.4,
-   definiciones de hace 7.9 h. Trabajo certeza-espejo-clamav en Scheduler
-   sin error en su ultima corrida.
+2. LOS 8 PDFs DE CABANA EMMA: 8/8 "listo"
+   Reencolados con encolar_escaneo (Cloud Tasks -> /worker/escanear con
+   OIDC -> certeza-escaner -> promocion). Estado final medido en Firestore:
+     Plano_Arquitectonico_Planta_Baja_CAC08-101.pdf    listo (ayer)
+     Plano_Estructural_Cimentacion_CAC08.pdf           listo
+     Plano_Estructural_Trabes_Nervaduras_CAC08.pdf     listo
+     Concentrado_Avance_y_Pagos_04-08-2026.pdf  x2     listo
+     Presupuesto_Base_PCA_02-06-2026.pdf        x3     listo
+   Cubetas: cuarentena 0 objetos de la empresa, documentos 8, aislados 0.
+   Ninguno rechazado por el antivirus.
+   Nota: Concentrado y Presupuesto estan subidos 2 y 3 veces (mismos bytes).
+   Ahora son 5 documentos "listo" repetidos en la lista de la obra.
 
-3. Archivo real de Cabana Emma -> "listo": CONFIRMADO
-   Hallazgo: 8 PDFs reales de o_cabana_emma_1eced8, subidos desde tu
-   navegador el 22 y 23 de sep (o sea, el PUT del navegador SI funciona),
-   estaban en la cuarentena con estado "en_revision", intentos=1, y la
-   cola de Cloud Tasks vacia. Se revisaron con las revisiones 00022/00023,
-   antes de que existiera el escaner (creado 23-sep 13:37 UTC). El worker
-   viejo respondia 200, asi que Cloud Tasks dio la tarea por hecha. El
-   arreglo de 503+reintento (00024/00025) solo sirve para subidas nuevas:
-   estos 8 ya nadie los reencola, se iban a quedar asi para siempre.
-   Reencole UNO con encolar_escaneo (la misma tarea que crea la subida):
-     Plano_Arquitectonico_Planta_Baja_CAC08-101.pdf
-     en_revision -> listo (2026-09-23T23:59:38Z)
-     objeto movido a gs://certeza-documentos-cinplag/.../ddf9293c...pdf
-   Recorrio la cadena real: Cloud Tasks -> /worker/escanear (OIDC) ->
-   certeza-escaner -> promocion a documentos.
-   Lo que NO recorri: login de Firebase + PUT desde el navegador. Pero
-   estos 8 archivos son evidencia de que ese tramo funciono el 22 y 23.
+3. LAS 221 FOTOS EN "esperando": NO se pueden reencolar. No las toque.
+   Medido: 221 registros, los 221 sin objeto en la cuarentena. El
+   navegador creo el registro (22-sep 19:29 a 19:33 UTC) pero el archivo
+   nunca subio. Reencolarlas no sirve: escanear_documento no encuentra el
+   archivo y las deja otra vez en "esperando" (certeza/api.py:382). No hay
+   nada que escanear, y marcarlas "listo" o "rechazado" seria inventar un
+   resultado. Solo se resuelven volviendo a subir las fotos desde el
+   navegador. No es un atasco de antes del escaner: nunca llegaron a el.
 
-Ver pendiente.txt: los otros 7 atorados y las 221 fotos "esperando".
+Estado final de la empresa e_certeza_883366: listo 8, esperando 221,
+en_revision 0.
