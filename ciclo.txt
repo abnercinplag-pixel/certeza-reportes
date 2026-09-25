@@ -17,25 +17,12 @@ tests/test_entregable.py::test_el_informe_se_genera_y_tiene_contenido
     warnings.warn(
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-268 passed, 3 warnings in 18.19s
+268 passed, 3 warnings in 13.87s
 == estado del repo ==
- M certeza/informe.py
- M reportes/nocturno.log
- M requirements-dev.txt
- M requirements.txt
- M tests/test_sin_fallos_silenciosos.py
- M web/agente.html
-?? certeza/adaptadores/evidencia_fotografica.py
-?? certeza/adaptadores/monitoreo_base.py
-?? certeza/adaptadores/monitoreo_falso.py
-?? ciclo.sh
-?? docs/exif/
-?? reportes/ciclo.txt
-?? tests/fixtures/
-?? tests/test_evidencia_fotografica.py
+ M reportes/ciclo.txt
 == ultimos commits ==
+e55039e chore: estado previo a clasificacion y extraccion de documentos (EXIF de fotos, conector de monitoreo)
 ea476cc feat(pdf): adaptador de catalogos en PDF con texto, verificado contra el presupuesto real de Cabana Emma (88 conceptos, 11 capitulos, suma exacta)
 dd5cf4d chore: estado previo a evidencia fotografica
 d863f29 docs(reportes): bitacora sin n repetidos, deploy 00043
 dd8e60c fix(bitacora): numero de evento asignado en transaccion; imposible repetir n
-54c8423 docs(reportes): deduplicacion de Adrian Herrera y deploy 00041
