@@ -17,7 +17,7 @@ tests/test_entregable.py::test_el_informe_se_genera_y_tiene_contenido
     warnings.warn(
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-268 passed, 3 warnings in 63.41s (0:01:03)
+268 passed, 3 warnings in 18.19s
 == estado del repo ==
  M certeza/informe.py
  M reportes/nocturno.log
