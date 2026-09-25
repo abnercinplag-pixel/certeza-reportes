@@ -1,42 +1,225 @@
-estado_deploy · 2026-09-24 · bitacora sin numeros repetidos (pendiente punto 4)
+estado_deploy · 2026-09-24 · pendiente #4: diagnostico de las 5 ramas de e_bolo_s_inc_42ff33
+SOLO DIAGNOSTICO Y PROPUESTA. No se modifico nada en Firestore ni en el codigo.
 
-DESPLEGADO: certeza-api-00043-8sh (commit dd8e60c), 100% del trafico.
-Suite: 243 pruebas en verde (deploy.sh la corre y bloquea si falla).
-infra/humo.sh contra produccion: todo OK. Ninguna cubeta publica.
+FUENTE: lectura directa de Firestore (empresas/e_bolo_s_inc_42ff33/bitacora,
+144 documentos), huellas recalculadas con certeza/nube/bitacora._huella.
+Las 144 huellas son validas: ningun evento tiene el contenido alterado.
+No existe bitacora_cabeza/actual: desde el deploy del arreglo
+(certeza-api-00043-8sh, 22:24:52 UTC) no se ha escrito ningun evento en
+esta empresa. Los 10 eventos de los choques son de 17:52 a 19:30 UTC, o sea
+anteriores al arreglo.
 
-CAUSA RAIZ (medida en Firestore, no supuesta)
-Encadenada.registrar leia TODA la cadena, calculaba n = len(cadena)+1 y
-hash_previo = huella del ultimo, y escribia despues, sin transaccion. Dos
-subidas que se confirman en el mismo instante leian la misma cadena y
-escribian el mismo n con el mismo hash_previo. El id del documento llevaba
-sufijo aleatorio, asi que la base nunca rechazaba el choque.
-e_bolo_s_inc_42ff33: 144 eventos; n repetidos 53, 66, 69, 84, 114 (ej. los
-dos n=53 son archivo_listo de dos fotos distintas a las 17:52:55). Cada
-choque dejo una rama de un solo evento; ningun contenido alterado; la
-cadena principal sigue hasta n=144.
+=== HALLAZGO QUE CAMBIA EL PLANTEAMIENTO ===
+La cadena principal NO llega a n=144 con 144 eventos: tiene 139 y se salta
+los numeros 54, 67, 70, 85 y 115 (ningun documento tiene esos n). Motivo:
+el codigo viejo calculaba n = len(cadena)+1. Despues de un choque ya habia
+dos eventos con n=53, asi que el siguiente tomo n=55 y colgo del "ultimo"
+de los dos n=53. Por eso 139 principales + 5 huerfanas = 144.
+Eso importa para el punto 4 (ver abajo).
 
-ARREGLO
-- Datos.agregar_secuencial: en Firestore, una transaccion lee la cabeza
-  de la empresa (bitacora_cabeza/actual), arma el evento siguiente,
-  lo CREA con id = n ("00000145") y actualiza la cabeza. Si otra peticion
-  cambio la cabeza, Firestore aborta y reintenta (hasta 30 intentos; si
-  se agotan, error visible, no se pierde en silencio).
-- Doble candado: aun saltandose la cabeza, un n repetido chocaria con el
-  mismo id y create() lo rechaza.
-- Primera vez (sin cabeza): arranca del n maximo existente; si ese maximo
-  estuviera repetido se detiene en vez de adivinar.
-- En memoria (pruebas): mismo contrato con un Lock.
+=== 1. LOS 5 PARES COMPLETOS ===
+Precision del ts: al segundo (el campo no guarda mas). Intente leer el
+create_time de Firestore, que trae microsegundos, para saber cual se
+escribio primero, pero las dos consultas se quedaron colgadas (timeout) y
+no insisti. En 4 de los 5 pares los dos ts son identicos.
 
-VERIFICACION
-- Prueba nueva con 40 hilos simultaneos: con el codigo viejo FALLA (n
-  repetidos), con el nuevo pasa. +3 pruebas (n repetido rechazado,
-  continuacion de cadena vieja, maximo ambiguo).
-- Firestore real, empresa desechable e_prueba_concurrencia_tmp: 2 eventos
-  viejos + 30 registros simultaneos -> 0 errores, n = 1..32 sin repetir,
-  verificar = "cadena integra". Datos de prueba borrados (0 restantes).
+--- n=53 ---
+[PRINCIPAL] doc 00000053-d437adad
+   n           53
+   accion      archivo_listo
+   recurso     doc/d_pxl_20260916_142954560_jpg_4050cd
+   uid         sistema
+   ts          2026-09-24T17:52:55+00:00
+   extra       {"formato": "jpg"}
+   hash_previo ecf54e9685905914e78109d147b93039d41dd1a856642368a94ba76f4d3e414c
+   huella      1ec4b7972d9e005303465047f0af6fa77492845c6b9a2172f2d98f5fc02b1393
+   -> de ella cuelga n=55 (00000055-f30080d6, 2026-09-24T17:52:55+00:00)
+[HUERFANA ] doc 00000053-9ed18452
+   n           53
+   accion      archivo_listo
+   recurso     doc/d_pxl_20260916_143055229_mp_jpg_9aa590
+   uid         sistema
+   ts          2026-09-24T17:52:55+00:00
+   extra       {"formato": "jpg"}
+   hash_previo ecf54e9685905914e78109d147b93039d41dd1a856642368a94ba76f4d3e414c
+   huella      f93827c33715bcc6edb4f9e407a43ef18e068ea0abb3e9f560e9cde89cbc65f1
+   -> de ella no cuelga ningun evento
 
-LO QUE NO CAMBIA
-Las 5 ramas historicas de e_bolo_s_inc_42ff33 siguen ahi: arreglarlas
-exige reescribir eventos de auditoria y no lo hice. verificar() seguira
-diciendo "cadena rota en el evento 53". Los eventos nuevos cuelgan de la
-punta principal (n=144, unica). Decision pendiente en pendiente.txt #4.
+--- n=66 ---
+[PRINCIPAL] doc 00000066-08028140
+   n           66
+   accion      subida_confirmada
+   recurso     doc/d_pxl_20260916_142847849_jpg_430faf
+   uid         8pCJPZIoD2TAD4BXUykIALQAheu2
+   ts          2026-09-24T19:09:47+00:00
+   extra       {}
+   hash_previo a1fbcab9d8df0e6e6443501fc1194c28a7d5e5d4b883fe6d4da56d9e4c18972e
+   huella      f4954cb5fc876c562cc84622d1a5415e2808ba3cf7b563bb04e325bda0b9a2f2
+   -> de ella cuelga n=68 (00000068-a5831748, 2026-09-24T19:09:48+00:00)
+[HUERFANA ] doc 00000066-0144f398
+   n           66
+   accion      subida_confirmada
+   recurso     doc/d_pxl_20260916_142852588_jpg_642fc6
+   uid         8pCJPZIoD2TAD4BXUykIALQAheu2
+   ts          2026-09-24T19:09:47+00:00
+   extra       {}
+   hash_previo a1fbcab9d8df0e6e6443501fc1194c28a7d5e5d4b883fe6d4da56d9e4c18972e
+   huella      88a32cc17ba667d38755970e01085dc7d7553b74847d89db901e0d4a82d8f95b
+   -> de ella no cuelga ningun evento
+
+--- n=69 ---
+[PRINCIPAL] doc 00000069-da0bf47d
+   n           69
+   accion      archivo_listo
+   recurso     doc/d_pxl_20260916_142852588_jpg_642fc6
+   uid         sistema
+   ts          2026-09-24T19:10:21+00:00
+   extra       {"formato": "jpg"}
+   hash_previo 523da39838d5a22cd10a9dc6721eaea010b56db51857449f8c5b6a7c6a5b684f
+   huella      726ab433611a80e5803e3a9a64e3724429a1388efe76c0aa86005a60d48de439
+   -> de ella cuelga n=71 (00000071-d7a6777d, 2026-09-24T19:10:22+00:00)
+[HUERFANA ] doc 00000069-1e351cbd
+   n           69
+   accion      archivo_listo
+   recurso     doc/d_pxl_20260916_142847849_jpg_430faf
+   uid         sistema
+   ts          2026-09-24T19:10:21+00:00
+   extra       {"formato": "jpg"}
+   hash_previo 523da39838d5a22cd10a9dc6721eaea010b56db51857449f8c5b6a7c6a5b684f
+   huella      4ccd49414fcf531f75cd58fcaedd8af88658d5c9ad1d7077dea196954d72e29f
+   -> de ella no cuelga ningun evento
+
+--- n=84 ---
+[PRINCIPAL] doc 00000084-459777ae
+   n           84
+   accion      subida_confirmada
+   recurso     doc/d_pxl_20260916_142756001_jpg_2b8416
+   uid         8pCJPZIoD2TAD4BXUykIALQAheu2
+   ts          2026-09-24T19:10:31+00:00
+   extra       {}
+   hash_previo 6a4d3dc6b886b81242b6f4758c69c932386bc0460004a42897521209e8d9cba9
+   huella      3d2bcb086282326d3b0be0beabdfdc07cee79a489a99c9fea4a2c6992b127497
+   -> de ella cuelga n=86 (00000086-f97e55f5, 2026-09-24T19:10:32+00:00)
+[HUERFANA ] doc 00000084-2f9ec2e9
+   n           84
+   accion      archivo_listo
+   recurso     doc/d_pxl_20260916_142943467_mp_jpg_808e5d
+   uid         sistema
+   ts          2026-09-24T19:10:31+00:00
+   extra       {"formato": "jpg"}
+   hash_previo 6a4d3dc6b886b81242b6f4758c69c932386bc0460004a42897521209e8d9cba9
+   huella      2e01162867d617a701e157ee1da85b40dcabd56a285b549afcf2545b75ef6b78
+   -> de ella no cuelga ningun evento
+
+--- n=114 ---
+[PRINCIPAL] doc 00000114-798cfb8a
+   n           114
+   accion      subida_confirmada
+   recurso     doc/d_pxl_20260916_142615726_jpg_a13ae8
+   uid         8pCJPZIoD2TAD4BXUykIALQAheu2
+   ts          2026-09-24T19:29:59+00:00
+   extra       {}
+   hash_previo c3baf6efe7ac11d5cd6ea18a24b4da7b1bbfd3615aa8efcd7b456362f75916c3
+   huella      5afca8df26428dcb2c6fba481e098e85e0bede0ec072cbd25dd3f2806fc32c9b
+   -> de ella cuelga n=116 (00000116-31c2c124, 2026-09-24T19:30:00+00:00)
+[HUERFANA ] doc 00000114-0931fa32
+   n           114
+   accion      subida_fallida
+   recurso     doc/d_pxl_20260916_142949865_mp_jpg_c45324
+   uid         sistema
+   ts          2026-09-24T19:30:00+00:00
+   extra       {"motivo": "espera vencida"}
+   hash_previo c3baf6efe7ac11d5cd6ea18a24b4da7b1bbfd3615aa8efcd7b456362f75916c3
+   huella      8a3e4858898ab5877e728e237fafe1354937175d52d785de466911107f997fae
+   -> de ella no cuelga ningun evento
+
+=== 2. CUAL SIGUE CONECTADA Y CUAL QUEDO HUERFANA ===
+Recorri la cadena desde GENESIS siguiendo hash_previo. Es una sola cadena
+hasta n=144 (doc 00000144-76d0fc09), sin ambiguedades.
+   n    principal (continua)   huerfana (nadie cuelga de ella)
+   53   00000053-d437adad      00000053-9ed18452
+   66   00000066-08028140      00000066-0144f398
+   69   00000069-da0bf47d      00000069-1e351cbd
+   84   00000084-459777ae      00000084-2f9ec2e9
+   114  00000114-798cfb8a      00000114-0931fa32
+Mecanismo que lo explica: cadena() ordena por n, y con n empatado queda
+el orden en que llegan los documentos (por id). La principal es siempre
+la de id mas alto en orden alfabetico, NO la primera en escribirse. En
+n=114 la huerfana tiene el ts mas tardio (19:30:00 contra 19:29:59).
+
+=== 3. QUE DEPENDE DE LAS RAMAS HUERFANAS ===
+a) Referencias: recorri TODAS las subcolecciones de la empresa (arco,
+   cortes, documentos, miembros, obras y sus subcolecciones). Ningun
+   documento, corte ni hallazgo menciona la huella ni el id de una
+   huerfana, ni guarda un n de bitacora. En el codigo, la bitacora solo la
+   leen verificar() y la exportacion (bitacora.json dentro del zip).
+   Ningun hallazgo de auditoria se calcula a partir de ella.
+b) Estado de negocio: los 5 documentos existen y su estado cuadra con lo
+   que dice la huerfana:
+     53  9aa590  "listo"    (obra o_mazamitla_cabana_emma_0f6795)
+     66  642fc6  "listo"
+     69  430faf  "listo"
+     84  808e5d  "listo"
+     114 c45324  "fallido", motivo: la subida no termino
+c) PERO la informacion no esta duplicada: cada huerfana es el UNICO
+   registro en la bitacora de esa accion sobre ese documento:
+     53  unico "archivo_listo" de 9aa590 (la principal solo tiene su subida, n=52)
+     66  unica "subida_confirmada" de 642fc6
+     69  unico "archivo_listo" de 430faf
+     84  unico "archivo_listo" de 808e5d
+     114 UNICO evento de c45324 en toda la bitacora (su subida_fallida)
+Conclusion: corregir SOLO EL NUMERO no pierde informacion de negocio.
+Borrarlas o descartarlas SI perderia 5 registros de auditoria que no
+estan en ningun otro lado. Toda solucion tiene que conservar su contenido.
+
+=== 4. PROPUESTA: RENUMERAR LAS HUERFANAS A 145-149 ===
+Limites que hay que aceptar primero (son de la estructura, no de la tecnica):
+- "Conservar la huella original" no se puede: n y hash_previo forman parte
+  de lo que se firma. Para que verificar() acepte n=145, su hash_previo
+  tiene que ser la huella de n=144, y eso da una huella nueva. Lo que SI
+  se conserva es accion, recurso, uid, ts y extra, y ademas se puede dejar
+  la prueba de la huella original (ver paso 3).
+- Los huecos 54, 67, 70, 85 y 115 de la principal se quedan. Taparlos
+  obligaria a reescribir la cadena principal. verificar() no exige n
+  consecutivos, asi que con los huecos igual diria "cadena integra".
+- Los ts de 145-149 quedan antes que el de 144. verificar() no revisa el
+  orden de los ts; el informe tendria que aclararlo.
+- Hay que BORRAR los 5 documentos originales. Mientras existan,
+  verificar() se rompe en el 53. Es borrar eventos de una bitacora
+  "inmutable": por eso se respalda y se deja constancia (pasos 1 y 5).
+
+Metodo (script unico, idempotente, con --simular por omision):
+1. Respaldo: exportar las 144 entradas tal cual (JSON) a la cubeta de
+   respaldo, con su sha256 anotado en este reporte.
+2. Pre-chequeos, abortar si alguno falla: siguen siendo exactamente 5
+   huerfanas con los ids de arriba, las 144 huellas validas, sin hijos.
+3. Por cada huerfana, en orden (n original, ts): escribirla con
+   Datos.agregar_secuencial (la misma transaccion del arreglo, que CREA con
+   id = n y actualiza la cabeza) usando un armar() propio que:
+     - toma n = ultimo.n+1 y hash_previo = ultimo.huella (145 cuelga de 144),
+     - copia accion, recurso, uid, ts y extra ORIGINALES,
+     - agrega extra.reubicado_de = {n: 53, id: "00000053-9ed18452",
+       hash_previo: "ecf5...", huella: "f938..."}.
+   Con reubicado_de cualquiera puede recalcular la huella original y ver
+   que es la misma que la del respaldo: se conserva la prueba.
+   Ojo: registrar() pone ts = ahora(), por eso hace falta un armar propio.
+   La primera escritura crea la cabeza leyendo el maximo (144, que es
+   unico): pasa el chequeo de "maximo repetido".
+4. Evento 150 "bitacora_reubicacion" (uid de quien lo corra) con la lista
+   de ids movidos y el sha256 del respaldo.
+5. Solo despues de 3 y 4: borrar los 5 originales. En ese orden, si algo
+   falla a medias nada se pierde, solo quedan duplicados que el script
+   detecta al volver a correr.
+6. Verificar: verificar() = "cadena integra"; 145 documentos; 5 con
+   reubicado_de y huella original recalculable; cabeza en n=150.
+Con trafico en vivo no hay riesgo: la transaccion reparte los n. Si entra
+un evento real a la mitad, los reubicados quedan intercalados y no
+consecutivos (sigue siendo valido).
+
+Alternativa a comparar (era la recomendacion anterior, pendiente.txt #4 b):
+no mover nada y enseñarle a verificar() a reconocer "rama por
+concurrencia" (mismo n, mismo hash_previo que su gemela, huella valida,
+sin hijos, ts antes del arreglo). No borra nada ni cambia huellas, pero
+no quita los huecos ni cambia lo que trae la exportacion. La
+renumeracion deja la cadena lineal a cambio de borrar 5 originales
+(respaldados y con constancia). La decision es tuya.
