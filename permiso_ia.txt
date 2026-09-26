@@ -1,0 +1,2 @@
+serviceAccount:823365164197-compute@developer.gserviceaccount.com
+serviceAccount:agente-cinplag@cinplag-v4-core.iam.gserviceaccount.com
