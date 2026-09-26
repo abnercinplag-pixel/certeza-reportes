@@ -231,3 +231,24 @@ diga "cadena rota en el evento 53" para siempre. Opciones:
      "alteracion", y lo reporte aparte sin decir "integra".
   c) Reescribir la cadena: NO recomendado, destruye la prueba.
 Recomendacion: b, con el mensaje explicito de cuantas ramas hay y fechas.
+
+=== F. 2026-09-26: las fotos no se pueden ver dentro de la app ===
+Medido: la CSP (certeza/api.py, cabeceras_seguras) solo admite
+img-src 'self' data: blob:, y gs://certeza-documentos-cinplag no tiene
+CORS. La URL firmada no carga ni en <img> ni por fetch. El visor esta
+listo y cae a "descargar" mientras tanto.
+Opciones:
+  a) [recomendada] Endpoint GET /api/documentos/{id}/miniatura que lea la
+     foto del almacenamiento y devuelva una version reducida (~40 KB):
+     no toca CSP ni cubetas, y el telefono no baja 5 MB por miniatura.
+  b) Agregar https://storage.googleapis.com a img-src en la CSP. Una linea,
+     pero cada miniatura pesa la foto completa (5 MB) y es un cambio de
+     seguridad.
+  c) Dejarlo asi (solo descarga).
+Ademas, "Ver original" hoy descarga en vez de abrir la foto, porque la URL
+firmada lleva Content-Disposition: attachment.
+
+=== G. 2026-09-26: verificar la pantalla nueva con la sesion de Adrian ===
+Se probo localmente con sus datos reales copiados de Firestore. Falta
+abrirla en produccion con su sesion en el telefono y en la computadora:
+https://certeza-api-823365164197.us-central1.run.app/app
