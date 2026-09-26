@@ -1,0 +1,5 @@
+reportes/ultimo.txt
+reportes/pendiente.txt
+reportes/ciclo.txt
+reportes/estado_deploy.txt
+reportes/cola_persistente_20260924.txt
