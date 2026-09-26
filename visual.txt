@@ -1,0 +1,22 @@
+ultimo · 2026-09-26 · analisis visual de fotos de obra (Vertex AI)
+
+TERMINADO: certeza/adaptadores/analisis_visual.py. gemini-2.5-flash via
+google-genai en modo Vertex (dependencia de google-cloud-aiplatform; el SDK
+vertexai.generative_models esta retirado desde 24-jun-2026).
+R2: el modelo solo describe (enums cerrados, validacion determinista,
+vocabulario de culpa retenido). Sus ObservacionFisica entran a R11 del
+motor; danos visibles -> puntos RF de revision, monto 0. Motor y reglas
+NO se tocaron. Cada foto se analiza una vez (campo analisis_visual en el
+documento); la auditoria nunca llama al modelo.
+Obra: latitud/longitud editables; >500 m = "posiblemente de otro sitio";
+foto posterior al corte no cuenta; sin fecha = confianza baja.
+Endpoint POST /api/obras/{id}/analisis-visual?limite=5 + boton en
+Entregables. Script infra/analizar_fotos.py para fotos elegidas.
+Cabana Emma (e_bolo_s_inc_42ff33 / o_mazamitla_cabana_emma_0f6795):
+5 de 58 fotos analizadas. ~$0.0011 USD por foto (2,504 tokens entrada,
+~140 salida). Gasto total de la validacion ~$0.012 (2 corridas + 1 prueba).
+Pruebas 312 en verde (44 nuevas).
+PENDIENTE de Abner: rol aiplatform.user a certeza-api@ (sin el, el boton
+en produccion reporta "fallidas"); coordenadas y fecha de corte de la
+obra; 2 decisiones (ver pendiente.txt, 2026-09-26).
+Siguiente: con el permiso, analizar las 53 fotos restantes (~$0.06).
