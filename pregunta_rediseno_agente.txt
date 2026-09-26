@@ -1,0 +1,38 @@
+PREGUNTA ABIERTA · rediseno de agente.html · 2026-09-26
+Estado: NO se ha tocado codigo. Esperando decision.
+
+CONFLICTO EN LA ORDEN
+La regla B dice: el JavaScript no suma dinero; solo muestra montos que
+devuelve la API. La orden dice tambien: SOLO frontend y textos.
+Pero tres cifras que pide el rediseno NO las devuelve hoy la API:
+
+1. "Diferencias detectadas en el presupuesto: $X"
+   La obra de Adrian (o_mazamitla_cabana_emma_0f6795) no tiene corte
+   capturado (capital vacio), asi que esta es su cifra protagonista.
+   La API devuelve cada hallazgo con su monto (7 con monto, 11 en $0),
+   pero no el total.
+2. "Autorizas $X / Retienes $Y"
+   Depende de las decisiones por hallazgo; ningun endpoint lo suma.
+3. "Autorizar el pago de $X" + "se registra en la bitacora a tu nombre"
+   No existe accion de "pago autorizado" en el servidor. Hoy el boton
+   Autorizar marca TODOS los hallazgos como "liberar" (lo contrario de
+   retener). Sin corte no hay pago solicitado, asi que en la obra de
+   Adrian no hay pago que autorizar.
+
+OPCIONES PARA LAS CIFRAS
+(a) [recomendada] Endpoint pequeno de solo lectura en api.py que suma
+    con Decimal lo que ya existe (montos de hallazgos + decisiones) y lo
+    devuelve formateado. No toca motor, reglas ni capital.py; pruebas
+    actuales intactas, mas una nueva.
+(b) Solo frontend: no mostrar totales. Cifra protagonista = numero de
+    diferencias con monto; cada monto individual visible. Autorizas /
+    Retienes como conteos. El endpoint queda anotado en pendiente.txt.
+
+OPCIONES PARA "AUTORIZAR EL PAGO"
+(a) [recomendada] Nuevo POST que registra "pago_autorizado" en la
+    bitacora (monto, puntos sin resolver, usuario, fecha). No cambia las
+    decisiones por hallazgo. Solo aparece si hay corte con pago solicitado.
+(b) Sin backend: el panel solo aparece con corte y la confirmacion no
+    registra nada nuevo. En la obra de Adrian no habria boton.
+
+RESPONDER ASI: "cifras a/b, autorizar a/b"
