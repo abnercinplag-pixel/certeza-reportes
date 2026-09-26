@@ -1,0 +1,24 @@
+ultimo · 2026-09-26 · analisis visual de TODAS las fotos, en segundo plano
+
+TERMINADO y desplegado (certeza-api-00051-fj8, humo.sh en verde).
+POST /api/obras/{id}/analisis-visual ya no va de 5 en 5: crea un trabajo
+con TODAS las fotos pendientes y responde de inmediato. El trabajo avanza
+por tramos de Cloud Tasks (/worker/analisis-visual, 200 s cada uno) y
+guarda el avance foto por foto en trabajos_analisis_visual/{obra}.
+GET en la misma ruta: procesadas, analizadas, no utilizables, fallidas
+con su motivo, costo. Una foto que falla no aborta el lote; cuota o
+saturacion de Vertex se reintentan 2 veces; la fallida queda pendiente.
+Entregables: "Analizando 23 de 58", consulta cada 2 s; si el trabajo se
+detiene lo dice y el boton lo retoma donde quedo.
+Informe: "Se revisaron N de M fotografias", sin muestreo.
+Motor y reglas NO se tocaron. Cada foto se sigue analizando una vez.
+Pruebas: 319 en verde (9 nuevas o reescritas).
+Cabana Emma (e_bolo_s_inc_42ff33 / o_mazamitla_cabana_emma_0f6795):
+10 ya estaban analizadas; las 48 restantes corrieron en produccion en
+2 min 20 s: 48 analizadas, 0 fallidas, 0 no utilizables, $0.051611 USD.
+Costo real de las 58: $0.062503 USD (145,232 tokens entrada, 7,571 salida,
+~$0.0011 por foto).
+Revision a mano de las 58 contra la foto: elemento y capitulo correctos en
+58; 53 sin reparo; 3 con un dano que no existe y 2 dudosos (salen como
+punto de revision RF, monto 0). Decision en pendiente.txt (E).
+Siguiente: capturar coordenadas y fecha de corte de la obra (pendiente B).
