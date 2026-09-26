@@ -1,11 +1,16 @@
-ultimo · 2026-09-24 · bitacora sin numeros de evento repetidos
+ultimo · 2026-09-26 · rediseno de agente.html (pantalla del dueno)
 
-TERMINADO: pendiente #4. Causa: Encadenada.registrar leia la cadena y
-escribia sin transaccion; subidas simultaneas tomaban el mismo n y el
-mismo hash_previo (e_bolo_s_inc_42ff33: n=53,66,69,84,114).
-Arreglo: transaccion de Firestore con cabeza por empresa + id de evento
-= n (create rechaza un n repetido). 30 escrituras simultaneas contra
-Firestore real: 0 repetidos, cadena integra.
-Pruebas 243 en verde. Desplegado certeza-api-00043-8sh, humo.sh OK.
-Pendiente de Abner: que hacer con las 5 ramas historicas (pendiente #4).
-Detalle en estado_deploy.txt.
+TERMINADO y desplegado (certeza-api-00053-2x5, humo.sh en verde).
+Backend nuevo (sin tocar motor, reglas ni capital.py):
+  GET  /api/obras/{id}/resumen: totales con Decimal, ya formateados.
+  POST /api/obras/{id}/pago-autorizado: registra en bitacora; solo con
+       corte; 409 si el monto o el corte cambiaron.
+  GET  /cortes: exposicion_texto y cambio_texto.
+Frontend: cero aritmetica con montos (prueba nueva lo vigila); boton
+Auditar protagonista; cifra con etiqueta exacta; hallazgos en dos capas;
+visor de fotos; panel de decisiones + confirmacion; obra limpia honesta.
+Pruebas: 336 en verde (319 previas intactas, 17 nuevas).
+Probado con la obra real de Adrian (datos copiados de Firestore) en
+telefono y computadora, en local. Detalle: certeza-reportes/rediseno_agente.
+LIMITE: las fotos no se ven en la app (CSP + cubeta sin CORS). Decision F.
+Siguiente: F (miniaturas) y G (verificar con la sesion de Adrian).
