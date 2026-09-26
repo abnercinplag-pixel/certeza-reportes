@@ -1,0 +1,15 @@
+Analiza con el modelo de vision fotos elegidas de una obra, sin sesion web.
+
+Uso (Cloud Shell, con la sesion de gcloud del proyecto):
+  GCP_PROJECT=cinplag-v4-core CERTEZA_BACKEND=nube \
+  CUBETA_DOCUMENTOS=certeza-documentos-cinplag \
+    python3 infra/analizar_fotos.py <empresa_id> <obra_id> <doc_id> [<doc_id> ...]
+
+Existe para validar con pocas fotos elegidas a mano (repartidas en la
+visita) antes de gastar en todas; el endpoint /analisis-visual toma las
+pendientes en orden de id. Mismo camino que el endpoint: _leer_catalogo
+para los capitulos, evidencia_fotografica.registrar si falta el EXIF y
+analisis_visual.analizar, que no repite una foto ya analizada.
+
+Imprime un JSON por foto con lo que el modelo vio, los tokens y el costo.
+
