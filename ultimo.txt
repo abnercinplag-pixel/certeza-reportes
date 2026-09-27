@@ -1,16 +1,23 @@
-ultimo · 2026-09-27 · fotos visibles + movimiento honesto en agente.html
-
-TERMINADO y desplegado (certeza-api-00055-cv6, humo.sh en verde).
-Fotos: CSP img-src + https://storage.googleapis.com (nada mas). Probado con
-  una foto real de Cabana Emma en la pagina desplegada: miniatura y visor
-  cargan en telefono y computadora, 0 violaciones de CSP.
-  CORS de la cubeta NO aplicado: el permiso de la sesion lo bloqueo. No hace
-  falta para <img>. Script: infra/cors_documentos.sh (pendiente H).
-Movimiento: esqueletos al cargar, sin porcentaje inventado (la auditoria no
-  reporta etapas); la barra de la consola ya no finge avance; montos nunca
-  animados ni tecleados; palomita solo con confirmacion del servidor;
-  fundidos en visor y pestanas; reduced-motion con fundidos; 80-500 ms.
-Pruebas: 343 en verde (336 previas + 7 nuevas). Motor/reglas/capital intactos.
-Detalle y capturas: certeza-reportes/movimiento_20260927.
-Siguiente: H (CORS, opcional), G (probar con la sesion de Adrian),
-  miniatura reducida en el servidor (opcion a de F) por el peso en telefono.
+ultimo · 2026-09-27 · extraccion de documentos, ETAPA 1 (clasificar)
+TERMINADO en codigo, NO desplegado, NO verificado contra la obra real.
+Bloqueo: la sesion de Google de Cloud Shell caduco (pendiente.txt F).
+  Sin ella no se leen Firestore ni los PDF: los ids de empresa y obra
+  del caso (e_certeza_883366 / o_cabana_emma_1eced8, tomados de
+  infra/verificar_pdf_cabana.sh) quedan SIN confirmar.
+Que hace:
+1 certeza/clasificacion.py: sugiere el tipo de cada documento por su
+  texto (presupuesto, contrato, estimacion/concentrado, plano arq., plano
+  estr., licencia, escritura, factura, foto, otro). El motivo nombra las
+  frases en que se apoya. Sin texto: "otro", confianza baja, no adivina.
+  Un presupuesto de obra negra no pasa por plano: los importes lo separan.
+2 El escaner guarda la sugerencia al promover el archivo.
+  POST /api/obras/{id}/documentos/clasificar la completa en lo ya subido.
+3 PUT /api/documentos/{id}/tipo: confirmacion humana. Es lo UNICO que
+  llena "requisito" (lo que el expediente cuenta como recibido). Queda
+  en bitacora con sugerido vs elegido.
+4 agente.html: selector de tipo por documento, "Confirmar" / "Cambiar",
+  y confirmacion en bloque solo de lo sugerido con confianza alta.
+Motor, reglas y calculos intactos.
+Pruebas: 392 en verde (371 + 21 en tests/test_clasificacion.py).
+Siguiente: al volver la sesion, clasificar los documentos reales de la
+  obra y reportar ids; en paralelo, Etapa 2 (extraer con origen).
