@@ -1,0 +1,8 @@
+    <div class="avatar"><b>CZ</b></div>
+<div id="toast"><i></i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg><span id="toast-txt" role="status" aria-live="polite"></span></div>
+  // en onAuthStateChanged (login/logout), asi que una sesion abierta mas
+  R26_CLAVE_DUPLICADA:"hay claves de concepto repetidas en el catálogo",
+  P.push({t:"Leer el catálogo contratado",
+a3ad6ef docs(reportes): costo fuera de pantalla, movimiento y PWA, deploy 00057
+8051c8c feat(agente): costo fuera de la pantalla, movimiento escalonado y capa PWA
+101a26c docs(reportes): fotos visibles y movimiento honesto, deploy 00055

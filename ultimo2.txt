@@ -1,0 +1,19 @@
+ultimo · 2026-09-27 · costo fuera de pantalla, movimiento, PWA
+
+TERMINADO y desplegado (certeza-api-00057-t8w, humo.sh en verde).
+1 Costo: "Costo del analisis: US$X" ya no se muestra. El cliente ve
+  "48 de 48 fotos analizadas". El costo sigue en la bitacora (evento
+  analisis_visual) y en infra/analizar_fotos.py. La API no cambio.
+2 Movimiento: brillo del esqueleto mas visible (1.2 s, tono del agente).
+  Tarjetas al abrir una auditoria ya hecha y filas nuevas de documentos
+  entran escalonadas (50 ms por paso, tope 400 ms); tras una decision no
+  se vuelven a escalonar. Boton Auditar se hunde y se ilumina al tocar.
+  Reduced-motion: solo fundidos, sin retraso. Montos siguen sin animarse.
+3 PWA: manifest.json, sw.js (no guarda datos en cache; solo muestra "Sin
+  conexion" si no hay red) e iconos. Chrome en produccion: 0 errores de
+  instalabilidad, service worker activo, 0 errores de CSP o JS.
+  Rutas nuevas en api.py con lista cerrada de archivos (unico cambio de
+  servidor). Icono PROVISIONAL: pendiente I (logo).
+Pruebas: 351 en verde (343 previas + 8 nuevas). Motor/reglas/capital intactos.
+Detalle: certeza-reportes/pwa_movimiento_20260927.
+Siguiente: I (logo), G (sesion de Adrian), H (CORS, opcional).
