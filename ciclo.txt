@@ -18,7 +18,7 @@ tests/test_analisis_visual.py::test_informe_pdf_con_texto_retenido_se_genera
     warnings.warn(
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-358 passed, 3 warnings in 26.12s
+358 passed, 3 warnings in 53.97s
 == estado del repo ==
  M reportes/ciclo.txt
 == ultimos commits ==
