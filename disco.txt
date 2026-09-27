@@ -1,0 +1,4 @@
+---commits---
+d58b68f docs(reportes): ultimo.txt dentro de 25 lineas
+f5af53a docs(reportes): instalar y estado vacio, deploy 00063
+33bf266 feat(agente): instalar en un toque tras el primer informe y estado vacio que muestra lo que CERTEZA lee
