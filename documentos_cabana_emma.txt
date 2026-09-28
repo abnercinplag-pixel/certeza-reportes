@@ -1,0 +1,21 @@
+documentos reales · 2026-09-28 · cuenta e_bolo_s_inc_42ff33 (Bolo's inc)
+Obra o_mazamitla_cabana_emma_0f6795 "MAZAMITLA_ CABANA EMMA."
+(e_certeza_883366 ignorada: cuenta vieja de prueba.)
+Leido de Firestore, solo lectura. 71 registros:
+  7 PDF listos, 58 fotos listas, 1 foto duplicada descartada,
+  5 fotos con subida fallida (se cerro la pagina; volver a subirlas).
+Tipo confirmado (requisito): NINGUNO. Clasificacion sugerida: NINGUNA
+  (la etapa 1 no estaba desplegada cuando se subieron).
+Por tipo, segun el nombre del archivo (aun sin clasificar por contenido):
+  presupuesto 1 · contrato 1 · planos 3 · fotos 58 (+1 dup, +5 fallidas)
+  otros 2 (concentrado de avance, presentacion conceptual)
+PDF:
+  d_presupuesto_base_pca_02_06_2026_pdf_6dec32   Presupuesto_Base_PCA_02-06-2026.pdf
+  d_contrato_cabana_emma_final_actualizado_p_a4af6d Contrato_Cabana_Emma_FINAL_Actualizado.pdf (subido 27-sep)
+  d_concentrado_avance_y_pagos_04_08_2026_pd_ab821f Concentrado_Avance_y_Pagos_04-08-2026.pdf
+  d_plano_arquitectonico_planta_baja_cac08_1_c05e9d Plano_Arquitectonico_Planta_Baja_CAC08-101.pdf
+  d_plano_estructural_cimentacion_cac08_pdf_f4e0eb  Plano_Estructural_Cimentacion_CAC08.pdf
+  d_plano_estructural_trabes_nervaduras_cac0_748bf4 Plano_Estructural_Trabes_Nervaduras_CAC08.pdf
+  d_presentacion_conceptual_cc8_pdf_d34091       Presentacion_Conceptual_CC8.pdf (19 MB)
+No hay escritura ni licencia en la obra.
+Siguiente: clasificar por contenido (etapa 1) y extraer cifras (etapa 2).
