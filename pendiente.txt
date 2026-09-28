@@ -1,5 +1,66 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
-Actualizado: 2026-09-24
+Actualizado: 2026-09-28
+
+=== 2026-09-28: cifras con origen (etapa 2) en la obra real ===
+G. ACCION. Desplegar para que el panel "Cifras leidas" y la confirmacion
+   de tipos aparezcan en la app (no estaba marcado [DESPLEGAR]):
+     cd ~/certeza && bash infra/deploy.sh && bash infra/humo.sh
+   Las 41 cifras y los tipos sugeridos YA estan en Firestore; sin el
+   deploy la app en produccion no los muestra.
+H. DECISION. El anticipo. El contrato dice "Primer pago: 35%
+   ($828,216.39)"; el concentrado dice "ANTICIPO 828,216.38". Un centavo.
+   Opciones: (1) confirmar el del concentrado (lo entregado) y dejar el
+   del contrato como calendario; (2) corregir alguno a mano.
+   Recomiendo (1): el motor usa lo ENTREGADO, que es lo del concentrado; el
+   contrato solo trae lo programado. Por eso "primer pago" no se propone
+   como anticipo: esa lectura la hace una persona.
+I. DATO. Cinco fotos de la visita del 16-sep quedaron en "subida
+   fallida" (se cerro la pagina). Volver a subirlas si se quieren contar.
+
+=== 2026-09-27: capa de extraccion y cruce de documentos ===
+F. RESUELTO 2026-09-28 (sesion activa). La sesion de Google de Cloud Shell caduco: "No credentialed
+   accounts". Sin ella no se puede leer Firestore ni los PDF de la obra
+   (el cliente de Firestore se queda colgado al pedir token). Correr:
+     gcloud auth login
+   (o pulsar "Autorizar" en el aviso de Cloud Shell). Hace falta para
+   verificar ids, clasificar los documentos reales y leer el Concentrado.
+
+=== 2026-09-26: analisis visual de fotos (Vertex AI) ===
+A. RESUELTO 2026-09-26: certeza-api@ ya tiene roles/aiplatform.user
+   (verificado con get-iam-policy). El analisis de las 48 fotos restantes
+   corrio en produccion con esa cuenta, via Cloud Tasks.
+E. DECISION. Danos falsos en el analisis de las 58 fotos de Cabana Emma:
+   3 de 58 fotos traen un "defecto" que no existe (varillas de espera en
+   castillos leidas como "acero expuesto"; extremo de tubo encintado leido
+   como "roto"; "grietas y desplome" en un castillo sin aplanado) y 2 son
+   dudosos. Hoy cada uno sale como punto de revision RF, monto 0, "revisar
+   en sitio": no acusa, pero es ruido en el informe. Opciones:
+   (1) dejarlo; (2) agregar al prompt ejemplos de lo que NO es dano
+       (varillas de espera, extremos tapados/encintados, excavacion);
+       solo aplica a fotos NUEVAS: las 58 ya estan guardadas y no se
+       re-analizan (costaria ~$0.06 re-hacerlas si se decide);
+   (3) (2) y ademas re-analizar Cabana Emma. Recomiendo (2).
+B. DATO. Cabana Emma no tiene latitud/longitud ni fecha de corte. Sin
+   ellas ninguna foto se puede descartar por distancia ni por fecha: salen
+   con advertencia "ubicacion no verificada" y confianza tope "media".
+   Capturarlas en Obras > editar. NO las deduje del GPS de las fotos: eso
+   haria que cualquier foto "estuviera en la obra" por definicion.
+   OJO: aun con coordenadas, las fotos del Pixel 9a de la visita del
+   16-sep traen el bloque GPS VACIO (ceros y NaN, medido en el EXIF crudo):
+   el telefono tenia la ubicacion apagada. Para la proxima visita, activar
+   ubicacion en la camara, o la regla de 500 m no tiene con que medir.
+C. DECISION. R11 no mira la confianza de la observacion: una foto sin
+   fecha (confianza baja) puede producir un R11 con certeza "alta". No toque
+   el motor (regla de este repo). Opciones: (1) dejarlo, el informe ya
+   muestra "fecha no verificada" en la descripcion; (2) que R11 baje la
+   certeza a "media" cuando obs.confianza < 0.5. Recomiendo (2).
+D. DECISION. Fecha de la foto vs corte: implemente "no posterior al dia de
+   corte" (una foto tomada el mismo dia del corte cuenta). Si debe ser
+   estrictamente anterior, es cambiar un ">" por ">=" en evaluar().
+E. Cabana Emma no tiene avance capturado (coleccion avance vacia) aunque
+   el concentrado del 04-08-2026 esta en el expediente: sin eso no hay
+   "avance cobrado" contra el cual comparar las fotos.
+
 
 === 2026-09-24: adaptador de PDF, falta verificarlo con el PDF real ===
 A. En esta sesion gcloud storage cp pidio aprobacion y nadie la dio: no
@@ -231,8 +292,11 @@ diga "cadena rota en el evento 53" para siempre. Opciones:
      "alteracion", y lo reporte aparte sin decir "integra".
   c) Reescribir la cadena: NO recomendado, destruye la prueba.
 Recomendacion: b, con el mensaje explicito de cuantas ramas hay y fechas.
-
 === F. 2026-09-26: las fotos no se pueden ver dentro de la app ===
+RESUELTO 2026-09-27 con la opcion (b), autorizada por Abner: CSP con
+img-src https://storage.googleapis.com (certeza-api-00055-cv6). Probado con
+una foto real de Cabana Emma. Queda en pie el costo: ~5 MB por miniatura;
+la opcion (a) sigue siendo la recomendada para el telefono.
 Medido: la CSP (certeza/api.py, cabeceras_seguras) solo admite
 img-src 'self' data: blob:, y gs://certeza-documentos-cinplag no tiene
 CORS. La URL firmada no carga ni en <img> ni por fetch. El visor esta
@@ -252,3 +316,45 @@ firmada lleva Content-Disposition: attachment.
 Se probo localmente con sus datos reales copiados de Firestore. Falta
 abrirla en produccion con su sesion en el telefono y en la computadora:
 https://certeza-api-823365164197.us-central1.run.app/app
+
+=== H. 2026-09-27: CORS de lectura en la cubeta de documentos ===
+Autorizado por Abner, pero el permiso de la sesion no me dejo modificar la
+cubeta. Comando (solo GET/HEAD, solo los dos origenes de certeza-api):
+  bash ~/certeza/infra/cors_documentos.sh
+No bloquea las miniaturas: un <img> sin crossorigin no pide CORS; con el
+cambio de CSP (img-src + https://storage.googleapis.com) ya cargan. Hace
+falta solo si algun dia la app baja la foto por fetch().
+
+=== I. 2026-09-27: logo del icono instalable (decision de Abner) ===
+La app ya se puede instalar en la pantalla de inicio (certeza-api-00057).
+El icono es PROVISIONAL: "CZ" sobre el degradado azul del agente, igual que
+el avatar de la app. Falta decidir color e identidad del logo.
+Opciones:
+  a) [recomendada mientras no haya marca] Dejar el provisional: coincide
+     con lo que el usuario ya ve dentro de la app.
+  b) Logo definitivo: entregar un PNG cuadrado de 512x512 (o SVG), con la
+     marca en el 60 % central y fondo que llegue al borde (Android lo
+     recorta en circulo). Se reemplazan web/iconos/icono-192.png,
+     icono-512.png y apple-touch-icon.png (180) con los mismos nombres; no
+     cambia nada mas. Para colores nuevos sin logo: editar FONDO/AI/AI2 en
+     infra/iconos.py y correr python3 infra/iconos.py.
+Si cambia el color de fondo, cambiar tambien background_color/theme_color en
+web/manifest.json.
+  -> RESUELTO 2026-09-27: marca final integrada (Inter 600, #0B1F3A, punto
+     #1F9E6B). Iconos "CZ." y favicon "C." generados con infra/iconos.py a
+     partir de esa especificacion: no llegaron archivos de marca a
+     certeza-reportes. Si existe un archivo oficial, se reemplazan los PNG
+     de web/iconos/ con los mismos nombres y tamanos.
+
+=== J. 2026-09-27: contar conceptos al subir, no al auditar (decision) ===
+Hoy "Presupuesto reconocido: 88 conceptos leidos" sale cuando la auditoria
+lee el catalogo: el servidor NO lee el presupuesto al subirlo (solo detecta
+el formato por contenido). Al subir, la confirmacion dice el formato
+reconocido ("Excel reconocido: listo para leer el presupuesto"), sin cifra.
+Opciones:
+  a) [recomendada por ahora] Dejarlo asi: la cifra solo aparece cuando es
+     real. Cero cambios de servidor.
+  b) Leer el catalogo al terminar el escaneo (worker) y guardar
+     conceptos_leidos en el documento. Toca el camino del worker y el
+     adaptador (no el motor); pedido aparte porque esta orden era solo
+     frontend.

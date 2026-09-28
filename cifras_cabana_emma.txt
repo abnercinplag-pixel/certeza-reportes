@@ -1,0 +1,113 @@
+cifras extraidas · 2026-09-28 · e_bolo_s_inc_42ff33 / o_mazamitla_cabana_emma_0f6795
+Todas en estado PROPUESTA, sin confirmar: ninguna cuenta en el calculo.
+Se confirman o corrigen en agente.html > Documentos > "Cifras leidas".
+
+ETAPA 1 - tipo sugerido por contenido (nada confirmado, requisito vacio):
+  Contrato_Cabana_Emma_FINAL_Actualizado.pdf   contrato             alta
+  Concentrado_Avance_y_Pagos_04-08-2026.pdf    estimacion           media
+  Presupuesto_Base_PCA_02-06-2026.pdf          presupuesto          media
+  Plano_Arquitectonico_Planta_Baja_CAC08-101   plano arquitectonico alta
+  Plano_Estructural_Cimentacion_CAC08          plano estructural    media
+  Plano_Estructural_Trabes_Nervaduras_CAC08    plano estructural    media
+  Presentacion_Conceptual_CC8.pdf              otro                 baja
+  58 fotos                                     foto de obra         alta
+  (El contrato salia "estimacion" con el clasificador de ayer: se
+   agregaron frases de contrato privado; ahora sale contrato, alta.)
+
+ETAPA 2 - 41 cifras (33 del concentrado, 8 del contrato):
+  Planos: la superficie construida no viene como texto -> 0 cifras.
+  Contrato: no menciona retencion ni un "anticipo" con ese nombre.
+  No hay escritura ni licencia en la obra.
+
+CRUCES QUE SALTAN AL LEER (no calculados, solo comparados):
+  - Total: contrato $2,366,332.53 = concentrado $2,366,332.53.
+  - Anticipo: contrato "Primer pago 35%" $828,216.39; concentrado
+    "ANTICIPO" $828,216.38. Un centavo de diferencia.
+  - Pago solicitado $354,949.88 = "Segundo pago 15%" del contrato.
+  - El concentrado reporta avance solo en 6 capitulos/subcapitulos.
+
+Concentrado_Avance_y_Pagos_04-08-2026.pdf  (tipo sugerido: estimacion, sin confirmar)
+  p1 Avance cobrado ($) [1.00 PRELIMINARES]: $19,845.00
+      «TOTAL Total de PRELIMINARES $19,845.00 $19,845.00 19,845.00$ 100%»
+  p1 Avance cobrado (%) [1.00 PRELIMINARES]: 100%
+      «TOTAL Total de PRELIMINARES $19,845.00 $19,845.00 19,845.00$ 100%»
+  p1 Importe contratado del capítulo [1.00 PRELIMINARES]: $19,845.00
+      «TOTAL Total de PRELIMINARES $19,845.00 $19,845.00 19,845.00$ 100%»
+  p1 Avance cobrado ($) [2.00 CIMENTACIÓN]: $350,433.93
+      «TOTAL Total de CIMENTACIÓN $389,371.03 $350,433.93 $350,433.93 90%»
+  p1 Avance cobrado (%) [2.00 CIMENTACIÓN]: 90%
+      «TOTAL Total de CIMENTACIÓN $389,371.03 $350,433.93 $350,433.93 90%»
+  p1 Importe contratado del capítulo [2.00 CIMENTACIÓN]: $389,371.03
+      «TOTAL Total de CIMENTACIÓN $389,371.03 $350,433.93 $350,433.93 90%»
+  p1 Avance cobrado ($) [3.00 MUROS, CADENAS Y CASTILLOS]: $91,984.97
+      «TOTAL Total de MUROS, CADENAS Y CASTILLOS $183,969.94 $91,984.97 $91,984.97 50%»
+  p1 Avance cobrado (%) [3.00 MUROS, CADENAS Y CASTILLOS]: 50%
+      «TOTAL Total de MUROS, CADENAS Y CASTILLOS $183,969.94 $91,984.97 $91,984.97 50%»
+  p1 Importe contratado del capítulo [3.00 MUROS, CADENAS Y CASTILLOS]: $183,969.94
+      «TOTAL Total de MUROS, CADENAS Y CASTILLOS $183,969.94 $91,984.97 $91,984.97 50%»
+  p1 Avance cobrado ($) [4.00 ESTRUCTURA DE ACERO Y LOSA]: $51,852.05
+      «TOTAL Total de ESTRUCTURA DE ACERO Y LOSA $129,630.12 $51,852.05 $51,852.05 40%»
+  p1 Avance cobrado (%) [4.00 ESTRUCTURA DE ACERO Y LOSA]: 40%
+      «TOTAL Total de ESTRUCTURA DE ACERO Y LOSA $129,630.12 $51,852.05 $51,852.05 40%»
+  p1 Importe contratado del capítulo [4.00 ESTRUCTURA DE ACERO Y LOSA]: $129,630.12
+      «TOTAL Total de ESTRUCTURA DE ACERO Y LOSA $129,630.12 $51,852.05 $51,852.05 40%»
+  p2 Avance cobrado ($) [6.00 INSTALACIONES 6.00.01 INST. HIDROSANITARIA]: $12,859.31
+      «TOTAL Total de INST. HIDROSANITARIA $128,593.14 $12,859.31 $12,859.31 10%»
+  p2 Avance cobrado (%) [6.00 INSTALACIONES 6.00.01 INST. HIDROSANITARIA]: 10%
+      «TOTAL Total de INST. HIDROSANITARIA $128,593.14 $12,859.31 $12,859.31 10%»
+  p2 Importe contratado del capítulo [6.00 INSTALACIONES 6.00.01 INST. HIDROSANITARIA]: $128,593.14
+      «TOTAL Total de INST. HIDROSANITARIA $128,593.14 $12,859.31 $12,859.31 10%»
+  p3 Anticipo entregado: $828,216.38  (ANTICIPO)
+      «TOTAL Total de LIMPIEZA $17,342.28 828,216.38$ ANTICIPO»
+  p3 Anticipo declarado (porcentaje): 50%
+      «NOTA SE REQUIERE EL 50% ANTICIPO EL RESTO CONTRA»
+  p3 Suma del avance valorizado: $606,007.71  (SUMA % AVANCE)
+      «SUBTOTAL SUBTOTAL $2,061,265.27 606,007.71$ SUMA % AVANCE»
+  p3 Fecha de corte: 2026-08-04
+      «12% HONORARIOS $253,535.63 699,341.29$ TOTAL GASTADO AL DIA DE 04.08.26»
+  p3 Honorarios aplicados al corte: $72,720.93  (HONORARIOS 12%)
+      «2.5% INDIRECTOS $51,531.63 72,720.93$ HONORARIOS 12%»
+  p3 Honorarios del presupuesto: $253,535.63
+      «12% HONORARIOS $253,535.63 699,341.29$ TOTAL GASTADO AL DIA DE 04.08.26»
+  p3 Honorarios (porcentaje): 12%
+      «12% HONORARIOS $253,535.63 699,341.29$ TOTAL GASTADO AL DIA DE 04.08.26»
+  p3 Indirectos aplicados al corte: $20,612.65  (INDIRECTOS)
+      «20,612.65$ INDIRECTOS»
+  p3 Indirectos del presupuesto: $51,531.63
+      «2.5% INDIRECTOS $51,531.63 72,720.93$ HONORARIOS 12%»
+  p3 Indirectos (porcentaje): 2.5%
+      «2.5% INDIRECTOS $51,531.63 72,720.93$ HONORARIOS 12%»
+  p3 Restante de anticipo al corte: $128,875.09  (RESTANTE AL DIA 04.08.26)
+      «TOTAL $2,366,332.53 128,875.09$ RESTANTE AL DIA 04.08.26»
+  p3 Subtotal contratado: $2,061,265.27
+      «SUBTOTAL SUBTOTAL $2,061,265.27 606,007.71$ SUMA % AVANCE»
+  p3 Total del presupuesto: $2,366,332.53
+      «TOTAL $2,366,332.53 128,875.09$ RESTANTE AL DIA 04.08.26»
+  p3 Total gastado al corte: $699,341.29  (TOTAL GASTADO AL DIA DE 04.08.26)
+      «12% HONORARIOS $253,535.63 699,341.29$ TOTAL GASTADO AL DIA DE 04.08.26»
+  p3 Avance cobrado ($) [7.00 ACABADOS]: $79,032.45
+      «TOTAL Total de ACABADOS $225,807.00 $79,032.45 $79,032.45 35%»
+  p3 Avance cobrado (%) [7.00 ACABADOS]: 35%
+      «TOTAL Total de ACABADOS $225,807.00 $79,032.45 $79,032.45 35%»
+  p3 Importe contratado del capítulo [7.00 ACABADOS]: $225,807.00
+      «TOTAL Total de ACABADOS $225,807.00 $79,032.45 $79,032.45 35%»
+  p4 Pago solicitado: $354,949.88  (PAGO 15% PARA LLEGAR AL 50%)
+      «354,949.88$ PAGO 15% PARA LLEGAR AL 50%»
+
+Contrato_Cabaña_Emma_FINAL_Actualizado.pdf  (tipo sugerido: contrato, sin confirmar)
+  p2 Fecha de inicio: 2026-06-29
+      «La obra iniciará el 29 de junio de 2026. El plazo estimado para la ejecución total será de»
+  p2 Pago 1 del calendario: $828,216.39  (35% · el 23 de Junio de 2026 (2026-06-23))
+      «Primer pago: 35% ($828,216.39 MXN) el 23 de Junio de 2026.»
+  p2 Pago 2 del calendario: $354,949.88  (15% · entre el 31 de julio de 2026 y el 05 de agosto de 2026 (2026-07-31))
+      «Segundo pago: 15% ($354,949.88 MXN) entre el 31 de julio de 2026 y el 05 de agosto de 2026.»
+  p2 Saldo del calendario de pagos: $1,183,166.27  (50%)
+      «Saldo restante: 50% ($1,183,166.27 MXN) mediante estimaciones quincenales o pagos»
+  p2 Plazo de ejecución: entre cinco meses y medio (5.5) y seis (6) meses
+      «La obra iniciará el 29 de junio de 2026. El plazo estimado para la ejecución total será de entre cinco meses y»
+  p2 Superficie construida: 140.00 m²
+      «obra contempla una superficie de terreno de 210.00 m² y una superficie de construcción de 140.00 m². El costo »
+  p2 Superficie del terreno: 210.00 m²
+      «La presente obra contempla una superficie de terreno de 210.00 m² y una superficie de»
+  p2 Total contratado: $2,366,332.53
+      «El monto total del presupuesto asciende a $2,366,332.53 MXN.»
