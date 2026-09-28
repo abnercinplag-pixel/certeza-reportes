@@ -1,23 +1,23 @@
-ultimo · 2026-09-28 · etapas 1 y 2 sobre la obra real (cuenta bolo)
-Cuenta e_bolo_s_inc_42ff33, obra o_mazamitla_cabana_emma_0f6795.
-(e_certeza_883366 ignorada: prueba vieja.) Sesion de Google OK.
-Documentos: 71 = 7 PDF + 58 fotos listos, 1 duplicada, 5 subidas fallidas.
-ETAPA 1: los 65 listos tienen tipo SUGERIDO en Firestore; ninguno
-  confirmado (requisito vacio). Contrato: alta. Concentrado: media.
-  Ajuste: el contrato real salia "estimacion"; se agregaron frases de
-  contrato privado al clasificador (motor intacto).
-ETAPA 2 (nueva): certeza/extraccion.py lee cifras con pagina y renglon.
-  POST /api/obras/{id}/cifras/extraer, GET /api/obras/{id}/cifras,
-  PUT /api/cifras/{id} (confirmar | corregir, queda en bitacora).
-  auditar recibe SOLO cifras confirmadas (insumos_confirmados); lo
-  capturado a mano manda; dos fuentes confirmadas distintas no entran.
-  Montos con Decimal; el servidor arma el texto a mostrar.
-  agente.html: panel "Cifras leidas" con origen y Confirmar/Corregir.
-Real: 41 cifras en PROPUESTA (33 concentrado, 8 contrato).
-  Planos sin superficie en texto. Contrato sin retencion.
-  Anticipo: contrato $828,216.39 vs concentrado $828,216.38 (1 centavo).
-  Detalle: reportes/cifras_cabana_emma.txt
-Pruebas: 413 en verde (392 + 21 en tests/test_extraccion.py).
-NO desplegado (no marcado [DESPLEGAR]): sin deploy Abner no ve el panel.
-  Comando en pendiente.txt (G).
-Siguiente: desplegar, que Abner confirme tipos y cifras, auditar.
+ultimo · 2026-09-28 · leer documentos dentro de auditar (commit 9f906d7)
+Cuenta bolo: e_bolo_s_inc_42ff33 / o_mazamitla_cabana_emma_0f6795.
+NO DESPLEGADO, a pedido de Abner: revisar antes (comando en pendiente.txt K).
+QUE CAMBIO: un solo flujo. "Auditar" clasifica lo que falte, lee las
+  cifras con su origen y revisa que cada documento sea de la obra. Lo leido
+  sin duda entra al calculo. Se pregunta en la misma pantalla SOLO si: dos
+  fuentes no coinciden, el renglon se leyo inconsistente, el tipo salio con
+  confianza baja o el documento no muestra ser de la obra. Al responder se
+  vuelve a auditar sola. Fuera el panel "Cifras leidas".
+OBRA DEL DOCUMENTO: por contenido, nunca por nombre de archivo. Nombra la
+  obra -> corresponde; declara otra -> se pregunta; no dice -> se acepta si
+  su total coincide al centavo con uno que si la nombra; si no, se pregunta.
+RASTRO: el corte guarda cada cifra usada con documento, pagina, renglon y
+  si fue leida, confirmada o corregida. Se ve en "De donde sale cada cifra".
+ARREGLO: el avance leido llevaba nota_pca = "leido del concentrado"; el motor
+  la trata como nota del emisor: fabricaba R31 y bajaba R11 a media. Estaba
+  en la etapa 2 (sin desplegar). Ahora va vacia. Motor intacto.
+PROBADO: 425 pruebas en verde (antes 413). Flujo completo en navegador sin
+  conexion (movil y escritorio, 0 errores JS): pregunta de obra -> conflicto
+  -> capital calculado, sin R31. Montos con Decimal en el servidor.
+NO PROBADO con los PDF reales: sin sesion de Google en esta corrida.
+  Script de solo lectura listo: pendiente.txt J.
+Siguiente: J (verificar en real), revisar, K (desplegar), auditar en la app.

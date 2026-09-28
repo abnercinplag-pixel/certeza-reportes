@@ -1,8 +1,39 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
 Actualizado: 2026-09-28
 
+=== 2026-09-28 (2): leer documentos dentro de auditar (commit 9f906d7) ===
+J. ACCION. Verificar con los PDF REALES de Cabana Emma (solo lectura, no
+   escribe nada). Esta corrida no tuvo sesion de Google ("No credentialed
+   accounts"), asi que el comportamiento solo esta medido con PDF sinteticos
+   del mismo acomodo:
+     gcloud auth login && gcloud auth application-default login
+     cd ~/certeza && bash infra/verificar_lectura_cabana.sh
+   Imprime por documento: tipo, si es de la obra (con el renglon), que
+   entraria al calculo, que se preguntaria. Que mirar: que el concentrado
+   salga "corresponde" (su renglon "Obra MAZAMITLA_ CABANA EMMA.") y el
+   contrato tambien (por nombre o por total $2,366,332.53).
+K. ACCION. Desplegar, cuando lo hayas revisado (reemplaza a G):
+     cd ~/certeza && bash infra/deploy.sh && bash infra/humo.sh
+   Despues, "Auditar" en Cabana Emma: la primera vez lee los 7 PDF y tarda
+   mas. Las 41 cifras guardadas se vuelven a leer (version 2 de la
+   lectura); ninguna estaba revisada, no se pierde nada.
+L. DECISION. Tipos de documento con confianza alta: hoy la sugerencia NO
+   llena el requisito del expediente (eso solo lo hace una persona), aunque
+   las cifras ya no piden confirmacion si no hay duda. Opciones:
+   (1) dejarlo: el expediente sigue pidiendo confirmar cada tipo en
+       Documentos;
+   (2) que una sugerencia "alta" llene el requisito como "leido", y se
+       pregunte solo media/baja, igual que las cifras.
+   Recomiendo (2) por coherencia con este cambio, pero cambia que reglas se
+   activan por expediente: por eso no lo hice sin tu decision.
+M. DATO. La etapa 2 (65856bc, no desplegada) tenia un defecto: al confirmar
+   el avance del concentrado, el motor recibia nota_pca = "leido del
+   concentrado, confirmado" y la tomaba como nota del EMISOR: 3 hallazgos
+   R31 falsos y R11 con severidad media en vez de alta. Medido contra ese
+   commit. Arreglado en 9f906d7 con prueba. No llego a produccion.
+
 === 2026-09-28: cifras con origen (etapa 2) en la obra real ===
-G. ACCION. Desplegar para que el panel "Cifras leidas" y la confirmacion
+G. REEMPLAZADO por K (el panel ya no existe). Era: desplegar para que el panel "Cifras leidas" y la confirmacion
    de tipos aparezcan en la app (no estaba marcado [DESPLEGAR]):
      cd ~/certeza && bash infra/deploy.sh && bash infra/humo.sh
    Las 41 cifras y los tipos sugeridos YA estan en Firestore; sin el
