@@ -1,0 +1,25 @@
+=== adaptadores que existen ===
+analisis_visual.py
+bc3.py
+deteccion.py
+evidencia_fotografica.py
+excel.py
+__init__.py
+monitoreo_base.py
+monitoreo_falso.py
+pdf.py
+__pycache__
+
+=== formatos que el detector reconoce ===
+    (b"AC10",                          "dwg"),      # AutoCAD: AC1015, AC1032...
+              "csv", "docx", "bc3", "dxf", "dwg", "ifc"}
+            if fmt == "dwg":
+                return Deteccion("dwg", .95, "plano de AutoCAD", True)
+    # DXF: intercambio de AutoCAD, texto plano con secciones
+        return Deteccion("dxf", .92, "secciones DXF reconocidas", True)
+    # IFC: modelo BIM
+        return Deteccion("ifc", .96, "cabecera de modelo IFC", True)
+
+=== algo que procese planos? ===
+certeza/clasificacion.py
+certeza/adaptadores/deteccion.py
