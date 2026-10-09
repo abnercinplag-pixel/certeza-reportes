@@ -1,21 +1,21 @@
-CERTEZA - ultimo (2026-10-09, bloque 4: reglas forenses)
+CERTEZA - ultimo (2026-10-09, auditoria de usabilidad de agente.html)
 
-TERMINADO (commit local, SIN DESPLEGAR: Abner revisa reglas nuevas antes):
-- R06 carga frontal: capitulo temprano con peso > tope de referencia +25%
-  y cobrado >= 70%. Patron configurable con fuente citada en
-  certeza/patrones.py; certeza nunca pasa de «media» (fuente no formal).
-- R05 retencion: lee el % del contrato; si no aparece impreso lo dice con
-  certeza baja y no inventa; si existe, verifica contra el concentrado.
-- R04 saldo de anticipo: entregado - gastado = restante impreso.
-- R14 secuencia contra fotos: acabados cobrados alto con obra negra abierta
-  en fotos; foto sin fecha o confianza < alta -> certeza media.
-- R31 protege R06 y R14. Aviso legal: ya no lista reglas inexistentes.
-- 26 pruebas nuevas; suite: 494 pasan, 1 omitida.
+TERMINADO Y DESPLEGADO (commit defaac9, revision certeza-api-00071-fkk,
+humo.sh en verde, /app en produccion = agente.html del commit):
+- Dialogo "confirmar tipo de documento" rediseñado. Causa del problema:
+  responder() bloqueaba TODAS las preguntas al contestar una. Ahora: los N
+  documentos a la vez con tipo sugerido, por que y selector; "Confirmar
+  todos (N)" o uno por uno; resultado por fila, re-auditoria sola y aviso.
+- 45 puntos corregidos en los 8 criterios: errores en lenguaje claro con
+  salida, esqueletos y vacios utiles, autorizar pago en ambar y distinto
+  de lo rutinario, sin codigos de regla al usuario, botones de 44 px y
+  campos de 16 px en telefono, Reemplazar con confirmacion, X en las hojas.
+- Solo frontend. Motor, reglas y calculo sin tocar. 494 pasan, 1 omitida.
+- Probado en Chromium en telefono y computadora, flujo completo, sin
+  errores de JavaScript. Lista: reportes/auditoria_usabilidad_20261009.txt
+  Capturas antes/despues: reportes/capturas_ux/
 
-CABANA EMMA (corrida real en memoria): 25 -> 26 hallazgos. Nuevo: R05-001
-(contrato sin retencion). R06: nada (cimentacion 18.9% vs tope 18%, dentro
-de margen). R14: nada (acabados 35% explicado por el emisor; sin la nota
-saldria con certeza media). Capital igual. Ruido: ninguno.
-Detalle: reportes/bloque4_reglas_forenses.txt
+OJO: el primer intento de deploy lo freno una prueba intermitente de
+backend (no de este cambio, ~2 de 15). Ver pendiente.txt AF.
 
-SIGUE: revision de Abner (pendiente.txt AC, AD, AE) y despliegue.
+SIGUE: pendiente.txt AF y AG; los pendientes anteriores AB-AE siguen igual.

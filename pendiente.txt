@@ -1,6 +1,25 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
 Actualizado: 2026-10-09
 
+=== 2026-10-09: auditoria de usabilidad (DESPLEGADO, 00071-fkk) ===
+AF. TECNICO, para aprobar (es backend). Prueba intermitente
+   tests/test_analisis_visual.py::test_foto_sin_archivo_se_reporta_y_el_lote_sigue
+   falla ~2 de cada 15 y frena infra/deploy.sh. Causa: iniciar_analisis_visual
+   -> _capitulos_para_vision -> _leer_catalogo (certeza/api.py:1184) a veces
+   elige la foto borrada como catalogo (los ids son aleatorios) y el
+   FileNotFoundError se escapa en vez de reportarse. En produccion: si falta
+   el archivo de un documento, «Analizar fotos» podria fallar entero. No lo
+   toque (la orden era solo frontend). Recomiendo que _leer_catalogo solo
+   considere hojas/PDF y diga el faltante con su motivo.
+   Para medirlo: for i in $(seq 15); do .venv/bin/python -m pytest \
+     tests/test_analisis_visual.py -q -k foto_sin_archivo | tail -1; done
+AG. DATO. El clasificador sugiere «Plano estructural» para el presupuesto
+   xlsx de Cabana (encuentra «castillo», «dala», «fy=», «estribo»; el freno
+   por importes solo cuenta «$1,234.56» y el xlsx no trae «$»). La pantalla
+   nueva ya deja corregirlo en el selector, pero la sugerencia sale mal.
+   Opcion: contar tambien numeros con decimales en hojas. Es una regla de
+   clasificacion: tu decides.
+
 === 2026-10-09: bloque 4, reglas forenses (CODIGO LISTO; SIN DESPLEGAR) ===
 AC. REVISION de Abner antes de produccion (reglas nuevas cambian como decide
    el motor). R04, R05, R06 (carga frontal) y R14 (secuencia contra fotos).

@@ -1,0 +1,153 @@
+CERTEZA - auditoria de usabilidad de web/agente.html (2026-10-09)
+Solo frontend. Motor, reglas y calculo sin cambios. Suite: 494 pasan, 1 omitida.
+Commit defaac9. Desplegado: revision certeza-api-00071-fkk, humo.sh en verde,
+/app en produccion = agente.html del commit (comparado byte a byte).
+
+COMO SE PROBO
+Servidor local en memoria + Chromium sin pantalla, en telefono (390x844,
+tactil) y computadora (1280x900). Flujo completo en ambos: entrar, subir 5
+documentos reales (xlsx + 4 PDF), confirmar tipo, auditar, ver hallazgos,
+abrir detalle, ver foto en el visor, retener, autorizar pago, historial y
+entregables. Casos extra: confirmar uno solo, cambiar un tipo con el
+selector, confirmar sin conexion y reintentar. Cero errores de JavaScript.
+Capturas antes/despues en reportes/capturas_ux/.
+
+== PROBLEMA REPORTADO: dialogo "confirmar tipo de documento" ==
+1. Solo dejaba contestar una pregunta. CAUSA: responder() deshabilitaba los
+   botones de TODA la caja al guardar y solo los volvia a habilitar si habia
+   error. Al contestar la primera, las otras (y hasta "Volver a auditar")
+   quedaban muertas: un callejon sin salida. Reproducido en el navegador.
+   QUEDO: cada respuesta solo bloquea sus propios botones.
+2. No explicaba que hacia confirmar, ni si se elegia entre documentos o se
+   aprobaba cada uno. QUEDO: seccion propia con el encabezado "CERTEZA
+   identifico estos documentos. Confirma su tipo para incluirlos en la
+   auditoria." y una linea que dice que son N documentos y que se pueden
+   confirmar todos juntos o uno por uno.
+3. Cada documento era un "Si/No" sin poder corregir el tipo ("No" lo mandaba
+   a "otro" sin decirlo). QUEDO: los N a la vez, cada uno con su tipo
+   sugerido en un selector, el por que ("Por que lo sugerimos: el texto
+   menciona ...") y lo que pasa al confirmarlo. Al cambiar el selector la
+   fila lo marca; elegir "Otro" explica que sus cifras no se leen.
+4. Faltaba confirmar en bloque. QUEDO: "Confirmar todos (N)" (el caso comun)
+   y "Confirmar este" en cada fila.
+5. Sin retroalimentacion. QUEDO: estado por fila ("Confirmado: Contrato de
+   obra"), recuadro de resultado ("Listo: 5 documentos confirmados. Ya
+   cuentan en el expediente. Volviendo a auditar con ellos..."), re-auditoria
+   sola y aviso al terminar ("Auditoria actualizada: ya incluye los
+   documentos que confirmaste"). Si falla, dice cuales y por que (un motivo
+   repetido, como no tener conexion, se dice una sola vez) y deja reintentar.
+6. Documentos: el aviso "Confirmar N de confianza alta" solo confirmaba unos
+   y los demas quedaban sin explicacion. QUEDO: "Confirmar todos (N)" con lo
+   que diga el selector de cada fila, el mismo criterio que en Auditoria.
+
+== 1. CLARIDAD DE CADA ACCION ==
+7. Boton Auditar sin decir que pasa. Ahora: que revisa y "Tarda unos
+   segundos. No se paga ni se envia nada".
+8. Retener / Liberar / Pedir documento sin consecuencia. Ahora una linea
+   antes de los botones y avisos que dicen el efecto ("Retenido: este monto
+   queda fuera de lo que autorizas"; "Pedido: se agrego al mensaje para la
+   constructora"; antes decia "agregado a la carta").
+9. "Dejar pendiente" parecia una accion y no hacia nada. Ahora es "Decidir
+   despues" (enlace secundario) y dice que no se registro nada.
+10. Corregir una cifra usaba prompt() del navegador. Ahora se escribe ahi
+    mismo con "Guardar valor" / "Cancelar".
+11. "Reemplazar" borraba el documento sin preguntar. Ahora pide confirmar y
+    dice que el actual se elimina y la proxima auditoria usa el nuevo.
+12. Solicitar revision humana: ahora dice quien revisa y que pasa mientras.
+13. Duplicar / Cerrar obra: ahora dicen que copian y que cerrar no borra.
+14. Mensaje para la constructora: dice que CERTEZA no lo envia; "Copiar
+    mensaje" y al copiar "Pegalo en tu correo o WhatsApp".
+15. "Subiendo para ..." mostraba la palomita antes de que el servidor
+    confirmara. Ahora sale sin palomita.
+
+== 2. ESTADOS DE CARGA Y VACIO ==
+16. Historial: un fallo de red mostraba "Todavia no hay historial". Ahora
+    esqueleto mientras carga, error real con Reintentar, y el vacio trae
+    "Ir a Auditoria".
+17. Al cambiar de obra se quedaba a la vista la lista de la obra anterior.
+    Ahora esqueleto en Documentos e Historial.
+18. Entregables: "Descargar informe" sin auditoria daba un error del
+    servidor. Ahora se desactiva con "Primero corre la auditoria" e "Ir a
+    Auditoria".
+19. Cuenta: si no cargaban tus datos, los campos vacios parecian borrados.
+    Ahora lo dice.
+20. Al terminar de subir: "CERTEZA los revisa; en cuanto queden listos
+    podras auditar".
+
+== 3. MENSAJES DE ERROR UTILES ==
+21. Traductor central en pedir() y en las descargas: sin conexion, errores
+    5xx, 413, 429 y la validacion 422 se dicen en lenguaje claro. Nunca mas
+    "Failed to fetch", "Internal Server Error" ni "[object Object]". El
+    detalle tecnico queda en la consola.
+22. Subida: "el almacenamiento rechazo la subida (codigo 403)" ahora es
+    "el servidor de archivos no acepto la subida; se reintenta sola".
+23. El error de auditoria no tenia salida. Ahora: Reintentar, Ir a
+    documentos y (si aplica) Descargar plantilla.
+24. El error al arrancar la app no tenia salida. Ahora: Reintentar y correo
+    de contacto.
+25. Primera obra y alta: el error podia salir "[object Object]". Ahora
+    claro, con boton que muestra "Creando..." o "Guardando...".
+26. La plantilla de presupuesto se ofrecia hasta para fotos rechazadas.
+    Ahora solo donde sirve, y se sugiere Reemplazar.
+27. Los avisos largos se iban a los 2.6 s. Ahora duran segun el largo; los
+    errores, mas.
+28. Pago con cifras cambiadas (409): el boton quedaba deshabilitado sin
+    explicacion. Ahora dice que cambio, que no se registro nada y quita el
+    boton de confirmar.
+
+== 4. CONSISTENCIA / ACCION PELIGROSA ==
+29. "Autorizar el pago" se veia igual que "Dejar pendiente". Ahora es ambar
+    solido (solo lo que compromete dinero) y avisa que pide confirmacion; en
+    la hoja el boton dice "Si, autorizar $X" en ambar. Eliminar o borrar va
+    en rojo en todas las hojas (antes con estilos sueltos).
+30. El visor tenia "Descargar" y "Ver original", que hacian lo mismo. Ahora
+    es uno solo, "Abrir original", mas "Cerrar".
+31. "Confirmar todos" se llama igual en Auditoria y en Documentos.
+    "cerrar"/"copiar" en minusculas pasaron a "Cerrar"/"Copiar mensaje".
+32. Las hojas tenian 2 o 3 "Cancelar"; ahora hay una X fija para cerrar y
+    se quitaron los repetidos.
+
+== 5. JERARQUIA ==
+33. Tras pagar no habia siguiente paso. Ahora "Autorizacion registrada" y
+    el boton "Redactar mensaje" para avisar a la constructora.
+34. Auditar desde abajo (preguntas, documentos que faltan) dejaba el
+    resultado fuera de la vista. Ahora sube al resultado.
+
+== 6. FLUJO SIN CALLEJONES ==
+35. Las hojas solo se cerraban tocando fuera o con Escape. Ahora tienen una
+    X visible; la hoja cerrada ya no se alcanza con el teclado.
+36. El visor cierra tambien abajo, donde llega el pulgar.
+(Ver tambien 1, 16, 23, 24 y 28.)
+
+== 7. TEXTO ==
+37. Codigos de regla crudos: "R35" en documentos que faltan y
+    "R22_PRECIO_UNITARIO_INCONSISTENTE" en el detalle. Ahora "Sirve para
+    revisar que el mismo concepto no aparezca con dos precios distintos..."
+    y el detalle sin codigo. Severidad paso a "Importancia".
+38. "motor determinista" / "lo que encontro el motor" ahora es "reglas de
+    revision" / "lo que encontro CERTEZA". "en revision" (estado del
+    archivo) ahora es "revisando el archivo", para que no parezca una
+    persona. Buscador: "Buscar hallazgo..." en vez de "por titulo o regla".
+39. Acentos: "Ubicacion" y "aun".
+
+== 8. MOVIL ==
+40. Campos de 13 a 14 px hacian que iOS acercara la pantalla al escribir.
+    Ahora son de 16 px.
+41. Botones de 30 a 34 px. Ahora 44 px minimo en telefono (preguntas,
+    documentos, cola, selector de tipo).
+42. Letra de 8.5 a 9.5 px en pastillas, etiquetas y botones. Ahora 10 a
+    11 px.
+43. Entregables en telefono: el boton aplastaba el texto en una columna de
+    una palabra. Ahora se apilan.
+44. "Arrastra archivos aqui" en telefono ahora dice "sube los documentos de
+    esta obra".
+45. El icono de cuenta era un simbolo ambiguo; ahora es una silueta.
+
+QUEDA (fuera de alcance, anotado en pendiente.txt)
+- AF: prueba intermitente de backend que bloquea el deploy (~2 de 15).
+- AG: el clasificador sugiere "Plano estructural" para el presupuesto
+  xlsx de Cabana. El selector nuevo lo deja corregir, pero la sugerencia es
+  del backend.
+- No revisado: el boton "atras" del telefono dentro del visor sale de la
+  app; en el telefono las obras se cambian deslizando las pastillas, sin
+  nada que indique que hay mas.
