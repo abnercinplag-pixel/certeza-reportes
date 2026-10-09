@@ -1,0 +1,72 @@
+BLOQUE 3 · 2026-10-09 · MOTOR DE VERIFICACION CRUZADA ENTRE VISORES
+certeza/verificacion_cruzada.py. NO DESPLEGADO. Motor y reglas sin cambios.
+
+COMO QUEDO
+  Pregunta estructurada (que extraer y como comparar): numero con tolerancia
+  explicita (superficie: 2%; avance: 15 puntos), categoria o si/no (iguales).
+  Lector: gemini-2.5-flash (el de produccion). Verificador: gemini-3.1-pro-
+  preview, el mas preciso que respondio en el catalogo de Vertex del
+  proyecto (solo en el endpoint «global»; gemini-3-pro-preview da 404).
+  Cada uno responde por separado: el verificador recibe la imagen y la misma
+  pregunta, nunca la respuesta del lector (prueba).
+  Resultado: coinciden -> certeza ALTA, se propone; en_conflicto -> BAJA, no
+  se propone, guarda las dos lecturas y pide «imagen mas nitida / captura a
+  mano / documento adicional»; sin_lectura -> uno no pudo leer o el servicio
+  fallo, se dice y se pide ayuda; un_visor -> rutina con confianza alta, sin
+  gastar el segundo (certeza MEDIA, propuesta por confirmar).
+  Trazable: valor de cada visor, modelo, confianza, evidencia, tokens, si
+  coincidieron, certeza y que se pide. R2: es una PROPUESTA; no toca dinero
+  ni emite hallazgos. Cuota de Vertex (429/500/503) se reintenta; otro error
+  queda como lectura fallida con motivo (nada se calla).
+
+FOTOS REALES DE CABANA EMMA (58, preguntas delicadas, ambos visores)
+  daño visible:      52 de 58 coinciden (89.7%) · 6 en conflicto
+  estado elemento:   56 de 58 coinciden (96.6%) · 2 en conflicto
+  total:             108 de 116 lecturas coinciden (93.1%)
+  (2 fotos se repitieron: el verificador recibio 429 con 6 en paralelo; de
+  ahi el reintento.)
+
+LOS 7 PUNTOS RF QUE HOY SALEN CON UN SOLO VISOR
+  descartados (los dos dicen «no hay daño», certeza alta):
+    142549649 tubo encintado (falso documentado) · 142648775 excavacion ·
+    142954560 tuberia naranja (dudoso)
+  en conflicto, no se proponen, se pide ayuda:
+    142756001 varillas de espera (falso documentado): Flash no, Pro si
+      («grieta vertical en la base del muro», otra cosa que antes)
+    143617089 gotas en la conexion: Flash si, Pro no
+  los dos dicen que SI hay daño (certeza alta):
+    142506303 (falso documentado): ambos «grieta vertical en la esquina del
+      muro, junto al castillo». Ya no dicen «desplome»; puede ser la junta
+      entre block y castillo. EL CRUCE NO LO DESCARTA: revisar en sitio.
+    142802313 (dudoso): ambos «acero expuesto por desprendimiento en la base
+      de la columna».
+  Resultado: de los 3 falsos documentados, 1 descartado, 1 en conflicto, 1
+  confirmado por los dos visores. No es el «el segundo los descarta» que se
+  esperaba; el cruce si evita que se propongan con seguridad 5 de los 7.
+  Ademas, 4 fotos sin punto hoy tienen una lectura de daño de UN visor que
+  el otro no ve (conflictos 142706468, 142727836, 142758986, 145220422).
+
+LIMITE QUE CONVIENE SABER
+  Los dos visores son Gemini (Flash y Pro): misma familia, pueden fallar en
+  el mismo lugar (142506303 es un candidato). Claude en Vertex no estaba a
+  mi alcance desde esta sesion; un verificador de otra familia daria un
+  cruce mas independiente. Se cambia por variable de entorno.
+
+COSTO DE ESTA MEDICION
+  Lector: 242,730 tokens de entrada y 12,432 de salida = US$0.1039 (precio
+  de lista de gemini-2.5-flash ya citado en analisis_visual.py).
+  Verificador: 175,102 de entrada y 14,609 de salida. NO calculo dolares:
+  no pude leer el precio de gemini-3.1-pro-preview en la pagina de Google
+  (pendiente Z). Para rutina (texto legible con confianza alta) no se llama.
+
+VALE LA PENA?
+  En 93% de las lecturas los dos coinciden: ahi el cruce cuesta y no
+  cambia el dato, pero lo sube de «media» a «alta». Donde importa (daño) el
+  cruce movio 5 de 7 puntos que hoy salen con un solo visor. Recomiendo
+  usarlo solo en lo delicado (daño, superficie, avance que entre a R11), que
+  es como quedo por omision.
+
+NO ESTA CONECTADO todavia al analisis de fotos ni a la lectura de planos:
+  es el cimiento. Conectarlo cambia que puntos RF se publican: pendiente Y.
+Resultados por foto: ~/certeza-capturas-privadas/cierre_20261009/cruce_fotos_cabana.json
+Para repetir: infra/cruzar_fotos_cabana.py (solo lectura; cuesta Vertex).

@@ -1,0 +1,119 @@
+CIERRE ETAPA 3 · 2026-10-09 · AUDITORIA COMPLETA DE CABANA EMMA, DE PUNTA A PUNTA
+e_bolo_s_inc_42ff33 / o_mazamitla_cabana_emma_0f6795. Codigo: este commit (sin desplegar).
+Corrida en memoria sobre copia de solo lectura de Firestore y los PDF reales
+(infra/auditar_cabana_local.py). Nada se escribio en produccion.
+Informe PDF: ~/certeza-capturas-privadas/cierre_20261009/informe_cabana_emma.pdf
+(29 paginas; trae datos de la obra, por eso no va a certeza-reportes).
+
+QUE ENTRO
+  presupuesto (88 conceptos, PDF) + contrato + concentrado al 04-08-26 + 3 planos
+  + presentacion conceptual + 58 fotos analizadas. Documentos agregados por
+  Abner desde «Documentos que faltan»: NINGUNO todavia (requiere el deploy).
+
+EXPOSICION DE CAPITAL
+  Anticipo entregado (concentrado p3)           $828,216.38
+  Obra valorizada al corte (p3)                 $606,007.71
+  Total aplicado al 04-08-26 (p3)               $699,341.29
+  Anticipo por amortizar (p3)                   $128,875.09
+  Avance sin sustento fisico (R11, fotos)             $0.00
+  EXPOSICION HOY                                $128,875.09
+  Pago solicitado (p4)                          $354,949.88
+  EXPOSICION SI SE AUTORIZA EL PAGO             $483,824.97
+  Las 58 fotos se compararon contra lo cobrado; ninguna mostro menos de la
+  mitad de lo cobrado en su capitulo, por eso R11 = $0.00.
+
+HALLAZGOS: 25 · R10 x2, R20 x1, R21 x2, R22 x6, R23 x1, R26 x1, R27 x1, R28 x1, R31 x2, R35 x1, RF x7
+  R10-001  alta /media   $51,852.05  4.00 ESTRUCTURA DE ACERO Y LOSA reporta avance con su precedente incompleto
+  R22-067  alta /media   $43,105.60  Mismo concepto con dos precios unitarios: Suministro e Instalación de cancel c
+  R28-001  alta /media   $16,341.60  Alcance ya incluido en 5.12 se cobra otra vez en 5.13
+  R21-001  alta /alta     $5,462.46  Los indirectos aplicados no corresponden al porcentaje contratado
+  R23-001  alta /alta                Conceptos que describen trabajos de otro capitulo
+  R27-006  alta /media               Mismo concepto con dos unidades distintas: Aplanado acabado fino en muros, con
+  R35-001  alta /media               Pagos entregados sin comprobante fiscal
+  R10-002  media/media   $79,032.45  7.00 ACABADOS reporta avance con su precedente incompleto
+  R31-002  media/media   $79,032.45  7.00 ACABADOS reporta 35% con explicacion declarada por el emisor
+  R31-001  media/media   $12,859.31  6.00 INSTALACIONES 6.00.01 INST. HIDROSANITARIA reporta 10% con explicacion de
+  R22-050  media/media    $6,300.00  Mismo concepto con dos precios unitarios: Puerta de comunicación con fijo en t
+  R22-008  media/media    $5,520.00  Mismo concepto con dos precios unitarios: Boquilla de aplanado fino a base de 
+  R22-002  media/media    $1,680.00  Mismo concepto con dos precios unitarios: Acero de refuerzo en cimentación del
+  R22-030  media/media    $1,120.39  Mismo concepto con dos precios unitarios: Firme de hormigón de cal-jal-arena a
+  R22-010  media/media      $980.00  Mismo concepto con dos precios unitarios: Carga y acarreo en camión de materia
+  R26-001  media/media               9 claves de concepto se repiten en el catalogo
+  R21-002  media/alta                El anticipo entregado no corresponde al porcentaje declarado
+  R20-001  baja /alta                La base de calculo de los honorarios no esta declarada en el contrato
+  RF-001   baja /media               Revisión en sitio: muro de block y castillo (foto PXL_20260916_142506303.MP.jp
+  RF-002   baja /media               Revisión en sitio: tuberia de PVC (foto PXL_20260916_142549649.jpg)
+  RF-003   baja /media               Revisión en sitio: excavación y cimiento (foto PXL_20260916_142648775.jpg)
+  RF-004   baja /media               Revisión en sitio: muro de block y castillo (foto PXL_20260916_142756001.jpg)
+  RF-005   baja /media               Revisión en sitio: base de columna de concreto (foto PXL_20260916_142802313.MP
+  RF-006   baja /media               Revisión en sitio: tuberías de PVC y polietileno (foto PXL_20260916_142954560.
+  RF-007   baja /media               Revisión en sitio: conexión de tubería hidráulica (foto PXL_20260916_143617089
+  RF (7): revision en sitio de fotos ya analizadas antes de D3; no se
+  re-analizaron, segun la decision. D3 aplica a fotos nuevas.
+
+DOCUMENTOS QUE FALTAN (9)
+  - Comprobante fiscal del anticipo entregado [R35]
+    Concentrado_Avance_y_Pagos_04-08-2026.pdf reporta un anticipo entregado de $828,216.38 (página 3). Para que R35 confirme que ese pago tiene respaldo fiscal, sube su comprobante (factura o CFDI).
+  - Comprobante de «Cisterna» [R31]
+    Concentrado_Avance_y_Pagos_04-08-2026.pdf anota «Cisterna» en 6.00 INSTALACIONES 6.00.01 INST. HIDROSANITARIA, con $12,859.31 cobrados (página 2). Para completar la revisión de ese avance, sube su comprobante (factura o recibo del proveedor).
+  - Comprobante de «Anticipo de cantera america y laja» [R31, R10]
+    Concentrado_Avance_y_Pagos_04-08-2026.pdf anota «Anticipo de cantera america y laja» en 7.00 ACABADOS, con $79,032.45 cobrados (página 3). Para completar la revisión de ese pago, sube su comprobante (factura o recibo del proveedor).
+  - Escritura del predio [R30]
+    Para confirmar sobre cuántos predios se desplanta la obra, sube la escritura del predio. Mientras no llegue, R30 no se puede evaluar.
+  - Licencia municipal de construccion [R30]
+    Para confirmar la superficie que autorizó el municipio, sube la licencia de construcción. Mientras no llegue, R30 no se puede evaluar.
+  - Presupuesto en hoja de calculo editable [R22, R24, R26, R27]
+    Para revisar fórmulas y celdas del presupuesto, sube el archivo editable (Excel). Mientras no llegue, R22, R26 y R27 concluyen con certeza limitada; R24 se revisa sin este respaldo.
+  - Concentrado de avance en hoja editable [R10, R11, R13]
+    Para revisar cómo se calculó cada porcentaje de avance, sube el concentrado en Excel. Mientras no llegue, R10 concluye con certeza limitada; R11 y R13 se revisan sin este respaldo.
+  - Acuerdo escrito sobre facturacion e IVA [R35]
+    Para dejar por escrito si la obra se factura y quién absorbe el IVA, sube el acuerdo (correo o adenda). Mientras no llegue, R35 concluye con certeza limitada.
+  - Bitacora de obra [R11]
+    Para respaldar el avance cobrado con el registro formal de la obra, sube las hojas de bitácora del periodo. Mientras no llegue, R11 se revisa sin este respaldo.
+
+DE DONDE SALE CADA CIFRA (contrato, corte y notas)
+  Anticipo entregado: $828,216.38
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «TOTAL Total de LIMPIEZA $17,342.28 828,216.38$ ANTICIPO»
+  Anticipo declarado (porcentaje): 50%
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «NOTA SE REQUIERE EL 50% ANTICIPO EL RESTO CONTRA»
+  Anticipo programado en el contrato (no es lo entregado): $828,216.39
+      <- Contrato_Cabaña_Emma_FINAL_Actualizado.pdf p2 «Primer pago: 35% ($828,216.39 MXN) el 23 de Junio de 2026.»
+  Honorarios del presupuesto: $253,535.63
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «12% HONORARIOS $253,535.63 699,341.29$ TOTAL GASTADO AL DIA DE 04.08.26»
+  Honorarios (porcentaje): 12%
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «12% HONORARIOS $253,535.63 699,341.29$ TOTAL GASTADO AL DIA DE 04.08.26»
+  Indirectos del presupuesto: $51,531.63
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «2.5% INDIRECTOS $51,531.63 72,720.93$ HONORARIOS 12%»
+  Indirectos (porcentaje): 2.5%
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «2.5% INDIRECTOS $51,531.63 72,720.93$ HONORARIOS 12%»
+  Condición de IVA: NOTA EN CASO DE REQUERIR FACTURA EL PRECIO ES + IVA.
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «NOTA EN CASO DE REQUERIR FACTURA EL PRECIO ES + IVA.»
+  Subtotal contratado: $2,061,265.27
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «SUBTOTAL SUBTOTAL $2,061,265.27 606,007.71$ SUMA % AVANCE»
+  Total contratado: $2,366,332.53
+      <- Contrato_Cabaña_Emma_FINAL_Actualizado.pdf p2 «El monto total del presupuesto asciende a $2,366,332.53 MXN.»
+  Suma del avance valorizado: $606,007.71
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «SUBTOTAL SUBTOTAL $2,061,265.27 606,007.71$ SUMA % AVANCE»
+  Honorarios aplicados al corte: $72,720.93
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «2.5% INDIRECTOS $51,531.63 72,720.93$ HONORARIOS 12%»
+  Indirectos aplicados al corte: $20,612.65
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «20,612.65$ INDIRECTOS»
+  Pago solicitado: $354,949.88
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p4 «354,949.88$ PAGO 15% PARA LLEGAR AL 50%»
+  Restante de anticipo al corte: $128,875.09
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «TOTAL $2,366,332.53 128,875.09$ RESTANTE AL DIA 04.08.26»
+  Total gastado al corte: $699,341.29
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «12% HONORARIOS $253,535.63 699,341.29$ TOTAL GASTADO AL DIA DE 04.08.26»
+  Tasa de IVA: 16%
+      <- Ley del Impuesto al Valor Agregado, artículo 1 (tasa general) «tasa general del 16%»
+  Nota del emisor en el capítulo · 6.00 INSTALACIONES 6.00.01 INST. HIDROSANITARIA: Cisterna
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p2 «Cisterna»
+  Nota del emisor en el capítulo · 7.00 ACABADOS: Anticipo de cantera america y laja
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «Anticipo de cantera america y laja»
+  + 18 cifras de avance por capitulo (importe, % e importe contratado), cada
+    una con su renglon «TOTAL Total de ...» del concentrado. Detalle en el PDF.
+
+ALCANCE DECLARADO EN EL INFORME
+  - no se pudo evaluar R30 porque falta el dato «superficie_terreno_cuadro_areas_m2» en los documentos recibidos
+  - 4 documentos esperan que confirmes su tipo para contarse en el expediente; sus cifras ya se usaron
+  - se piden 9 documentos para completar la revisión: ver «Documentos que faltan»

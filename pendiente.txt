@@ -1,5 +1,80 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
-Actualizado: 2026-09-28
+Actualizado: 2026-10-09
+
+=== 2026-10-09: bloque 3, verificacion cruzada entre visores ===
+Y. DECISION. Conectar el cruce al analisis de fotos: un punto RF solo se
+   publica si los dos visores coinciden en «si hay daño»; en conflicto, se
+   pide ayuda en vez de publicarlo. Con las fotos de Cabana Emma: de 7 RF
+   quedarian 2 (y 2 preguntas). Re-analizar las 58 con el cruce costaria
+   lo medido aqui (lector US$0.10 + verificador, ver Z). Recomiendo si.
+Z. DATO. No pude leer el precio de gemini-3.1-pro-preview (la pagina de
+   precios de Vertex no me lo dio). Los tokens si quedan guardados por
+   llamada; el costo en dolares del verificador falta.
+AA. DATO. Ambos visores son Gemini. Si Claude u otra familia esta
+   habilitada en Vertex para el proyecto, usarla como verificador daria un
+   cruce mas independiente (CERTEZA_VISOR_VERIFICADOR).
+
+=== 2026-10-09: cierre (etapas 1-3 de la auditoria completa) ===
+T. ACCION. Desplegar cuando lo revises (reemplaza a K; incluye 9f906d7):
+     cd ~/certeza && git push && bash infra/deploy.sh && bash infra/humo.sh
+   Despues, «Auditar» en Cabana Emma. Debe dar lo mismo que la corrida en
+   memoria: 25 hallazgos, exposicion hoy $128,875.09, si se paga
+   $483,824.97, 9 documentos pedidos. Para repetir esa corrida sin tocar
+   produccion: .venv/bin/python infra/auditar_cabana_local.py bajar DIR
+   y luego ... auditar DIR --salida OUT.
+   OJO: no pude confirmar si el git push de 26c014b llego a origin (el
+   permiso de la sesion lo bloqueo despues). Los commits 3e9a188 y el de la
+   etapa 3 estan SOLO en local.
+U. ACCION. Publicar en certeza-reportes (el permiso de la sesion no me dejo
+   hacer push a GitHub):
+     cd ~/certeza-reportes && git pull --rebase && \
+     cp ~/certeza/reportes/{ultimo,pendiente,cierre_etapa1_cabana_emma,cierre_etapa2_documentos_que_faltan,cierre_etapa3_auditoria_completa,verificacion_cruzada_20261009}.txt . && \
+     mkdir -p capturas && cp ~/certeza/reportes/capturas_cierre/*.png capturas/ && \
+     git add -A && git commit -m "cierre etapas 1-3, sin desplegar" && git push
+   El informe PDF y el corte quedaron en ~/certeza-capturas-privadas/
+   cierre_20261009/ (traen datos de la obra; no los subi a certeza-reportes).
+V. DATO. 3 de los 7 puntos RF del informe son de los falsos de E (muro y
+   castillo x2, excavacion). Siguen porque D3 solo aplica a fotos nuevas.
+   Si se quieren fuera ya: re-analizar Cabana Emma (~$0.06, opcion 3 de E).
+X. DATO. tests/test_analisis_visual.py::test_foto_sin_archivo_se_reporta_y_el_lote_sigue
+   fallo 1 de 7 corridas completas y paso 8 de 8 sola. No toca nada de este
+   cierre (el cambio en analisis visual fue solo texto del prompt); depende
+   del reloj por tramo, parece intermitente por carga. Sin arreglar.
+W. DATO. La tarjeta de R35 en la app dice «Hay pagos sin comprobante
+   fiscal» (frase de la app, no del motor). Si decides P, cambiar tambien
+   esa frase.
+N. DECISION. R04 (amortizar anticipo) y R05 (retencion) NO existen en el
+   motor: certeza/reglas/ no las tiene. legal/aviso-integral.md las lista
+   entre «las quince reglas». No las escribi: crear una regla es cambiar como
+   decide el motor. Datos de Cabana Emma: el contrato no menciona retencion
+   (se reporta «no aparece impreso»); la amortizacion ya se ve en la
+   exposicion como «anticipo por amortizar» ($128,875.09, leido del
+   concentrado, no calculado). Opciones: (1) escribirlas como tarea aparte
+   con sus pruebas; (2) quitarlas del aviso hasta que existan.
+   Recomiendo (2) hoy y (1) despues: el aviso no debe prometer lo que no hay.
+O. DECISION. R21-002 dice «el anticipo entregado (35%) no corresponde al 50%
+   declarado». El contrato SI lo explica: primer pago 35% + segundo 15% «para
+   llegar al 50%», y el pago solicitado es exactamente ese 15%. El motor no
+   lee el calendario. Opciones: (1) dejarlo; (2) que R21-002 considere el
+   calendario del contrato (cambio de motor). Recomiendo (2).
+P. DECISION. R35 afirma «Hay $828,216.38 ya entregados sin CFDI». Lo que los
+   documentos muestran es que el precio no incluye IVA, no que falte el
+   CFDI. Su certeza ya sale «media» (falta el acuerdo de facturacion), pero
+   el texto lo afirma. Recomiendo reescribirlo como pedido: «para confirmar
+   que estos pagos tienen respaldo fiscal, sube su comprobante».
+Q. DATO. La tasa de IVA (16%) que usa R35 no viene impresa en ningun
+   documento de la obra: se toma de la Ley del IVA (art. 1) y asi se cita en
+   «de donde sale cada cifra». Si la obra estuviera en zona fronteriza seria
+   8%; Mazamitla no lo es.
+R. DATO, para la conversacion con la constructora (cuenta mia, verificable):
+   los indirectos aplicados al corte, $20,612.65, son exactamente el 1% del
+   subtotal contratado ($2,061,265.27). R21-001 compara contra 2.5% de lo
+   ejecutado ($15,150.19). No lo meti al motor.
+S. DATO. R30 sigue sin evaluarse: necesita superficie del lote, lotes que
+   nombra el cajetin y COS maximo. Ninguno viene en los 7 PDF (la
+   presentacion conceptual trae el plano del fraccionamiento, no el cuadro de
+   areas de este lote). Lo desbloquean escritura y licencia.
+
 
 === 2026-09-28 (2): leer documentos dentro de auditar (commit 9f906d7) ===
 J. ACCION. Verificar con los PDF REALES de Cabana Emma (solo lectura, no
@@ -12,12 +87,12 @@ J. ACCION. Verificar con los PDF REALES de Cabana Emma (solo lectura, no
    entraria al calculo, que se preguntaria. Que mirar: que el concentrado
    salga "corresponde" (su renglon "Obra MAZAMITLA_ CABANA EMMA.") y el
    contrato tambien (por nombre o por total $2,366,332.53).
-K. ACCION. Desplegar, cuando lo hayas revisado (reemplaza a G):
+K. REEMPLAZADO por T. Era: Desplegar, cuando lo hayas revisado (reemplaza a G):
      cd ~/certeza && bash infra/deploy.sh && bash infra/humo.sh
    Despues, "Auditar" en Cabana Emma: la primera vez lee los 7 PDF y tarda
    mas. Las 41 cifras guardadas se vuelven a leer (version 2 de la
    lectura); ninguna estaba revisada, no se pierde nada.
-L. DECISION. Tipos de documento con confianza alta: hoy la sugerencia NO
+L. RESUELTO 2026-10-09 (D2, opcion 2, etapa 1 del cierre). Era: Tipos de documento con confianza alta: hoy la sugerencia NO
    llena el requisito del expediente (eso solo lo hace una persona), aunque
    las cifras ya no piden confirmacion si no hay duda. Opciones:
    (1) dejarlo: el expediente sigue pidiendo confirmar cada tipo en
@@ -38,7 +113,7 @@ G. REEMPLAZADO por K (el panel ya no existe). Era: desplegar para que el panel "
      cd ~/certeza && bash infra/deploy.sh && bash infra/humo.sh
    Las 41 cifras y los tipos sugeridos YA estan en Firestore; sin el
    deploy la app en produccion no los muestra.
-H. DECISION. El anticipo. El contrato dice "Primer pago: 35%
+H. RESUELTO 2026-10-09 (D1, opcion 1, etapa 1 del cierre). Era: El anticipo. El contrato dice "Primer pago: 35%
    ($828,216.39)"; el concentrado dice "ANTICIPO 828,216.38". Un centavo.
    Opciones: (1) confirmar el del concentrado (lo entregado) y dejar el
    del contrato como calendario; (2) corregir alguno a mano.
@@ -60,7 +135,7 @@ F. RESUELTO 2026-09-28 (sesion activa). La sesion de Google de Cloud Shell caduc
 A. RESUELTO 2026-09-26: certeza-api@ ya tiene roles/aiplatform.user
    (verificado con get-iam-policy). El analisis de las 48 fotos restantes
    corrio en produccion con esa cuenta, via Cloud Tasks.
-E. DECISION. Danos falsos en el analisis de las 58 fotos de Cabana Emma:
+E. RESUELTO 2026-10-09 (D3, opcion 2). Era: Danos falsos en el analisis de las 58 fotos de Cabana Emma:
    3 de 58 fotos traen un "defecto" que no existe (varillas de espera en
    castillos leidas como "acero expuesto"; extremo de tubo encintado leido
    como "roto"; "grietas y desplome" en un castillo sin aplanado) y 2 son

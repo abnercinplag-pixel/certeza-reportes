@@ -1,0 +1,46 @@
+CIERRE ETAPA 2 · 2026-10-09 · documentos que faltan, y subirlos desde ahi
+NO DESPLEGADO. Motor y reglas sin cambios.
+
+QUE HACE
+  La auditoria arma «Documentos que faltan» (certeza/pedidos.py, fuera del
+  motor). Cada pedido trae: que documento, para que regla (solo reglas que el
+  motor tiene de verdad), una linea de por que se pide armada con lo leido, y
+  el renglon de origen. Vocabulario de pedido: «sube su comprobante».
+  El boton «Subir documento» usa la MISMA cola de la app: intencion (con el
+  pedido anotado) -> PUT a cuarentena -> confirmar -> escaneo/antivirus ->
+  clasificacion -> listo. Al quedar listo la app vuelve a auditar sola.
+  El documento subido para un pedido lo acredita. Si su contenido dice con
+  seguridad que es otra cosa, se pregunta («lo subiste para X, pero parece
+  contrato de obra. ¿Es factura?»).
+  Facturas: se lee total, subtotal, IVA, folio fiscal, fecha y RFC emisor,
+  con pagina y renglon. NO van al motor: se comparan al centavo con el pago
+  para el que se pidio y el resultado se muestra en el pedido y junto al
+  hallazgo de la regla («Respaldo recibido: ... coincide al centavo»).
+
+LO QUE PIDE HOY CABANA EMMA (datos reales, corrida en memoria): 9 pedidos
+  1 Comprobante fiscal del anticipo entregado (R35): «Concentrado... reporta
+    un anticipo entregado de $828,216.38 (pagina 3). Para que R35 confirme
+    que ese pago tiene respaldo fiscal, sube su comprobante (factura o CFDI).»
+  2 Comprobante de «Cisterna» (R31): $12,859.31 cobrados, p2.
+  3 Comprobante de «Anticipo de cantera america y laja» (R31, R10): $79,032.45, p3.
+  4 Escritura del predio (R30: no se puede evaluar).
+  5 Licencia de construccion (R30: no se puede evaluar).
+  6 Presupuesto en Excel (R22, R26, R27 certeza limitada; R24).
+  7 Concentrado en Excel (R10 certeza limitada; R11, R13).
+  8 Acuerdo escrito de facturacion e IVA (R35 certeza limitada).
+  9 Bitacora de obra (R11).
+  No se piden estudio de suelos, poliza, programa de obra, planos para
+  construccion ni estimaciones firmadas: solo servirian a R01/R03/R12/R33/
+  R34/R36/R37/R38, que el motor no tiene.
+
+PROBADO
+  - Pruebas de API: pedido con regla y razon; subida por el mismo camino con
+    bitacora; cruce que coincide; acuerdo de facturacion que quita la
+    «certeza limitada» de R35 (la regla se reevalua sola); documento que
+    parece otra cosa se pregunta. 434 pruebas en verde.
+  - Navegador (local, copia en memoria de la obra real, factura DE PRUEBA):
+    escritorio 1280 y telefono 390. Seccion visible, subida desde el pedido,
+    auditoria repetida sola, pedido marcado recibido con el cruce, respaldo
+    en la tarjeta de R35. Sin errores de pagina. Capturas en
+    reportes/capturas_cierre/.
+  - NADA se subio a la obra real: la factura de prueba vivio en memoria.

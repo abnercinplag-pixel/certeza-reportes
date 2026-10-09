@@ -1,0 +1,105 @@
+CIERRE ETAPA 1 · 2026-10-09 · e_bolo_s_inc_42ff33 / o_mazamitla_cabana_emma_0f6795
+Corrida LOCAL sobre copia de solo lectura de Firestore y los 7 PDF reales
+(infra/auditar_cabana_local.py). Nada se escribio en produccion. NO desplegado.
+
+TRES MEDICIONES SOBRE LOS MISMOS DATOS
+  produccion (ultimo corte, 29-sep): 17 hallazgos, SIN exposicion de capital;
+    R20, R21, R35 y R30 no se evaluaron por falta de dato.
+  9f906d7 (lectura dentro de auditar, sin desplegar): 22 hallazgos
+    R10 x2, R20 x1, R21 x2, R22 x6, R23 x1, R26 x1, R27 x1, R28 x1, RF x7
+  etapa 1 (este commit): 25 hallazgos
+    R10 x2, R20 x1, R21 x2, R22 x6, R23 x1, R26 x1, R27 x1, R28 x1, R31 x2, R35 x1, RF x7
+
+REGLAS QUE SE ACTIVARON
+  R20, R21: ya con 9f906d7 (cifras del concentrado sin duda entran solas).
+  R35: ahora. Lee la nota impresa «EN CASO DE REQUERIR FACTURA EL PRECIO ES
+    + IVA» (concentrado p3) -> iva_aplicado = no. La tasa (16%) NO viene en
+    ningun documento: se cita como «Ley del IVA, art. 1 (tasa general)».
+  R31 x2: ahora. El concentrado imprime notas del emisor que no se leian:
+    6.00 INSTALACIONES 6.00.01 INST. HIDROSANITARIA: «Cisterna»
+    7.00 ACABADOS: «Anticipo de cantera america y laja»
+  R10 de ACABADOS: antes alta / verificado_documental ($79,032.45 en contra);
+    ahora media / explicado_pendiente_de_soporte. El emisor ya lo explico.
+  R30: sigue SIN evaluar. Faltan superficie del lote, lotes del cajetin y COS
+    maximo; la presentacion conceptual no trae cuadro de areas de este lote.
+  R04 y R05: NO EXISTEN en el motor (certeza/reglas/). Ver pendiente N.
+
+HALLAZGOS QUE NO SON DE CATALOGO NI FOTO
+  R10-001 alta/media verificado_documental $51,852.05
+    4.00 ESTRUCTURA DE ACERO Y LOSA reporta avance con su precedente incompleto
+  R21-001 alta/alta verificado_documental $5,462.46
+    Los indirectos aplicados no corresponden al porcentaje contratado
+  R35-001 alta/media verificado_documental $0.00
+    Pagos entregados sin comprobante fiscal
+  R10-002 media/media explicado_pendiente_de_soporte $79,032.45
+    7.00 ACABADOS reporta avance con su precedente incompleto
+  R31-002 media/media explicado_pendiente_de_soporte $79,032.45
+    7.00 ACABADOS reporta 35% con explicacion declarada por el emisor
+  R31-001 media/media explicado_pendiente_de_soporte $12,859.31
+    6.00 INSTALACIONES 6.00.01 INST. HIDROSANITARIA reporta 10% con explicacion declarada por el emisor
+  R21-002 media/alta verificado_documental $0.00
+    El anticipo entregado no corresponde al porcentaje declarado
+  R20-001 baja/alta requiere_aclaracion $0.00
+    La base de calculo de los honorarios no esta declarada en el contrato
+
+EXPOSICION DE CAPITAL (calcular_capital, Decimal, sin cambios)
+  Anticipo entregado                   $    828,216.38
+  Total gastado al 04-08-26            $    699,341.29
+  Anticipo por amortizar               $    128,875.09
+  Avance sin sustento fisico (R11)     $          0.00
+  EXPOSICION HOY                       $    128,875.09
+  Pago solicitado                      $    354,949.88
+  EXPOSICION SI SE PAGA                $    483,824.97
+  pagado 35.00% del total · ejecutado 25.61%
+
+DE DONDE SALE CADA CIFRA DEL CONTRATO Y EL CORTE
+  Anticipo entregado: $828,216.38
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «TOTAL Total de LIMPIEZA $17,342.28 828,216.38$ ANTICIPO»
+  Anticipo declarado (porcentaje): 50%
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «NOTA SE REQUIERE EL 50% ANTICIPO EL RESTO CONTRA»
+  Anticipo programado en el contrato (no es lo entregado): $828,216.39
+      <- Contrato_Cabaña_Emma_FINAL_Actualizado.pdf p2 «Primer pago: 35% ($828,216.39 MXN) el 23 de Junio de 2026.»
+  Honorarios del presupuesto: $253,535.63
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «12% HONORARIOS $253,535.63 699,341.29$ TOTAL GASTADO AL DIA DE 04.08.2»
+  Honorarios (porcentaje): 12%
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «12% HONORARIOS $253,535.63 699,341.29$ TOTAL GASTADO AL DIA DE 04.08.2»
+  Indirectos del presupuesto: $51,531.63
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «2.5% INDIRECTOS $51,531.63 72,720.93$ HONORARIOS 12%»
+  Indirectos (porcentaje): 2.5%
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «2.5% INDIRECTOS $51,531.63 72,720.93$ HONORARIOS 12%»
+  Condición de IVA: NOTA EN CASO DE REQUERIR FACTURA EL PRECIO ES + IVA.
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «NOTA EN CASO DE REQUERIR FACTURA EL PRECIO ES + IVA.»
+  Subtotal contratado: $2,061,265.27
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «SUBTOTAL SUBTOTAL $2,061,265.27 606,007.71$ SUMA % AVANCE»
+  Total contratado: $2,366,332.53
+      <- Contrato_Cabaña_Emma_FINAL_Actualizado.pdf p2 «El monto total del presupuesto asciende a $2,366,332.53 MXN.»
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «TOTAL $2,366,332.53 128,875.09$ RESTANTE AL DIA 04.08.26»
+  Suma del avance valorizado: $606,007.71
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «SUBTOTAL SUBTOTAL $2,061,265.27 606,007.71$ SUMA % AVANCE»
+  Honorarios aplicados al corte: $72,720.93
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «2.5% INDIRECTOS $51,531.63 72,720.93$ HONORARIOS 12%»
+  Indirectos aplicados al corte: $20,612.65
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «20,612.65$ INDIRECTOS»
+  Pago solicitado: $354,949.88
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p4 «354,949.88$ PAGO 15% PARA LLEGAR AL 50%»
+  Restante de anticipo al corte: $128,875.09
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «TOTAL $2,366,332.53 128,875.09$ RESTANTE AL DIA 04.08.26»
+  Total gastado al corte: $699,341.29
+      <- Concentrado_Avance_y_Pagos_04-08-2026.pdf p3 «12% HONORARIOS $253,535.63 699,341.29$ TOTAL GASTADO AL DIA DE 04.08.2»
+  Tasa de IVA: 16%
+      <- Ley del Impuesto al Valor Agregado, artículo 1 (tasa general) «tasa general del 16%»
+
+D2 EN LA OBRA REAL
+  acredita contrato_obra (confirmado): Contrato_Cabaña_Emma_FINAL_Actualizado.pdf
+  acredita planos_arquitectonicos (confirmado): Plano_Arquitectonico_Planta_Baja_CAC08-101.pdf
+  acredita registro_visual_fechado (confirmado): 58 fotografías de obra
+  se pregunta el tipo (media): Concentrado_Avance_y_Pagos_04-08-2026.pdf
+  se pregunta el tipo (media): Plano_Estructural_Cimentacion_CAC08.pdf
+  se pregunta el tipo (media): Plano_Estructural_Trabes_Nervaduras_CAC08.pdf
+  se pregunta el tipo (media): Presupuesto_Base_PCA_02-06-2026.pdf
+  Ningun documento de esta obra quedo en «leido»: los de tipo alta (contrato,
+  plano arquitectonico, fotos) ya los habia confirmado una persona.
+
+ADVERTENCIAS DEL CORTE
+  - no se pudo evaluar R30 porque falta el dato «superficie_terreno_cuadro_areas_m2» en los documentos recibidos
+  - 4 documentos esperan que confirmes su tipo para contarse en el expediente; sus cifras ya se usaron

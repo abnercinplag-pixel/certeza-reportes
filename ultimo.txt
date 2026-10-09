@@ -1,23 +1,16 @@
-ultimo · 2026-09-28 · leer documentos dentro de auditar (commit 9f906d7)
-Cuenta bolo: e_bolo_s_inc_42ff33 / o_mazamitla_cabana_emma_0f6795.
-NO DESPLEGADO, a pedido de Abner: revisar antes (comando en pendiente.txt K).
-QUE CAMBIO: un solo flujo. "Auditar" clasifica lo que falte, lee las
-  cifras con su origen y revisa que cada documento sea de la obra. Lo leido
-  sin duda entra al calculo. Se pregunta en la misma pantalla SOLO si: dos
-  fuentes no coinciden, el renglon se leyo inconsistente, el tipo salio con
-  confianza baja o el documento no muestra ser de la obra. Al responder se
-  vuelve a auditar sola. Fuera el panel "Cifras leidas".
-OBRA DEL DOCUMENTO: por contenido, nunca por nombre de archivo. Nombra la
-  obra -> corresponde; declara otra -> se pregunta; no dice -> se acepta si
-  su total coincide al centavo con uno que si la nombra; si no, se pregunta.
-RASTRO: el corte guarda cada cifra usada con documento, pagina, renglon y
-  si fue leida, confirmada o corregida. Se ve en "De donde sale cada cifra".
-ARREGLO: el avance leido llevaba nota_pca = "leido del concentrado"; el motor
-  la trata como nota del emisor: fabricaba R31 y bajaba R11 a media. Estaba
-  en la etapa 2 (sin desplegar). Ahora va vacia. Motor intacto.
-PROBADO: 425 pruebas en verde (antes 413). Flujo completo en navegador sin
-  conexion (movil y escritorio, 0 errores JS): pregunta de obra -> conflicto
-  -> capital calculado, sin R31. Montos con Decimal en el servidor.
-NO PROBADO con los PDF reales: sin sesion de Google en esta corrida.
-  Script de solo lectura listo: pendiente.txt J.
-Siguiente: J (verificar en real), revisar, K (desplegar), auditar en la app.
+ultimo · 2026-10-09 · bloque 3: verificacion cruzada entre visores. NADA DESPLEGADO
+certeza/verificacion_cruzada.py: lector gemini-2.5-flash + verificador
+  gemini-3.1-pro-preview (el mas preciso que responde en el catalogo de
+  Vertex del proyecto). Cada uno por separado; se comparan con codigo:
+  coinciden -> certeza alta; en conflicto -> baja, no entra y se pide ayuda;
+  sin lectura -> se dice. Tolerancias explicitas; rutina usa un solo visor.
+FOTOS REALES (58): coinciden 108 de 116 lecturas (93.1%); daño 89.7%,
+  estado 96.6%. De los 7 RF de hoy: 3 descartados, 2 en conflicto, 2 que
+  los dos ven. De los 3 falsos documentados: 1 descartado, 1 en conflicto,
+  1 confirmado por ambos (revisar en sitio). Detalle:
+  reportes/verificacion_cruzada_20261009.txt
+ANTES, en esta sesion: cierre etapas 1-3 (26c014b, 3e9a188, b465050) y
+  arreglo del orden de cortes (9960e71). Detalle en los reportes cierre_*.
+PRUEBAS: 451 en verde (antes 425).
+FALTA DE ABNER: revisar y desplegar (T), publicar en certeza-reportes (U),
+  decisiones N, O, P, Y.
