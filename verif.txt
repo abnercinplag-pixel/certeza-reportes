@@ -1,0 +1,61 @@
+obra: 'MAZAMITLA_ CABAÑA EMMA.'  identidad: ['CABANA', 'EMMA', 'MAZAMITLA']
+
+Concentrado_Avance_y_Pagos_04-08-2026.pdf
+  tipo: estimacion (media)  obra: corresponde - el documento nombra a esta obra
+    p1 «Obra MAZAMITLA_ CABAÑA EMMA.»
+
+Contrato_Cabaña_Emma_FINAL_Actualizado.pdf
+  tipo: contrato (alta)  obra: corresponde - el documento nombra a esta obra
+    p1 «PROYECTO CABAÑA EMMA»
+Traceback (most recent call last):
+  File "<stdin>", line 36, in <module>
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/google/cloud/storage/blob.py", line 1552, in download_as_bytes
+    self._prep_and_do_download(
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/google/cloud/storage/blob.py", line 4718, in _prep_and_do_download
+    self._do_download(
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/google/cloud/storage/blob.py", line 1094, in _do_download
+    response = download.consume(transport, timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/google/cloud/storage/_media/requests/download.py", line 280, in consume
+    return _request_helpers.wait_and_retry(retriable_request, self._retry_strategy)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/google/cloud/storage/_media/requests/_request_helpers.py", line 107, in wait_and_retry
+    return func()
+           ^^^^^^
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/google/api_core/retry/retry_unary.py", line 295, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/google/api_core/retry/retry_unary.py", line 148, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/google/cloud/storage/_media/requests/download.py", line 276, in retriable_request
+    self._write_to_stream(result)
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/google/cloud/storage/_media/requests/download.py", line 149, in _write_to_stream
+    for chunk in body_iter:
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/requests/models.py", line 937, in generate
+    yield from self.raw.stream(chunk_size, decode_content=True)
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/urllib3/response.py", line 1291, in stream
+    data = self.read(amt=amt, decode_content=decode_content)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/urllib3/response.py", line 1134, in read
+    data = self._raw_read(amt)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/urllib3/response.py", line 1046, in _raw_read
+    data = self._fp_read(amt, read1=read1) if not fp_closed else b""
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/abnercinplag/certeza/.venv/lib/python3.12/site-packages/urllib3/response.py", line 1029, in _fp_read
+    return self._fp.read(amt) if amt is not None else self._fp.read()
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 484, in read
+    s = self.fp.read(amt)
+        ^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 707, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ssl.py", line 1252, in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ssl.py", line 1104, in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
