@@ -1,0 +1,48 @@
+BLOQUE 3B · 2026-10-09 · VERIFICADOR DE OTRA CASA (CLAUDE). NO DESPLEGADO.
+Motor y reglas sin cambios. 468 pruebas en verde (antes 451).
+
+ESTADO EN UNA LINEA
+  El codigo esta listo y conectado. La MEDICION con las 58 fotos NO se hizo:
+  la cuota de Claude en Vertex del proyecto esta en cero (429). No hay
+  numero de «Gemini+Claude» que comparar contra el 93.1%; no se inventa.
+
+1. VERIFICADOR = CLAUDE, ruta a (Vertex, sin llave nueva)
+  VisorClaude en certeza/verificacion_cruzada.py, SDK anthropic[vertex] con
+  la misma identidad de servicio que Gemini. Modelo por omision:
+  claude-opus-5. Recibe la imagen y la MISMA pregunta que el lector, nunca
+  su respuesta; contesta con salida estructurada (JSON Schema) y razona
+  (thinking adaptativo). Rechazo o respuesta cortada = lectura fallida con
+  su motivo. Un 429 de Claude se reintenta igual que uno de Gemini.
+  Probado contra Vertex real: la llamada llega; Vertex responde 429 «Quota
+  exceeded ... base model: anthropic-claude-opus». Mismo 429 para opus-4-7,
+  opus-4-6, sonnet-5 y sonnet-4-6. La ruta b (llave) no hizo falta.
+  Lector: gemini-2.5-flash, sin cambio. Lector de una casa, verificador de
+  otra.
+
+2. CONFIGURABLE: VERIFICADOR_CASA (anthropic | google | ninguna),
+  VERIFICADOR_MODELO, VERIFICADOR_REGION. Por omision anthropic /
+  claude-opus-5 / global. Una casa desconocida es error, no cae a Gemini.
+
+3. MEDICION 58 FOTOS: PENDIENTE de la cuota. Listo para correr con un
+  comando (pendiente.txt, AB): mide coincidencias, conflictos, las 3 fotos
+  de daño falso (142506303, 142549649, 142756001) y el costo por foto.
+
+4. CONECTADO AL ANALISIS DE FOTOS (pendiente Y)
+  Si la foto trae defectos, se cruza «¿hay daño?» con los dos visores y se
+  guarda en el documento (cruce_dano). Punto RF:
+    los dos ven daño        -> RF como antes, dice que coinciden y cuales.
+    los dos dicen que no    -> NO hay RF; el informe guarda que se descarto.
+    en conflicto / sin lectura / sin cruce
+                            -> RF «posible daño sin confirmar»: se pide
+                               revisar en sitio, NO se afirma, certeza baja.
+  Fotos sin defectos no gastan el cruce (R2: solo en lo delicado).
+  infra/cruzar_danos_obra.py cruza fotos ya analizadas sin repagar.
+
+5. COSTO por foto del verificador: NO MEDIDO (sin cuota). Estimado, no
+  medido: Claude cuenta una imagen como ~ancho x alto / 750 tokens; una foto
+  a 1536 x 1152 px son ~2,400, mas ~400 de la pregunta = ~2,800 de entrada.
+  Salida con razonamiento: ~300. Con el precio de lista de Anthropic para
+  Opus 5 (US$5 / US$25 por millon): ~US$0.02 por pregunta. Solo se cruza
+  «¿hay daño?» y solo en fotos con defectos: en Cabana Emma, 7 de 58
+  (las 7 con RF), ~US$0.15 por obra. Vertex publica su propio precio
+  para Claude. El numero real sale de la medicion (script del punto 3).
