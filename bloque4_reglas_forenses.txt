@@ -1,0 +1,62 @@
+CERTEZA - bloque 4: reglas forenses sobre Cabana Emma (cuenta bolo)
+Fecha: 2026-10-09. Codigo en commit local, SIN DESPLEGAR (revision de Abner).
+Corrida: infra/auditar_cabana_local.py, copia de solo lectura de Firestore,
+auditoria en memoria. Nada se escribio en produccion.
+
+RESULTADO GLOBAL
+- Antes: 25 hallazgos. Ahora: 26. Un solo hallazgo nuevo: R05-001.
+- Ninguno de los 25 anteriores cambio ni desaparecio.
+- Exposicion de capital identica: hoy $128,875.09; si se paga $483,824.97.
+- Ruido: ninguno. El hallazgo nuevo describe una ausencia real del contrato.
+
+1. CARGA FRONTAL (R06) - no se marca nada
+   Peso de cada capitulo temprano en el costo directo ($2,061,265.27):
+     1.00 PRELIMINARES                 0.96%  tope ref 5%   cobrado 100%
+     2.00 CIMENTACION                 18.89%  tope ref 18%  cobrado 90%
+     3.00 MUROS, CADENAS Y CASTILLOS   8.93%  tope ref 22%  cobrado 50%
+     4.00 ESTRUCTURA DE ACERO Y LOSA   6.29%  tope ref 28%  cobrado 40%
+   Cimentacion esta 0.9 puntos arriba del tope de referencia, dentro del
+   margen de 25% (se marcaria desde 22.5%). Se dejo asi a proposito: el
+   patron sale de rangos de divulgacion (blogs y una calculadora de costos
+   2026, citados en certeza/patrones.py), no de una norma; y una cimentacion
+   en Mazamitla depende del suelo y la pendiente. Preliminares se cobro al
+   100% pero pesa menos de 1%: no hay adelanto de flujo ahi.
+   Si hubiera disparado, la certeza seria «media» siempre, y lo diria.
+
+2. RETENCION (R05) - 1 hallazgo nuevo
+   R05-001, severidad media, certeza baja, monto $0:
+   «El contrato no especifica retencion de garantia ... Lo usual en obra es
+   retener entre 5% y 10% de cada pago; este rango es referencia de
+   practica, no una obligacion de este contrato.»
+   Evidencia: Contrato_Cabaña_Emma_FINAL_Actualizado.pdf / retencion / no
+   aparece impreso. Accion: pactarla por escrito y capturarla.
+   No inventa porcentaje ni monto. Si no se hubiera leido ningun contrato,
+   R05 no concluye: sale como advertencia de dato faltante.
+
+   R04 (anticipo): ahora es regla propia, pero como verificacion aritmetica
+   del saldo: 828,216.38 - 699,341.29 = 128,875.09, que es lo que imprime
+   el concentrado. Cuadra: sin hallazgo. El contrato no fija amortizacion
+   proporcional, asi que el aviso ya no promete «amortizar segun contrato»;
+   dice «que el anticipo por amortizar cuadre con lo entregado menos lo
+   gastado». El aviso tampoco dice ya «quince reglas» (eran 17 filas): cada
+   regla listada existe en el motor, y hay una prueba que lo exige.
+
+3. SECUENCIA CONTRA FOTOS (R14) - no se marca nada, por R31
+   58 fotos analizadas, todas del 2026-09-16, confianza media. Muestran
+   obra negra abierta (muros en proceso ~80%, cimentacion terminada) y
+   ninguna muestra acabados. El concentrado cobra 7.00 ACABADOS al 35%
+   ($79,032.45), pero el emisor lo explica: «Anticipo de cantera america y
+   laja». R31 manda: no se senala; R31-002 ya pide el comprobante.
+   Contraprueba: quitando esa nota, R14 si dispara, con certeza MEDIA (la
+   lectura de la foto tiene confianza media), citando la foto
+   PXL_20260916_142533354.jpg. O sea: la regla ve el conflicto y R31 lo
+   detiene, que es lo correcto.
+
+PRUEBAS: 26 nuevas en tests/test_reglas_forenses.py (incluye carga frontal
+explicada por el emisor -> no se marca; acabados explicados con obra negra
+en foto -> no se marca; foto sin fecha -> certeza media). Suite completa en
+verde: 494 pasan, 1 omitida.
+
+DATO APARTE (no lo toque): la evidencia en el corte se imprime como
+«concentrado, fila None, ...» en 20 evidencias (certeza/api.py:1379). Es de
+antes de este bloque; se ve en la app.

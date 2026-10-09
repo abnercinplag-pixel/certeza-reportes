@@ -1,8 +1,64 @@
 CERTEZA — pendientes que requieren accion o decision de Abner
 Actualizado: 2026-10-09
 
+=== 2026-10-09: bloque 4, reglas forenses (CODIGO LISTO; SIN DESPLEGAR) ===
+AC. REVISION de Abner antes de produccion (reglas nuevas cambian como decide
+   el motor). R04, R05, R06 (carga frontal) y R14 (secuencia contra fotos).
+   Resultado sobre Cabana Emma en reportes/bloque4_reglas_forenses.txt.
+   Para desplegar cuando lo apruebes:
+     cd ~/certeza && git push && bash infra/deploy.sh && bash infra/humo.sh
+AD. DECISION. El patron de R06 (certeza/patrones.py) sale de blogs y una
+   calculadora de costos 2026, no de una norma: por eso R06 nunca pasa de
+   certeza media. Opciones: (1) dejarlo asi; (2) comprar o licenciar un
+   tabulador de costos por partida (p. ej. BIMSA, Prisma) y reemplazar los
+   rangos. Recomiendo (1) ahora y (2) antes de vender a un segundo cliente.
+AE. DATO. El extractor no lee un renglon de retencion en el concentrado
+   (Cabana no lo tiene). Si un contrato SI pacta retencion, R05 dira «el
+   concentrado no muestra la retencion» con certeza media hasta que se
+   capture corte.retencion_aplicada a mano o se agregue esa lectura.
+
+=== 2026-10-09: bloque 3B, verificador Claude (CODIGO LISTO; MEDICION DETENIDA) ===
+AB. ACCION (unica que falta). Ruta a (Claude en Vertex, sin llave nueva) ya
+   esta programada y probada contra Vertex con la identidad de servicio: la
+   llamada llega y Vertex responde 429 «Quota exceeded ...
+   global_online_prediction_requests_per_base_model with base model:
+   anthropic-claude-opus». Vuelto a medir hoy por la tarde: cuota en CERO
+   para claude-opus-5, claude-opus-4-7, claude-opus-4-6, claude-sonnet-5 y
+   claude-sonnet-4-6 (en «global»; en us-east5 dan 404).
+   1) Pedir cuota (consola, no hay comando gcloud para subirla):
+      https://console.cloud.google.com/iam-admin/quotas?project=cinplag-v4-core
+      filtro: global_online_prediction_requests_per_base_model
+      dimension base_model = anthropic-claude-opus  -> pedir 10 por minuto
+      (el verificador usa claude-opus-5; si prefieres 4.7, la dimension es
+      anthropic-claude-opus-4-7 y se pone VERIFICADOR_MODELO=claude-opus-4-7)
+   2) Con la cuota, la medicion de las 58 fotos son tres comandos (solo
+      lectura; cuesta Vertex). Las rutas ya estan en capturas privadas:
+      mkdir -p /tmp/fotos_cabana && \
+      gcloud storage cp $(cat ~/certeza-capturas-privadas/cierre_20261009/rutas_gcs.txt) /tmp/fotos_cabana/
+      cd ~/certeza && PARALELO=2 .venv/bin/python infra/cruzar_fotos_cabana.py \
+        ~/certeza-capturas-privadas/cierre_20261009/lista_cabana.tsv /tmp/fotos_cabana \
+        ~/certeza-capturas-privadas/cierre_20261009/cruce_claude_cabana.json
+      Imprime coincidencias, conflictos, las 3 fotos de daño falso y el costo
+      por foto de cada visor.
+   Ruta b (API directa con llave) NO se programo: la a funciona y no pide
+   secreto nuevo. Si aun asi la prefieres, crea el secreto con TU llave:
+     printf '%s' 'TU_LLAVE' | gcloud secrets create certeza-anthropic-key \
+       --project cinplag-v4-core --data-file=-
+   y avisa: hay que agregar un VisorClaude con cliente Anthropic() (una clase).
+   Precio: el costo se calcula con el precio de lista de Anthropic (Opus 5:
+   US$5 / US$25 por millon). Vertex publica el suyo aparte; confirmar en
+   cloud.google.com/vertex-ai/generative-ai/pricing#claude-models.
+   Antes de desplegar: (i) la cuota; (ii) correr verificar_dano sobre las
+   fotos ya analizadas de Cabana Emma (hoy no tienen cruce: sus RF saldrian
+   como «posible daño sin confirmar» hasta cruzarlas). ESCRIBE en Firestore:
+     cd ~/certeza && GCP_PROJECT=cinplag-v4-core CERTEZA_BACKEND=nube \
+       CUBETA_DOCUMENTOS=certeza-documentos-cinplag .venv/bin/python \
+       infra/cruzar_danos_obra.py e_bolo_s_inc_42ff33 o_mazamitla_cabana_emma_0f6795 Se puede apagar el
+   cruce con VERIFICADOR_CASA=ninguna; los daños quedan sin confirmar.
+
 === 2026-10-09: bloque 3, verificacion cruzada entre visores ===
-Y. DECISION. Conectar el cruce al analisis de fotos: un punto RF solo se
+Y. HECHO en codigo 2026-10-09 (bloque 3B, sin desplegar; ver AB).
+   Era: DECISION. Conectar el cruce al analisis de fotos: un punto RF solo se
    publica si los dos visores coinciden en «si hay daño»; en conflicto, se
    pide ayuda en vez de publicarlo. Con las fotos de Cabana Emma: de 7 RF
    quedarian 2 (y 2 preguntas). Re-analizar las 58 con el cruce costaria
@@ -43,7 +99,11 @@ X. DATO. tests/test_analisis_visual.py::test_foto_sin_archivo_se_reporta_y_el_lo
 W. DATO. La tarjeta de R35 en la app dice «Hay pagos sin comprobante
    fiscal» (frase de la app, no del motor). Si decides P, cambiar tambien
    esa frase.
-N. DECISION. R04 (amortizar anticipo) y R05 (retencion) NO existen en el
+N. RESUELTO 2026-10-09 (bloque 4, commit bbad1e6, sin desplegar). R05 ya
+   existe; R04 existe como verificacion aritmetica del saldo (anticipo
+   entregado - gastado = restante impreso) y el aviso la describe asi, no
+   como «amortizar segun contrato». Texto original:
+   R04 (amortizar anticipo) y R05 (retencion) NO existian en el
    motor: certeza/reglas/ no las tiene. legal/aviso-integral.md las lista
    entre «las quince reglas». No las escribi: crear una regla es cambiar como
    decide el motor. Datos de Cabana Emma: el contrato no menciona retencion

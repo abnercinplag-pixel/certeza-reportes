@@ -1,21 +1,21 @@
-ultimo · 2026-10-09 · bloque 3B: verificador Claude. NADA DESPLEGADO
-HECHO (codigo, 468 pruebas en verde):
-- VisorClaude (Claude en Vertex, sin llave nueva) como verificador; el
-  lector sigue siendo gemini-2.5-flash. Configurable con VERIFICADOR_CASA /
-  VERIFICADOR_MODELO / VERIFICADOR_REGION (omision: anthropic,
-  claude-opus-5, global).
-- Cruce conectado al analisis de fotos: un RF de daño solo se afirma si
-  los dos visores ven daño; si los dos dicen que no, no sale; en conflicto
-  o sin cruce, «posible daño sin confirmar», revisar en sitio.
-- infra/cruzar_danos_obra.py: cruza fotos ya analizadas sin repagar.
-- infra/cruzar_fotos_cabana.py: mide con el verificador configurado e
-  imprime costo por foto.
-- requirements.txt: anthropic[vertex].
-NO HECHO (bloqueado): medir las 58 fotos y el costo real de Claude. La
-  cuota de Claude en Vertex esta en cero (429, probado hoy en 5 modelos).
-SIGUE: Abner pide la cuota (pendiente.txt, AB, con los comandos exactos);
-  luego medir 58 fotos, cruzar las de Cabana Emma ya analizadas, revisar
-  y desplegar.
-Detalle: reportes/verificacion_cruzada_3b_20261009.txt
-Nota de entorno: el .venv se recreo hoy sin dependencias; /home estaba al
-  100 %. Se purgaron solo las caches de descarga de pip y uv.
+CERTEZA - ultimo (2026-10-09, bloque 4: reglas forenses)
+
+TERMINADO (commit local, SIN DESPLEGAR: Abner revisa reglas nuevas antes):
+- R06 carga frontal: capitulo temprano con peso > tope de referencia +25%
+  y cobrado >= 70%. Patron configurable con fuente citada en
+  certeza/patrones.py; certeza nunca pasa de «media» (fuente no formal).
+- R05 retencion: lee el % del contrato; si no aparece impreso lo dice con
+  certeza baja y no inventa; si existe, verifica contra el concentrado.
+- R04 saldo de anticipo: entregado - gastado = restante impreso.
+- R14 secuencia contra fotos: acabados cobrados alto con obra negra abierta
+  en fotos; foto sin fecha o confianza < alta -> certeza media.
+- R31 protege R06 y R14. Aviso legal: ya no lista reglas inexistentes.
+- 26 pruebas nuevas; suite: 494 pasan, 1 omitida.
+
+CABANA EMMA (corrida real en memoria): 25 -> 26 hallazgos. Nuevo: R05-001
+(contrato sin retencion). R06: nada (cimentacion 18.9% vs tope 18%, dentro
+de margen). R14: nada (acabados 35% explicado por el emisor; sin la nota
+saldria con certeza media). Capital igual. Ruido: ninguno.
+Detalle: reportes/bloque4_reglas_forenses.txt
+
+SIGUE: revision de Abner (pendiente.txt AC, AD, AE) y despliegue.
