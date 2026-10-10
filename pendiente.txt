@@ -1,18 +1,14 @@
 CERTEZA — lo que de verdad queda para despues
-Actualizado: 2026-10-10 (cierre final). El historial completo de pendientes
+Actualizado: 2026-10-10 (varillas de espera). El historial completo de pendientes
 anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
 
 1. DOBLE VISOR (bloque 3B). Codigo listo, detenido por cuota de Vertex.
    Vertex responde 429 para los modelos Claude en «global» (cuota en cero).
    Mientras no haya cuota, los posibles daños de las fotos salen como
    «revisar en sitio», certeza baja, monto 0, sin cruce. Esta bien por ahora.
-   OJO, medido en el cierre: el re-analisis con el prompt nuevo (E/V) quito
-   3 de los 7 puntos de daño de Cabaña Emma pero NO los dos de castillo que
-   se habian identificado como falsos (PXL_20260916_142506303 «grieta y
-   desplome», PXL_20260916_142756001 ahora «despostillamiento») y agrego uno
-   nuevo sin verificar (PXL_20260916_145220422 «grieta vertical en muro»).
-   El doble visor es justo lo que los filtraria: solo publica un daño si dos
-   visores coinciden.
+   Actualizado (2026-10-10, varillas_espera_20261010.txt): con el prompt
+   de varillas de espera y el campo «no concluyente», Cabaña Emma queda en
+   0 daños afirmados; los dos castillos ya no salen como daño.
    Para activarlo:
    a) Pedir cuota (consola; no hay comando gcloud para subirla):
       https://console.cloud.google.com/iam-admin/quotas?project=cinplag-v4-core
@@ -35,3 +31,14 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
    (cajetin, notas) pero no interpreta el dibujo. Lo que depende del dibujo
    (R30: superficie del lote y COS) sigue sin evaluarse hasta que llegue
    escritura o licencia con el cuadro de areas.
+
+3. DECISION DE NEGOCIO: ¿los puntos «no concluyente» van en la lista de
+   hallazgos? Hoy Cabaña Emma tiene 9 (0 daños afirmados). Opciones:
+   a) Dejarlos como hallazgos RF «revisión en sitio, no concluyente»,
+      certeza baja, monto 0 (como esta desplegado). Quien revisa ve que
+      hay algo que mirar, aunque la lista de hallazgos crece de 23 a 27.
+   b) Quitarlos de la lista y mostrarlos solo en el detalle de cada foto
+      (informe y visor ya los muestran ahi). La lista queda mas limpia,
+      pero se pueden pasar por alto.
+   Recomendacion: (a) mientras no haya doble visor. Con cuota de Vertex,
+   el doble visor podria filtrarlos y entonces conviene pasar a (b).

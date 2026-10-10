@@ -1,18 +1,17 @@
-CERTEZA - ultimo (2026-10-10, cierre final)
+CERTEZA - ultimo (2026-10-10, varillas de espera)
 
-DESPLEGADO: revision certeza-api-00077-l8l, humo.sh todo OK, 509 pruebas
-(1 omitida). Detalle: reportes/cierre_final_20261010.txt.
-- AF/X: catalogo solo de hojas/PDF/BC3; archivo faltante con su motivo.
-  Prueba intermitente 15/15.
-- AG: presupuesto xlsx ya no se sugiere como plano estructural.
-- O: R21 lee el calendario de pagos; en Cabaña Emma ya no marca el anticipo.
-- P/W: R35 pide el comprobante, no acusa (motor, expediente y app).
-- C: R11 a certeza media con observacion de confianza < 0.5.
-- E/V: 58 fotos re-analizadas (US$0.065, 0 fallas). Daños 7 -> 5; dos de
-  los falsos de castillo NO se fueron (ver reporte).
-- Miniaturas por API y «Abrir original» que abre la foto.
-- Cabaña Emma re-auditada en produccion: 23 hallazgos, exposicion hoy
-  $128,875.09, si se paga $483,824.97, 9 documentos pedidos.
+DESPLEGADO: revision certeza-api-00079-dv4, humo.sh todo OK, 517 pruebas
+(1 omitida). Detalle: reportes/varillas_espera_20261010.txt.
+- Prompt de analisis visual: varilla de espera, punta del colado y junta
+  castillo-block son etapas normales; ejemplos de daño real.
+- Campo nuevo «no_concluyente»: confianza baja y punto RF que dice «no se
+  afirma que exista un daño». La descripcion que nombra un daño no
+  afirmado se retiene.
+- 58 fotos re-analizadas (US$0.079, 0 fallas). Fotos con daño afirmado:
+  5 -> 0. Los dos castillos ya no salen como daño.
+- Corte de produccion: 27 hallazgos, 9 de ellos «no concluyente, revisar
+  en sitio», 0 daños afirmados. Capital sin cambio ($128,875.09 /
+  $483,824.97).
 
-SIGUE: pendiente.txt quedo solo con doble visor (cuota de Vertex) y
-lectura del dibujo de planos.
+SIGUE: pendiente.txt punto 3 (decision: ¿los no concluyentes van en la
+lista de hallazgos?), doble visor (cuota de Vertex) y planos.

@@ -1,0 +1,55 @@
+CERTEZA - varillas de espera: cero daños falsos en Cabaña Emma (2026-10-10)
+
+POR QUE EL MODELO INSISTIA (mirado foto por foto)
+- Ya no marcaba la varilla en si (eso lo quito el prompt anterior). Marcaba
+  el CONCRETO alrededor:
+  * PXL_..._142756001: la punta superior del castillo, donde termina el
+    colado y salen las esperas, queda aspera e irregular -> «despostillamiento».
+  * PXL_..._142506303: la junta castillo-block en la esquina, con el borde
+    irregular de la cimbra -> «grieta vertical» y «desplome».
+  * PXL_..._145220422 (mismo caso): castillo ahogado a media pared, franja
+    vertical de concreto -> «grieta vertical en el muro».
+- El prompt no hablaba de la punta del colado ni de la junta, y «defectos»
+  era la unica salida: el modelo no tenia donde poner «no estoy seguro».
+- La imagen no es el problema: el angulo y la luz son buenos.
+
+QUE CAMBIO (solo analisis visual; motor y reglas intactos; R2 intacta)
+1. Prompt: define la VARILLA DE ESPERA, la punta del castillo donde termina
+   el colado y la junta castillo-block (en esquina y ahogado) como etapas
+   normales, y da ejemplos de daño real (acero ya colado y descubierto
+   por falla, corrosion visible, concreto fracturado de un elemento ya
+   terminado).
+2. Campo nuevo «no_concluyente»: ante la duda va ahi, nunca a «defectos».
+   Con dudas, la confianza baja a «baja» por regla fija en el codigo.
+3. Lo no concluyente sale como «Revisión en sitio, no concluyente», certeza
+   baja, monto 0, sin cruce. La redaccion es fija: «no pudo distinguir si
+   es etapa normal o daño... No se afirma que exista un daño».
+4. Si la descripcion nombra un daño que no esta en «defectos», se retiene.
+   Ejemplo medido: «muro de block con una grieta vertical», con «defectos»
+   vacio.
+Pruebas: 517 pasan, 1 omitida (antes 509), 8 nuevas.
+
+MEDIDO EN PRODUCCION (deploy certeza-api-00079-dv4, humo.sh todo OK)
+- Re-analisis de las 58 fotos: 58/58, 0 fallas, US$0.079. El analisis
+  anterior se guardo en «analisis_visual_previo».
+- Fotos con daño afirmado: 5 -> 0. Los dos castillos (142506303 y
+  142756001) ya NO salen como daño.
+- Corte c_corte_2026_10_10t14_00_10_00_00_e25864 (script:varillas_espera):
+  27 hallazgos. Capital sin cambio: exposicion hoy $128,875.09; si se paga
+  $483,824.97.
+- Daños afirmados en el informe: 0. Puntos «no concluyente, revisar en
+  sitio»: 9 (antes 5 puntos que si describian daño).
+
+LO QUE HAY QUE SABER
+- El modelo es mas cauto: manda a «no concluyente» cosas que antes callaba
+  (mancha en la base de un muro, tubo con extremo cortado). Por eso los
+  puntos de fotos pasan de 5 a 9, y ninguno afirma daño.
+- Algunos textos no concluyentes todavia usan la palabra «grieta». El
+  modelo no siempre sigue la regla de vocabulario. Siempre aparecen dentro
+  de la frase fija «no se afirma que exista un daño».
+- Perdimos una observacion probablemente real. Las gotas de agua en la
+  conexion (143617089, foto macro) ya no salen como daño; salen como no
+  concluyente («gotas o condensacion»). Es el costo de preferir el
+  silencio honesto.
+- Mismo prompt con temperatura 0, dos corridas: la foto 142756001 salio
+  una vez no concluyente y otra limpia. Hay variacion entre corridas.
