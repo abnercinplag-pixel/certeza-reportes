@@ -1,0 +1,116 @@
+CERTEZA - transformacion de experiencia de web/agente.html (2026-10-10)
+De "sobria y correcta" a "encanta y da confianza". Solo frontend.
+Motor, reglas y calculo sin cambios. Suite: 494 pasan, 1 omitida.
+Commits 018c3d5 y d316a32 (certeza-auditor). Desplegado: revision certeza-api-00075-sqf,
+humo.sh en verde, /app y /entrar en produccion = archivos del commit
+(comparados byte a byte).
+
+COMO SE PROBO
+Servidor local en memoria con datos SINTETICOS (obra "Casa Los Encinos",
+constructora y montos de ejemplo; ningun dato de cliente real) + Chromium
+sin pantalla. Telefono 390x844 tactil y computadora 1280x900, en tema
+claro y oscuro. Servidor reiniciado en cada recorrido para que antes y
+despues partan del mismo estado. El "antes" se sirvio desde una copia del
+commit anterior (f06e558); el "despues" desde el nuevo.
+Flujo: entrar, abrir obra, cifra, detalle de hallazgo, foto en tarjeta y
+visor, decidir (liberar), panel de pago, confirmar, autorizado, historial,
+documentos, entregables, obra limpia, obra vacia, esqueleto al auditar y
+volver a auditar. Cero errores de JavaScript en los 8 recorridos.
+Capturas: capturas_experiencia/ (antes_* y despues_*, 80) y seis
+comparativas lado a lado (comparativa_*.png).
+
+DIAGNOSTICO DEL ANTES (medido en las capturas)
+- En telefono, al abrir la obra, la cifra de capital en riesgo quedaba
+  DEBAJO del pliegue: arriba estaban el selector, "VOLVER A AUDITAR" y el
+  dialogo de tipos de documento. Fallaba la regla de los 3 segundos.
+- Fondo negro azulado con particulas y neon: frio, de consola tecnica.
+- Etiquetas y botones en MAYUSCULAS MONO espaciadas: se sentia sistema,
+  no asesor. Retener y "Recomendacion: retener" en rojo intenso.
+- 13 tarjetas de hallazgo con la misma ayuda repetida en cada una, y 8
+  documentos que faltan desplegados completos: muro de texto.
+
+1. REGLA DE LOS 3 SEGUNDOS
+- La tarjeta de la respuesta va PRIMERO en la pestana. La cifra mide hasta
+  76 px (46 px minimo en telefono) contra 14-15 px del texto: 3x o mas.
+- Debajo, en la misma tarjeta y sin desplazar: QUE CAMBIO ("Subio
+  $50,000.00 contra el corte anterior", con flecha ambar si sube y verde si
+  baja; el texto lo escribe el servidor en GET /cortes, el navegador no
+  resta nada) y QUE NECESITA TU ATENCION, en fichas que llevan a cada
+  seccion: "13 puntos por decidir", "1 documento por confirmar", "8
+  documentos que faltan", "N preguntas que pueden mover la cifra". Sin
+  pendientes: "Nada pendiente de tu parte".
+- Lo secundario (diferencias del presupuesto, alcance) baja, mas chico y
+  separado por una linea.
+- Volver a auditar pasa debajo de la respuesta; el razonamiento del agente
+  queda plegado al final ("Ver como lo reviso CERTEZA").
+- Las preguntas que pueden mover la cifra ya no van antes que ella, pero la
+  cifra lo dice en su propia ficha: la honestidad se conserva.
+
+2. ASISTENTE, NO JUEZ
+- Tema claro y calido (papel, tinta azul marino, verde de marca). Si el
+  telefono pide oscuro: grafito calido, no negro azulado.
+- Ambar suave para todo lo que pide atencion (retener, preguntas, errores
+  recuperables). El rojo queda solo para borrar.
+- Microcopia: "Revisemos esto juntos" (antes "Pendientes de decision"),
+  "Ya decidiste" (antes "Resueltas"), "Sugerimos retener" (antes
+  "Recomendacion: retener"), "Lo vimos antes de pagar: te sugerimos
+  retener este monto hasta que se aclare", "Si aun no lo tienes, no pasa
+  nada: lo demas ya se reviso".
+
+3. REDUCE LA PRESION
+- Obra limpia: check verde que se dibuja y "Todo en orden", siempre con
+  "dentro de lo que se pudo revisar" y el enlace al alcance.
+- Todo decidido: el grupo dice "Todo decidido" y que sigue, en vez de
+  quedar vacio.
+- La ayuda de los botones se dice una vez por grupo, no en cada tarjeta.
+
+4. TARJETAS COMO REVOLUT
+- Cada pieza en su tarjeta con sombra suave y radio amplio: respuesta,
+  preguntas, documentos que faltan, cada hallazgo, decision de pago,
+  historial, documentos, entregables.
+- Hallazgo: el monto arriba en 24 px tabular, la frase debajo, botones en
+  frase normal ("Retener", "Liberar", "Pedir documento").
+- Documentos que faltan: tres a la vista y "Ver 5 documentos mas".
+- Decision de pago: "Autorizas" y "Retienes" en dos tarjetas (apiladas en
+  telefono, para que $204,009.05 no se parta en dos lineas).
+- Obras en una fila de pildoras deslizable; la cabecera dice la obra y
+  "Constructora - corte 4 oct" en vez de "CASA LOS E...".
+
+5. MOMENTOS DE DELEITE (80-500 ms, con prefers-reduced-motion)
+- La cifra se revela con fundido y leve desenfoque (420 ms). Nunca cuenta
+  hacia arriba: se asigna entera (la prueba lo vigila).
+- Indicador de pestanas que se desliza (280 ms).
+- La pastilla "Tu: Liberado" entra con un rebote al decidir; el aviso trae
+  la palomita que se dibuja, solo despues de que el servidor confirmo.
+- Al autorizar, un sello verde que se dibuja, tambien solo tras confirmar.
+- Esqueleto con brillo calido mientras audita, sin porcentaje inventado.
+- Con movimiento reducido todo eso se vuelve fundido simple.
+
+6. CONFIANZA VISUAL
+- Inter en todo, cifras tabulares en cada monto. Se quito JetBrains Mono
+  de la interfaz (sigue servida; las pruebas de marca pasan).
+- Se quito el campo de particulas del fondo.
+- Colores definidos una sola vez como variables; las pantallas de primera
+  obra y alta, que tenian colores fijos del tema oscuro, ya usan el tema.
+- entrar.html con el mismo tema, para que el flujo no salte de oscuro a
+  claro.
+
+7. CLARIDAD
+- Sin codigos de regla al usuario (ya estaba) y sin etiquetas tecnicas en
+  mayusculas. Contraste del texto mas tenue (#626A76): 4.9:1 sobre el
+  fondo de papel, 5.5:1 sobre tarjeta blanca; en oscuro 5.2:1. Ese ajuste
+  (d316a32) llego despues de las capturas: el gris tenue se ve un poco
+  mas claro en ellas que en produccion.
+
+LO QUE NO CAMBIO A PROPOSITO
+- Ninguna cifra se calcula en el navegador: solo se cuentan puntos.
+- El boton de autorizar sigue en ambar solido y distinto de todo lo demas.
+- El banner de error de auditoria ahora es ambar en vez de rojo, pero
+  sigue diciendo que fallo y ofrece Reintentar.
+
+PENDIENTE / OJO
+- La vista previa de fotos no se ve en el servidor local en memoria (no
+  hay URL firmada); igual en antes y despues. En produccion no cambia.
+- El navegador de prueba fue Chromium; color-mix() requiere Safari 16.2+
+  (iOS 16.2, dic-2022). En iOS mas viejo los tintes de fondo no se ven,
+  el texto si.
