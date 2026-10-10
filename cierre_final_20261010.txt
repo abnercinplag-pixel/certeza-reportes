@@ -1,0 +1,99 @@
+CERTEZA - cierre final (2026-10-10)
+
+ESTADO: DESPLEGADO. Revision certeza-api-00077-l8l, humo.sh "todo OK",
+/app en produccion = web/agente.html del commit (byte a byte). Suite: 509
+pasan, 1 omitida (antes 494). Commits 2a28b07..f6698a9 en certeza-auditor.
+
+QUE QUEDO ACTIVO EN PRODUCCION
+- Todo el motor de reglas, incluidas las forenses del bloque 4 (R04 saldo
+  de anticipo, R05 retencion, R06 carga frontal, R14 secuencia contra
+  fotos). Nota: el bloque 4 ya estaba en produccion desde la revision
+  00071 (su commit es anterior a defaac9); el pendiente AC estaba viejo.
+- Lectura de documentos dentro de auditar, documentos que faltan con
+  subida desde el pedido, analisis de fotos con el prompt que distingue lo
+  que NO es daño, y la app rediseñada del 2026-10-10.
+- Lo nuevo de este cierre:
+  1. AF/X. _leer_catalogo solo toma hojas de calculo, PDF y BC3 como
+     catalogo; una foto nunca compite. Si falta el archivo de un documento
+     lo dice con su motivo («su archivo no está en el almacenamiento»; si
+     lo eligio la persona: 422 «No encontramos el archivo de ...»), nunca
+     un FileNotFoundError suelto. Por eso «Analizar fotos» ya no puede
+     fallar entero por eso. La prueba intermitente paso 15 de 15; dos
+     pruebas nuevas, deterministas, fallan sin el arreglo y pasan con el.
+  2. AG. El clasificador cuenta en hojas los numeros con decimales como
+     importes (las celdas traen 17342.28, no «$17,342.28»). El presupuesto
+     xlsx se sugiere como Presupuesto, no como plano estructural. En PDF
+     no cambia: ahi «0.15» es una cota.
+  3. O. R21 lee el calendario de pagos del contrato (primer pago, segundo
+     pago, ... que extraccion ya leia). Si lo entregado coincide con los
+     primeros pagos y la suma llega al porcentaje declarado, no hay
+     hallazgo. Cabaña Emma: 35% + 15% = 50%; lo entregado ($828,216.38) es
+     el primer pago (un centavo contra $828,216.39) y el pago solicitado
+     ($354,949.88) es exactamente el segundo.
+  4. P/W. R35 se pide, no acusa. Motor, requisito del expediente y tarjeta
+     de la app: «Para confirmar que estos pagos tienen respaldo fiscal,
+     sube su comprobante». Estatus requiere_confirmacion_documental. Ya no
+     dice «sin CFDI» en ningun lugar que se sirva al usuario.
+  5. C. R11 baja a certeza media cuando la observacion de la foto tiene
+     confianza menor a 0.5, y lo dice («conviene ratificarla en sitio»).
+  6. E/V. Las 58 fotos de Cabaña Emma se re-analizaron con el prompt
+     vigente (infra/reanalizar_fotos.py). 58 de 58, 0 fallas, US$0.065.
+     El analisis anterior de cada foto quedo guardado en el mismo
+     documento («analisis_visual_previo»): no se perdio nada.
+  7. Miniaturas. GET /api/documentos/{id}/miniatura (480 px para la
+     tarjeta, 1600 px para el visor, JPEG; en la prueba con una foto de
+     4000x3000 y mas de 2 MB la chica pesa menos de 120 KB), guardada junto
+     a la foto y borrada con ella. «Abrir original» abre la foto en una
+     pestaña (URL firmada inline), ya no la descarga. Probado en Chromium:
+     la miniatura y el visor muestran la foto, cero errores de JavaScript.
+
+AUDITORIA DE CABAÑA EMMA, ACTUALIZADA EN PRODUCCION
+Corte c_corte_2026_10_10t06_22_28_00_00_dc73b6, corrido con la misma
+funcion que el boton «Auditar», registrado en la bitacora como
+«script:cierre_final». Presupuesto Presupuesto_Base_PCA_02-06-2026.pdf.
+- Exposicion de capital hoy: $128,875.09. Si se autoriza el pago
+  solicitado de $354,949.88: $483,824.97. (Sin cambio: ninguna de estas
+  correcciones toca el calculo de capital.)
+- Hallazgos: 23 (con el codigo anterior, sobre los mismos datos: 26).
+  Con monto: R10-001 $51,852.05, R22-067 $43,105.60, R28-001 $16,341.60,
+  R21-001 $5,462.46 (indirectos, sigue: es otra comparacion), R10-002 y
+  R31-002 $79,032.45 (acabados, con explicacion del emisor), R31-001
+  $12,859.31, y cinco R22 menores ($6,300.00; $5,520.00; $1,680.00;
+  $1,120.39; $980.00).
+  Sin monto: R23-001, R27-006, R35-001 (ahora como pedido), R26-001,
+  R05-001, R20-001 y 5 puntos de revision en sitio de fotos (RF).
+- Documentos que faltan: 9 (igual).
+
+CONFIRMADO: R21 YA NO MARCA EL ANTICIPO
+R21-002 («el anticipo entregado no corresponde al porcentaje declarado»)
+salia con el codigo anterior y ya no sale: medido sobre la misma copia de
+la obra con el codigo viejo (26 hallazgos, R21-002 presente) y el nuevo
+(R21-002 ausente), y en el corte real de produccion (ausente). R21-001
+(indirectos) sigue, es otro calculo.
+
+DAÑOS DE FOTOS: LO QUE SI Y LO QUE NO SE LOGRO
+Antes 7 fotos con «defectos», despues 5.
+- Fuera: tuberia de PVC «rota en el extremo» (era el extremo encintado),
+  «erosion del terreno junto al cimiento» (excavacion) y la tuberia de
+  polietileno «rota» (dudosa).
+- Siguen, con otra redaccion: PXL_..._142506303 (castillo: «grieta vertical»
+  y «desplome») y PXL_..._142756001 (antes «acero expuesto», ahora
+  «despostillamiento»). Eran dos de los falsos identificados el 2026-09-26:
+  el prompt nuevo NO los quito. Tambien siguen la base de columna
+  (_142802313) y las gotas en la conexion (_143617089).
+- Nuevo: PXL_..._145220422, «grieta vertical en el muro de block», sin
+  verificar.
+Todos salen como «revision en sitio», certeza baja, monto 0, sin acusar.
+No los quite a mano: seria decidir por el modelo sin evidencia. Lo que los
+filtraria es el doble visor (pendiente 1), detenido por cuota.
+
+NO INCLUIDO A PROPOSITO
+- Doble visor Claude (bloque 3B): sin cuota de Vertex.
+- Lectura del dibujo de planos: no se promete; se resguardan como evidencia.
+Ver reportes/pendiente.txt, que queda solo con esos dos. Los pendientes
+anteriores (ya cerrados o decididos) estan en pendiente_historico_20261010.txt.
+
+ARCHIVOS PRIVADOS (con datos de la obra, NO en certeza-reportes):
+~/certeza-capturas-privadas/cierre_final_20261010/ : copia de la obra antes
+del re-analisis, cortes con codigo viejo y nuevo, corte e informe PDF de
+produccion, resultado del re-analisis foto por foto.

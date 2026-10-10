@@ -1,21 +1,18 @@
-CERTEZA - ultimo (2026-10-09, auditoria de usabilidad de agente.html)
+CERTEZA - ultimo (2026-10-10, cierre final)
 
-TERMINADO Y DESPLEGADO (commit defaac9, revision certeza-api-00071-fkk,
-humo.sh en verde, /app en produccion = agente.html del commit):
-- Dialogo "confirmar tipo de documento" rediseñado. Causa del problema:
-  responder() bloqueaba TODAS las preguntas al contestar una. Ahora: los N
-  documentos a la vez con tipo sugerido, por que y selector; "Confirmar
-  todos (N)" o uno por uno; resultado por fila, re-auditoria sola y aviso.
-- 45 puntos corregidos en los 8 criterios: errores en lenguaje claro con
-  salida, esqueletos y vacios utiles, autorizar pago en ambar y distinto
-  de lo rutinario, sin codigos de regla al usuario, botones de 44 px y
-  campos de 16 px en telefono, Reemplazar con confirmacion, X en las hojas.
-- Solo frontend. Motor, reglas y calculo sin tocar. 494 pasan, 1 omitida.
-- Probado en Chromium en telefono y computadora, flujo completo, sin
-  errores de JavaScript. Lista: reportes/auditoria_usabilidad_20261009.txt
-  Capturas antes/despues: reportes/capturas_ux/
+DESPLEGADO: revision certeza-api-00077-l8l, humo.sh todo OK, 509 pruebas
+(1 omitida). Detalle: reportes/cierre_final_20261010.txt.
+- AF/X: catalogo solo de hojas/PDF/BC3; archivo faltante con su motivo.
+  Prueba intermitente 15/15.
+- AG: presupuesto xlsx ya no se sugiere como plano estructural.
+- O: R21 lee el calendario de pagos; en Cabaña Emma ya no marca el anticipo.
+- P/W: R35 pide el comprobante, no acusa (motor, expediente y app).
+- C: R11 a certeza media con observacion de confianza < 0.5.
+- E/V: 58 fotos re-analizadas (US$0.065, 0 fallas). Daños 7 -> 5; dos de
+  los falsos de castillo NO se fueron (ver reporte).
+- Miniaturas por API y «Abrir original» que abre la foto.
+- Cabaña Emma re-auditada en produccion: 23 hallazgos, exposicion hoy
+  $128,875.09, si se paga $483,824.97, 9 documentos pedidos.
 
-OJO: el primer intento de deploy lo freno una prueba intermitente de
-backend (no de este cambio, ~2 de 15). Ver pendiente.txt AF.
-
-SIGUE: pendiente.txt AF y AG; los pendientes anteriores AB-AE siguen igual.
+SIGUE: pendiente.txt quedo solo con doble visor (cuota de Vertex) y
+lectura del dibujo de planos.
