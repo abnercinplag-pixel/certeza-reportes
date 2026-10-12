@@ -1,29 +1,44 @@
-CERTEZA - ultimo (2026-10-12, fotos en el PDF del informe)
+CERTEZA - ultimo (2026-10-12, fotos en el PDF del informe: desplegado y verificado)
 
-SIN DESPLEGAR: produccion sigue en certeza-api-00083-x26. Commits en
-certeza-auditor: 9d041b9 y 9e0d4e6. 554 pruebas OK (1 omitida; 8 nuevas
-en tests/test_informe_imagenes.py).
+DESPLEGADO: revision certeza-api-00085-csx, 100% del trafico. infra/deploy.sh
+corrio la suite antes (554 pruebas OK, 1 omitida; 8 nuevas del PDF) y
+humo.sh dio «todo OK». Cubetas sin allUsers.
 
-CAUSA
-- El informe en PDF de Cabaña Emma salia sin fotos. No era una URL rota:
-  el informe NUNCA ponia la imagen, solo el nombre del archivo.
-- Al incrustarlas aparecio un segundo fallo, medido con 58 fotos de
-  prueba: el base64 de una foto traia «robo» por azar y el filtro de
-  vocabulario (_limpio) tumbaba el informe completo.
-- Ademas el nombre de la foto quedaba separado de su imagen al cambiar
-  de pagina.
+CAUSA (commits 9d041b9 y 9e0d4e6 en certeza-auditor)
+- El informe nunca ponia la foto, solo el nombre del archivo.
+- Al incrustarlas: el base64 de una foto traia «robo» por azar y el filtro
+  de vocabulario tumbaba el informe entero.
+- El nombre de una foto podia quedar en otra pagina que su imagen.
 
 ARREGLO
-- Cada foto se lee de Cloud Storage con la cuenta del servicio, se reduce
-  a 1000 px JPEG calidad 70 (miniatura «informe», guardada junto a la
-  foto para no reducirla otra vez) y va DENTRO del PDF como bytes.
-- El generador solo acepta data: ; no resuelve ninguna URL al renderizar.
-- Foto sin archivo o que no abre: «Imagen no disponible» + motivo, con su
-  texto de evidencia completo. Se registra en el log; nada en silencio.
-- El filtro de vocabulario ya no revisa los bytes de la imagen, solo el
-  texto.
-- Foto, nombre y datos van en una sola ficha que no se parte entre paginas.
-- La etiqueta de cada foto (p. ej. no concluyente) no cambia.
+- Cada foto va DENTRO del PDF: miniatura 1000 px JPEG q70, leida de Cloud
+  Storage con la cuenta del servicio y guardada para la siguiente vez.
+- El generador solo acepta data:, no resuelve URLs.
+- Foto que no se puede leer: «Imagen no disponible» + motivo, texto completo.
+- El filtro de vocabulario revisa el texto, no los bytes de la imagen.
+- Foto, nombre y datos en una ficha que no se parte entre paginas.
 
-SIGUE: desplegar y generar el informe real de Cabaña Emma para ver las
-fotos en el PDF de produccion.
+VERIFICACION REAL (Cabaña Emma, ultimo corte; sin correr auditoria y sin
+correo: solo se lee el corte, igual que GET /api/obras/{id}/informe)
+- Generado con el mismo codigo desplegado contra Firestore y la cubeta de
+  produccion. No por HTTP: pedir el endpoint exige un token de Firebase de
+  un usuario real, y no se suplanto a nadie.
+- ABRI el PDF y lo pase a imagen (paginas 13, 16 y 35 revisadas a ojo):
+  las fotos se ven, cada una junto a su nombre, equipo, fecha y lo que
+  muestra. Las etiquetas «No concluyente, revisar en sitio» no cambiaron.
+- Corrida 2: 58 de 58 fotos incrustadas (58 imagenes distintas en el PDF),
+  35 paginas, 7.3 MB, ninguna «Imagen no disponible».
+
+PROBLEMAS ENCONTRADOS AL VERIFICAR (sin arreglar)
+1. Tiempo. Armar el PDF toma 8 s; leer las fotos de la cubeta tomo 194-321 s
+   desde esta maquina, con timeouts de 120 s por lectura. El servicio corta
+   a los 300 s. Falta medir el tiempo DENTRO de Cloud Run; si se acerca al
+   limite, la descarga del informe falla.
+2. Motivo engañoso. En las corridas 1 y 3 fallaron 2 fotos (distintas cada
+   vez) por timeout de red, y el PDF dijo «el archivo de esta foto no se
+   pudo abrir». El archivo esta bien; el motivo debe distinguir red de
+   archivo danado, y conviene un reintento corto en vez de 120 s.
+
+SIGUE: medir la descarga del informe desde la app en produccion (la hace
+Abner con su sesion); corregir el motivo del timeout y acotar la espera por
+foto; pendiente.txt puntos 1-4.
