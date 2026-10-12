@@ -1,0 +1,52 @@
+CERTEZA - avisos por correo via Resend (2026-10-12)
+
+ESTADO: HECHO, SIN DESPLEGAR. Produccion sigue en certeza-api-00079-dv4.
+Commit en ~/certeza: 4e16633. Falta confirmar bandeja vs spam (abajo).
+
+POR QUE
+- Cloud Run bloquea los puertos de salida de SMTP (25/465/587). El envio
+  anterior (smtplib + secretos certeza-smtp-*) nunca podia conectar ahi.
+- El aviso de «auditoria lista» llevaba cifras (numero de hallazgos y
+  capital en riesgo). Un correo se reenvia y se lee en telefonos ajenos;
+  la informacion sensible debe vivir dentro de la app.
+
+QUE CAMBIO
+1. Secreto certeza-resend-key (version 1) en Secret Manager, con
+   roles/secretmanager.secretAccessor para certeza-api@cinplag-v4-core.
+   La llave solo puede enviar: GET /domains responde 401
+   restricted_api_key. No aparece en el codigo ni en los registros.
+2. resumen.enviar_correo: POST a https://api.resend.com/emails con
+   urllib de la biblioteca estandar, sin dependencias nuevas. Remitente
+   fijo CERTEZA <avisos@certezaauditor.com>.
+   - 200 -> True.
+   - Otro codigo, sin red o sin llave -> se registra el motivo (nunca la
+     llave) y devuelve False sin levantar excepcion: la auditoria siempre
+     se guarda aunque el aviso no salga.
+   - Se mantuvo la firma real enviar_correo(mensaje: dict) que usa
+     certeza/api.py; se agrego el campo «html» al dict.
+3. Aviso «auditoria lista»: HTML sobrio (wordmark CERTEZA, una linea y
+   boton «Entrar a CERTEZA» a /app), con texto plano de respaldo. Ya NO
+   lleva cuantos hallazgos hay ni el capital en riesgo. El nombre de la
+   obra se escapa en el HTML.
+
+MEDIDO
+- Sin User-Agent propio, Cloudflare (frente de Resend) devuelve 403,
+  error 1010, a urllib. Se manda User-Agent certeza-api/1.
+- Envio real a contacto@certezaauditor.com con el mismo codigo: HTTP 200,
+  id Resend 01a12dd2-14e6-7de4-ba1b-ea8217bd320a.
+- Pruebas: 6 nuevas o reescritas en tests/test_resumen.py con la red
+  simulada (200, error 422 sin la llave en el registro, sin red, sin
+  llave, sin cifras, escape del nombre). Suite: 519 OK, 1 omitida.
+  AST correcto, sin secretos en el codigo.
+
+DIFERENCIAS CON LA ORDEN DE TRABAJO
+- La orden describia enviar_correo(destino, asunto, html). La firma real
+  recibe un dict; se conservo para no romper la llamada de api.py.
+- armar_documento_recibido no existe: hoy no se envia ningun correo de
+  «recibimos tu documento». No se creo para no dejar codigo sin uso.
+
+FALTA
+- Confirmar si el correo de prueba llego a BANDEJA o a SPAM (asunto
+  «CERTEZA · tu auditoría de Obra de prueba (envio real) está lista»).
+  La orden dice: si cae en spam, no se despliega. Si llego a bandeja:
+    cd ~/certeza && bash infra/deploy.sh && bash infra/humo.sh

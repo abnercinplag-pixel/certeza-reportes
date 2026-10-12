@@ -1,17 +1,24 @@
-CERTEZA - ultimo (2026-10-10, varillas de espera)
+CERTEZA - ultimo (2026-10-12, avisos por correo via Resend)
 
-DESPLEGADO: revision certeza-api-00079-dv4, humo.sh todo OK, 517 pruebas
-(1 omitida). Detalle: reportes/varillas_espera_20261010.txt.
-- Prompt de analisis visual: varilla de espera, punta del colado y junta
-  castillo-block son etapas normales; ejemplos de daño real.
-- Campo nuevo «no_concluyente»: confianza baja y punto RF que dice «no se
-  afirma que exista un daño». La descripcion que nombra un daño no
-  afirmado se retiene.
-- 58 fotos re-analizadas (US$0.079, 0 fallas). Fotos con daño afirmado:
-  5 -> 0. Los dos castillos ya no salen como daño.
-- Corte de produccion: 27 hallazgos, 9 de ellos «no concluyente, revisar
-  en sitio», 0 daños afirmados. Capital sin cambio ($128,875.09 /
-  $483,824.97).
+HECHO, SIN DESPLEGAR (produccion sigue en certeza-api-00079-dv4).
+- Secreto certeza-resend-key creado (version 1) con acceso
+  secretAccessor para certeza-api@cinplag-v4-core. La llave solo puede
+  enviar (GET /domains da 401 restricted_api_key).
+- resumen.enviar_correo: SMTP fuera, POST a api.resend.com/emails con
+  urllib. Remitente fijo CERTEZA <avisos@certezaauditor.com>. 200 ->
+  True; cualquier otro codigo se registra con el motivo de Resend (nunca
+  la llave) y devuelve False sin levantar excepcion.
+- Medido: sin User-Agent propio, Cloudflare (frente de Resend) devuelve
+  403 error 1010 a urllib. Se manda User-Agent certeza-api/1.
+- Aviso «auditoria lista»: HTML sobrio con wordmark, una linea y boton a
+  /app. Ya NO lleva cuantos hallazgos hay ni el capital en riesgo.
+- «Documento recibido» (armar_documento_recibido) no existe en el
+  codigo: hoy no se envia ningun correo de ese tipo. No se creo.
+- Pruebas: 6 nuevas/reescritas en test_resumen.py (200, error 422, sin
+  red, sin llave, sin cifras, escape del nombre). Suite: 519 OK, 1 omitida.
+- Envio real a contacto@: HTTP 200, id 01a12dd2-14e6-7de4-ba1b-ea8217bd320a.
+  FALTA confirmar bandeja vs spam (pendiente.txt punto 4).
 
-SIGUE: pendiente.txt punto 3 (decision: ¿los no concluyentes van en la
-lista de hallazgos?), doble visor (cuota de Vertex) y planos.
+Detalle: reportes/avisos_resend_20261012.txt.
+
+SIGUE: confirmar bandeja/spam y desplegar.

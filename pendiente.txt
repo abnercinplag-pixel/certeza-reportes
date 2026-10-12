@@ -42,3 +42,11 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
       pero se pueden pasar por alto.
    Recomendacion: (a) mientras no haya doble visor. Con cuota de Vertex,
    el doble visor podria filtrarlos y entonces conviene pasar a (b).
+
+4. ACCION DE ABNER (2026-10-12): confirmar si el correo de prueba de
+   Resend llego a BANDEJA o a SPAM en el Gmail (reenviado desde
+   contacto@certezaauditor.com). Asunto: «CERTEZA · tu auditoría de Obra
+   de prueba (envio real) está lista», remitente avisos@certezaauditor.com,
+   id Resend 01a12dd2-14e6-7de4-ba1b-ea8217bd320a. La orden de trabajo
+   dice: si cae en spam, no se despliega. Si llego a bandeja:
+     cd ~/certeza && bash infra/deploy.sh && bash infra/humo.sh
