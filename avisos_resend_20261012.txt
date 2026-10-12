@@ -60,8 +60,8 @@ DESPLIEGUE (2026-10-12)
 
 ROTACION DE LLAVE (2026-10-12)
 - Llave nueva de Resend guardada como version 2 de certeza-resend-key.
-  La version 1 sigue habilitada en Secret Manager (desactivarla cuando la
-  llave vieja este revocada en Resend).
+  La version 1 quedo DESACTIVADA en Secret Manager (2026-10-12): la
+  llave vieja ya fue borrada en Resend.
 - Validada sin enviar: GET /domains -> 401 restricted_api_key (Resend la
   reconoce; solo puede enviar).
 - Envio real con el codigo de produccion (resumen.enviar_correo, version

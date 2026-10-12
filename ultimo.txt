@@ -20,7 +20,7 @@ DESPLEGADO: revision certeza-api-00081-xw2, humo.sh todo OK, 519 pruebas
 - Envio real a contacto@: HTTP 200, id 01a12dd2-14e6-7de4-ba1b-ea8217bd320a.
   Llego a bandeja principal.
 - Llave rotada: version 2 de certeza-resend-key, envio real OK
-  (id 01a12de7-a2e6-7a50-8796-2fdfefd86292). Version 1 aun habilitada.
+  (id 01a12de7-a2e6-7a50-8796-2fdfefd86292). Version 1 desactivada (llave vieja borrada en Resend).
 
 Detalle: reportes/avisos_resend_20261012.txt.
 
