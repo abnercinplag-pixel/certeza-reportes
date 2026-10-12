@@ -1,44 +1,49 @@
-CERTEZA - ultimo (2026-10-12, fotos en el PDF del informe: desplegado y verificado)
+CERTEZA - ultimo (2026-10-12, PDF: tiempo de descarga y motivo honesto)
 
-DESPLEGADO: revision certeza-api-00085-csx, 100% del trafico. infra/deploy.sh
-corrio la suite antes (554 pruebas OK, 1 omitida; 8 nuevas del PDF) y
-humo.sh dio «todo OK». Cubetas sin allUsers.
+DESPLEGADO: revision certeza-api-00087-jcg, 100% del trafico. deploy.sh
+corrio la suite antes: 560 pruebas OK (1 omitida; 14 en
+tests/test_informe_imagenes.py, 6 nuevas). humo.sh «todo OK». Cubetas sin
+allUsers. Commit c01591a en certeza-auditor, con push.
 
-CAUSA (commits 9d041b9 y 9e0d4e6 en certeza-auditor)
-- El informe nunca ponia la foto, solo el nombre del archivo.
-- Al incrustarlas: el base64 de una foto traia «robo» por azar y el filtro
-  de vocabulario tumbaba el informe entero.
-- El nombre de una foto podia quedar en otra pagina que su imagen.
+TERMINADO
+- Miniatura del informe al SUBIR: escanear_documento la hace con el
+  original ya en memoria (1000 px JPEG q70). Si falla, la foto sigue
+  lista, queda en el log con traza y el informe la hace al pedirse.
+- Lectura de fotos para el PDF: 16 en paralelo, 10 s por intento y UN
+  reintento (antes: politica de Google de hasta 120 s por foto). El
+  original solo se baja si falta la miniatura (30 s).
+- Motivo real en el recuadro «Imagen no disponible»:
+  red      -> «no se pudo leer por la red a tiempo; el archivo no se
+              reviso. Vuelve a generar el informe»
+  danado   -> solo si el archivo se leyo completo y no abre como imagen
+  no encontrado / no registrado / otro error del almacenamiento: cada
+  uno con su texto. Nunca se dice «danado» por lentitud de red.
+  El visor de fotos tambien: red -> 503 «intenta de nuevo», ya no
+  «no pudimos abrir esta foto».
+- Migracion unica: infra/miniaturas_informe.py (idempotente; dice cada
+  foto que no pudo y por que). Medicion: infra/medir_informe.py (mismo
+  camino que GET /informe, sin auditoria, sin correo, sin bitacora).
+- Pruebas: miniatura creada al subir; informe NO relee el original si hay
+  miniatura (y usa 10 s); timeout de red da el mensaje de red, no danado,
+  con un solo reintento; adaptador GCS traduce timeout y apaga el
+  reintento de 120 s; migracion completa las que faltan.
 
-ARREGLO
-- Cada foto va DENTRO del PDF: miniatura 1000 px JPEG q70, leida de Cloud
-  Storage con la cuenta del servicio y guardada para la siguiente vez.
-- El generador solo acepta data:, no resuelve URLs.
-- Foto que no se puede leer: «Imagen no disponible» + motivo, texto completo.
-- El filtro de vocabulario revisa el texto, no los bytes de la imagen.
-- Foto, nombre y datos en una ficha que no se parte entre paginas.
+A MEDIAS (no hecho todavia)
+- La migracion NO se ha corrido en produccion. Las 58 fotos de Cabaña
+  Emma ya tienen miniatura (se crearon en la verificacion anterior);
+  fotos de otras obras subidas antes de 00087 pueden no tenerla.
+- El tiempo DENTRO de Cloud Run NO esta medido. Unico dato: fuera de
+  Cloud Run, armar el PDF toma 8 s y leer las fotos 194-321 s con la
+  version anterior. Sin esa medicion no se puede afirmar que la descarga
+  quede muy por debajo de 300 s.
+- No se ha regenerado ni abierto el PDF de Cabaña Emma con 00087.
 
-VERIFICACION REAL (Cabaña Emma, ultimo corte; sin correr auditoria y sin
-correo: solo se lee el corte, igual que GET /api/obras/{id}/informe)
-- Generado con el mismo codigo desplegado contra Firestore y la cubeta de
-  produccion. No por HTTP: pedir el endpoint exige un token de Firebase de
-  un usuario real, y no se suplanto a nadie.
-- ABRI el PDF y lo pase a imagen (paginas 13, 16 y 35 revisadas a ojo):
-  las fotos se ven, cada una junto a su nombre, equipo, fecha y lo que
-  muestra. Las etiquetas «No concluyente, revisar en sitio» no cambiaron.
-- Corrida 2: 58 de 58 fotos incrustadas (58 imagenes distintas en el PDF),
-  35 paginas, 7.3 MB, ninguna «Imagen no disponible».
-
-PROBLEMAS ENCONTRADOS AL VERIFICAR (sin arreglar)
-1. Tiempo. Armar el PDF toma 8 s; leer las fotos de la cubeta tomo 194-321 s
-   desde esta maquina, con timeouts de 120 s por lectura. El servicio corta
-   a los 300 s. Falta medir el tiempo DENTRO de Cloud Run; si se acerca al
-   limite, la descarga del informe falla.
-2. Motivo engañoso. En las corridas 1 y 3 fallaron 2 fotos (distintas cada
-   vez) por timeout de red, y el PDF dijo «el archivo de esta foto no se
-   pudo abrir». El archivo esta bien; el motivo debe distinguir red de
-   archivo danado, y conviene un reintento corto en vez de 120 s.
-
-SIGUE: medir la descarga del informe desde la app en produccion (la hace
-Abner con su sesion); corregir el motivo del timeout y acotar la espera por
-foto; pendiente.txt puntos 1-4.
+SIGUE
+1. Crear un Cloud Run Job con la imagen de 00087 y la cuenta
+   certeza-api; correr infra/miniaturas_informe.py y luego
+   infra/medir_informe.py <empresa> <obra> --guardar <ruta privada>.
+   Anotar s_total, fotos con imagen, MB y paginas.
+2. Bajar ese PDF, abrirlo, confirmar fotos y peso, y borrarlo de la cubeta.
+3. Abner: descargar el informe de Cabaña Emma desde la app con su sesion
+   real (prueba final, solo la puede hacer el).
+4. pendiente.txt puntos 1-4.
