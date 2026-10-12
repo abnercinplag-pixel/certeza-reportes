@@ -1,49 +1,43 @@
-CERTEZA - ultimo (2026-10-12, PDF: tiempo de descarga y motivo honesto)
+CERTEZA - ultimo (2026-10-12, PDF: tiempo medido dentro de Cloud Run)
 
-DESPLEGADO: revision certeza-api-00087-jcg, 100% del trafico. deploy.sh
-corrio la suite antes: 560 pruebas OK (1 omitida; 14 en
-tests/test_informe_imagenes.py, 6 nuevas). humo.sh «todo OK». Cubetas sin
-allUsers. Commit c01591a en certeza-auditor, con push.
+DESPLEGADO: revision certeza-api-00087-jcg, 100% del trafico. 560 pruebas
+OK (1 omitida), humo.sh «todo OK», cubetas sin allUsers. Commit c01591a
+en certeza-auditor (miniatura al subir, lecturas de 10 s + 1 reintento,
+motivo red / danado / no encontrado).
 
-TERMINADO
-- Miniatura del informe al SUBIR: escanear_documento la hace con el
-  original ya en memoria (1000 px JPEG q70). Si falla, la foto sigue
-  lista, queda en el log con traza y el informe la hace al pedirse.
-- Lectura de fotos para el PDF: 16 en paralelo, 10 s por intento y UN
-  reintento (antes: politica de Google de hasta 120 s por foto). El
-  original solo se baja si falta la miniatura (30 s).
-- Motivo real en el recuadro «Imagen no disponible»:
-  red      -> «no se pudo leer por la red a tiempo; el archivo no se
-              reviso. Vuelve a generar el informe»
-  danado   -> solo si el archivo se leyo completo y no abre como imagen
-  no encontrado / no registrado / otro error del almacenamiento: cada
-  uno con su texto. Nunca se dice «danado» por lentitud de red.
-  El visor de fotos tambien: red -> 503 «intenta de nuevo», ya no
-  «no pudimos abrir esta foto».
-- Migracion unica: infra/miniaturas_informe.py (idempotente; dice cada
-  foto que no pudo y por que). Medicion: infra/medir_informe.py (mismo
-  camino que GET /informe, sin auditoria, sin correo, sin bitacora).
-- Pruebas: miniatura creada al subir; informe NO relee el original si hay
-  miniatura (y usa 10 s); timeout de red da el mensaje de red, no danado,
-  con un solo reintento; adaptador GCS traduce timeout y apaga el
-  reintento de 120 s; migracion completa las que faltan.
+MEDIDO DENTRO DE CLOUD RUN
+Cloud Run Job «certeza-tareas»: misma imagen que 00087 (sha256:8fc89e09…),
+misma cuenta certeza-api, 1 CPU / 2 GiB, mismas variables. Sin auditoria,
+sin correo, sin bitacora.
 
-A MEDIAS (no hecho todavia)
-- La migracion NO se ha corrido en produccion. Las 58 fotos de Cabaña
-  Emma ya tienen miniatura (se crearon en la verificacion anterior);
-  fotos de otras obras subidas antes de 00087 pueden no tenerla.
-- El tiempo DENTRO de Cloud Run NO esta medido. Unico dato: fuera de
-  Cloud Run, armar el PDF toma 8 s y leer las fotos 194-321 s con la
-  version anterior. Sin esa medicion no se puede afirmar que la descarga
-  quede muy por debajo de 300 s.
-- No se ha regenerado ni abierto el PDF de Cabaña Emma con 00087.
+- Migracion (infra/miniaturas_informe.py), toda la produccion:
+  58 fotos revisadas, 58 ya tenian miniatura, 0 hechas, 0 fallidas, 10.7 s.
+  (Las 58 son de Cabaña Emma; sus miniaturas se crearon en la
+  verificacion anterior.)
+- Informe de Cabaña Emma (infra/medir_informe.py), ultimo corte:
+    leer el corte          2.8 s
+    leer las 58 fotos      1.8 s
+    armar el PDF           7.0 s
+    TOTAL                 11.6 s   (limite de Cloud Run: 300 s)
+  Antes, desde fuera de Cloud Run y sin este arreglo: 194-321 s.
+- 58 de 58 fotos con imagen, 58 imagenes distintas en el PDF, 35
+  paginas, 7.27 MB, 0 «Imagen no disponible».
+- ABRI el PDF generado en Cloud Run (paginas 21 y 30 revisadas a ojo):
+  las fotos se ven junto a su nombre, fecha y lo que muestran, incluida
+  una que en la corrida anterior habia fallado por red. Etiquetas «No
+  concluyente, revisar en sitio» sin cambio.
+- El PDF de verificacion se guardo en la cubeta privada para bajarlo y
+  se BORRO despues (confirmado: la carpeta _verificacion/ ya no existe).
 
-SIGUE
-1. Crear un Cloud Run Job con la imagen de 00087 y la cuenta
-   certeza-api; correr infra/miniaturas_informe.py y luego
-   infra/medir_informe.py <empresa> <obra> --guardar <ruta privada>.
-   Anotar s_total, fotos con imagen, MB y paginas.
-2. Bajar ese PDF, abrirlo, confirmar fotos y peso, y borrarlo de la cubeta.
-3. Abner: descargar el informe de Cabaña Emma desde la app con su sesion
-   real (prueba final, solo la puede hacer el).
-4. pendiente.txt puntos 1-4.
+LO QUE ESTA MEDICION NO CUBRE
+- Fotos sin miniatura (cuando el informe tiene que bajar el original):
+  hoy no hay ninguna en produccion, asi que no se midio ese camino en
+  Cloud Run. Las fotos nuevas ya traen miniatura desde que se suben.
+- «60+ fotos»: se midieron 58. La lectura de fotos tomo 1.8 s, asi que
+  hay margen amplio, pero 60+ no se midio.
+- El job certeza-tareas sigue creado (no cuesta sin ejecutarse); sirve
+  para repetir la medicion. Borrar con:
+  gcloud run jobs delete certeza-tareas --region us-central1
+
+SIGUE: Abner descarga el informe de Cabaña Emma desde la app con su
+sesion real (prueba final, solo la puede hacer el). pendiente.txt 1-4.
