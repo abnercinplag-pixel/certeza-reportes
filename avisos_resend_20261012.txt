@@ -1,7 +1,7 @@
 CERTEZA - avisos por correo via Resend (2026-10-12)
 
-ESTADO: HECHO, SIN DESPLEGAR. Produccion sigue en certeza-api-00079-dv4.
-Commit en ~/certeza: 4e16633. Falta confirmar bandeja vs spam (abajo).
+ESTADO: DESPLEGADO en certeza-api-00081-xw2 (100% del trafico), humo.sh
+todo OK. Commit del codigo en ~/certeza: 4e16633.
 
 POR QUE
 - Cloud Run bloquea los puertos de salida de SMTP (25/465/587). El envio
@@ -45,8 +45,15 @@ DIFERENCIAS CON LA ORDEN DE TRABAJO
 - armar_documento_recibido no existe: hoy no se envia ningun correo de
   «recibimos tu documento». No se creo para no dejar codigo sin uso.
 
-FALTA
-- Confirmar si el correo de prueba llego a BANDEJA o a SPAM (asunto
-  «CERTEZA · tu auditoría de Obra de prueba (envio real) está lista»).
-  La orden dice: si cae en spam, no se despliega. Si llego a bandeja:
-    cd ~/certeza && bash infra/deploy.sh && bash infra/humo.sh
+DESPLIEGUE (2026-10-12)
+- Abner confirmo: el correo de prueba llego a la BANDEJA PRINCIPAL de
+  Gmail (no a spam).
+- infra/deploy.sh: suite 519 OK, 1 omitida. Revision certeza-api-00080-hrl
+  y luego certeza-api-00081-xw2 (segundo paso del script: CERTEZA_URL y
+  CERTEZA_ESCANER_URL). Sirve el 100% del trafico.
+- Cubetas sin allUsers (4/4). humo.sh: 5/5, todo OK.
+- CERTEZA_URL en la revision = https://certeza-api-l5t2gn5qnq-uc.a.run.app
+  (el boton del correo apunta a <CERTEZA_URL>/app).
+- Sin errores registrados en la revision nueva al cierre.
+- Aun no ha salido un aviso real desde Cloud Run: el primero saldra
+  cuando un cliente termine una auditoria.

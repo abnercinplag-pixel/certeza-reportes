@@ -1,6 +1,7 @@
 CERTEZA - ultimo (2026-10-12, avisos por correo via Resend)
 
-HECHO, SIN DESPLEGAR (produccion sigue en certeza-api-00079-dv4).
+DESPLEGADO: revision certeza-api-00081-xw2, humo.sh todo OK, 519 pruebas
+(1 omitida). El correo de prueba llego a bandeja principal (no spam).
 - Secreto certeza-resend-key creado (version 1) con acceso
   secretAccessor para certeza-api@cinplag-v4-core. La llave solo puede
   enviar (GET /domains da 401 restricted_api_key).
@@ -17,8 +18,9 @@ HECHO, SIN DESPLEGAR (produccion sigue en certeza-api-00079-dv4).
 - Pruebas: 6 nuevas/reescritas en test_resumen.py (200, error 422, sin
   red, sin llave, sin cifras, escape del nombre). Suite: 519 OK, 1 omitida.
 - Envio real a contacto@: HTTP 200, id 01a12dd2-14e6-7de4-ba1b-ea8217bd320a.
-  FALTA confirmar bandeja vs spam (pendiente.txt punto 4).
+  Llego a bandeja principal.
 
 Detalle: reportes/avisos_resend_20261012.txt.
 
-SIGUE: confirmar bandeja/spam y desplegar.
+SIGUE: ver el primer aviso real que salga desde Cloud Run; pendiente.txt
+puntos 1-3 (doble visor, planos, decision de no concluyentes).
