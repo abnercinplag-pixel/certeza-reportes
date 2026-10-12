@@ -1,43 +1,40 @@
-CERTEZA - ultimo (2026-10-12, PDF: tiempo medido dentro de Cloud Run)
+CERTEZA - ultimo (2026-10-12, PDF del informe: cerrado)
 
-DESPLEGADO: revision certeza-api-00087-jcg, 100% del trafico. 560 pruebas
-OK (1 omitida), humo.sh «todo OK», cubetas sin allUsers. Commit c01591a
-en certeza-auditor (miniatura al subir, lecturas de 10 s + 1 reintento,
-motivo red / danado / no encontrado).
+DESPLEGADO: revision certeza-api-00089-vz9, 100% del trafico (00088 es el
+paso intermedio de deploy.sh). 560 pruebas OK (1 omitida). Commits en
+certeza-auditor: c01591a (arreglo) y dbdf456 (opciones de medicion).
+No queda nada sin guardar en ningun repo.
 
-MEDIDO DENTRO DE CLOUD RUN
-Cloud Run Job «certeza-tareas»: misma imagen que 00087 (sha256:8fc89e09…),
-misma cuenta certeza-api, 1 CPU / 2 GiB, mismas variables. Sin auditoria,
-sin correo, sin bitacora.
+QUE SE ARREGLO (dia completo)
+1. Las fotos no salian en el PDF: ahora van incrustadas (00085).
+2. El informe podia pasar de 300 s: la miniatura se hace al subir la
+   foto; el informe lee 16 a la vez, 10 s por intento y 1 reintento (00087).
+3. Un timeout de red decia «archivo no se pudo abrir»: ahora el motivo
+   distingue red / danado / no encontrado (00087).
 
-- Migracion (infra/miniaturas_informe.py), toda la produccion:
-  58 fotos revisadas, 58 ya tenian miniatura, 0 hechas, 0 fallidas, 10.7 s.
-  (Las 58 son de Cabaña Emma; sus miniaturas se crearon en la
-  verificacion anterior.)
-- Informe de Cabaña Emma (infra/medir_informe.py), ultimo corte:
-    leer el corte          2.8 s
-    leer las 58 fotos      1.8 s
-    armar el PDF           7.0 s
-    TOTAL                 11.6 s   (limite de Cloud Run: 300 s)
-  Antes, desde fuera de Cloud Run y sin este arreglo: 194-321 s.
-- 58 de 58 fotos con imagen, 58 imagenes distintas en el PDF, 35
-  paginas, 7.27 MB, 0 «Imagen no disponible».
-- ABRI el PDF generado en Cloud Run (paginas 21 y 30 revisadas a ojo):
-  las fotos se ven junto a su nombre, fecha y lo que muestran, incluida
-  una que en la corrida anterior habia fallado por red. Etiquetas «No
-  concluyente, revisar en sitio» sin cambio.
-- El PDF de verificacion se guardo en la cubeta privada para bajarlo y
-  se BORRO despues (confirmado: la carpeta _verificacion/ ya no existe).
+MEDIDO DENTRO DE CLOUD RUN (job certeza-tareas, imagen de 00089, cuenta
+certeza-api, 1 CPU / 2 GiB; sin auditoria, sin correo, sin bitacora)
 
-LO QUE ESTA MEDICION NO CUBRE
-- Fotos sin miniatura (cuando el informe tiene que bajar el original):
-  hoy no hay ninguna en produccion, asi que no se midio ese camino en
-  Cloud Run. Las fotos nuevas ya traen miniatura desde que se suben.
-- «60+ fotos»: se midieron 58. La lectura de fotos tomo 1.8 s, asi que
-  hay margen amplio, pero 60+ no se midio.
-- El job certeza-tareas sigue creado (no cuesta sin ejecutarse); sirve
-  para repetir la medicion. Borrar con:
-  gcloud run jobs delete certeza-tareas --region us-central1
+  caso                          fotos  total  fotos   PDF    pags   MB
+  Cabaña Emma real (00087)        58   11.6s   1.8s   7.0s    35  7.27
+  repetida x2                    116   13.7s   2.1s  10.3s    54  7.30
+  repetida x3                    174   25.2s   3.1s  16.9s    73  7.34
+  sin miniatura (desde original)  58   27.8s  19.6s   7.0s    35  7.27
+
+  Limite de Cloud Run: 300 s. Todos los casos con todas sus fotos y 0
+  «Imagen no disponible». Antes del arreglo: 194-321 s.
+
+- Las repetidas son los MISMOS bytes y el PDF los guarda una vez: el peso
+  de 116/174 no representa fotos distintas. Estimado para 174 fotos
+  distintas: ~22 MB (no medido). El tiempo si escala con las filas.
+- «sin miniatura» finge que ninguna foto la tiene (como una subida antes
+  de 00087) y no escribe nada: es el peor caso real, 27.8 s.
+- Migracion en produccion: 58 fotos, 58 ya con miniatura, 0 fallidas.
+- PDF real abierto y revisado a ojo (paginas 13, 16, 21, 30, 35): las
+  fotos se ven con su nombre, fecha y lo que muestran. El PDF de
+  verificacion se borro de la cubeta.
+- El job certeza-tareas queda creado para repetir mediciones (sin costo
+  si no corre). Borrar: gcloud run jobs delete certeza-tareas --region us-central1
 
 SIGUE: Abner descarga el informe de Cabaña Emma desde la app con su
 sesion real (prueba final, solo la puede hacer el). pendiente.txt 1-4.
