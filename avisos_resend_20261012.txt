@@ -57,3 +57,15 @@ DESPLIEGUE (2026-10-12)
 - Sin errores registrados en la revision nueva al cierre.
 - Aun no ha salido un aviso real desde Cloud Run: el primero saldra
   cuando un cliente termine una auditoria.
+
+ROTACION DE LLAVE (2026-10-12)
+- Llave nueva de Resend guardada como version 2 de certeza-resend-key.
+  La version 1 sigue habilitada en Secret Manager (desactivarla cuando la
+  llave vieja este revocada en Resend).
+- Validada sin enviar: GET /domains -> 401 restricted_api_key (Resend la
+  reconoce; solo puede enviar).
+- Envio real con el codigo de produccion (resumen.enviar_correo, version
+  latest): True, id Resend 01a12de7-a2e6-7a50-8796-2fdfefd86292, asunto
+  «CERTEZA · tu auditoría de Obra de prueba (llave nueva v2) está lista».
+- Produccion (certeza-api-00081-xw2) lee versions/latest con cache de 300 s:
+  toma la llave nueva sola, sin redesplegar.
