@@ -1,5 +1,5 @@
 CERTEZA — lo que de verdad queda para despues
-Actualizado: 2026-10-12 (avisos Resend desplegados; punto 4 cerrado). El historial completo de pendientes
+Actualizado: 2026-10-12 (lectura de datos declarados del plano desplegada). El historial completo de pendientes
 anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
 
 1. DOBLE VISOR (bloque 3B). Codigo listo, detenido por cuota de Vertex.
@@ -31,6 +31,10 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
    (cajetin, notas) pero no interpreta el dibujo. Lo que depende del dibujo
    (R30: superficie del lote y COS) sigue sin evaluarse hasta que llegue
    escritura o licencia con el cuadro de areas.
+   Actualizado (2026-10-12, lectura_planos_20261012.txt): ya se leen los
+   DATOS ESCRITOS del plano con Gemini (rotulo, ubicacion, superficies si
+   estan escritas). Los de Cabaña Emma no escriben superficie: R30 no
+   cambia. El segundo visor para planos va despues, como paso aparte.
 
 3. DECISION DE NEGOCIO: ¿los puntos «no concluyente» van en la lista de
    hallazgos? Hoy Cabaña Emma tiene 9 (0 daños afirmados). Opciones:
@@ -43,3 +47,11 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
    Recomendacion: (a) mientras no haya doble visor. Con cuota de Vertex,
    el doble visor podria filtrarlos y entonces conviene pasar a (b).
 
+4. DECISION DE NEGOCIO: tipo de obra de Cabaña Emma. Los planos
+   estructurales dicen «PLANTA BAJA Y ALTA ESTRUCTURALES»; la obra se
+   audita como «residencial_un_nivel» (valor por omision; la obra no trae
+   «proyecto»). El tipo decide las partidas minimas de R29.
+   a) Dejarlo asi hasta que el experto confirme los niveles en sitio.
+   b) Cambiarlo a dos niveles en la obra (dato de la obra, no del codigo).
+   Recomendacion: (a); el dato viene de un solo visor y la lamina
+   arquitectonica es «FASE 1, PLANTA BAJA».

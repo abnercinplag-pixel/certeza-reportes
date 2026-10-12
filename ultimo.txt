@@ -1,28 +1,24 @@
-CERTEZA - ultimo (2026-10-12, avisos por correo via Resend)
+CERTEZA - ultimo (2026-10-12, lectura de datos declarados del plano)
 
-DESPLEGADO: revision certeza-api-00081-xw2, humo.sh todo OK, 519 pruebas
-(1 omitida). El correo de prueba llego a bandeja principal (no spam).
-- Secreto certeza-resend-key creado (version 1) con acceso
-  secretAccessor para certeza-api@cinplag-v4-core. La llave solo puede
-  enviar (GET /domains da 401 restricted_api_key).
-- resumen.enviar_correo: SMTP fuera, POST a api.resend.com/emails con
-  urllib. Remitente fijo CERTEZA <avisos@certezaauditor.com>. 200 ->
-  True; cualquier otro codigo se registra con el motivo de Resend (nunca
-  la llave) y devuelve False sin levantar excepcion.
-- Medido: sin User-Agent propio, Cloudflare (frente de Resend) devuelve
-  403 error 1010 a urllib. Se manda User-Agent certeza-api/1.
-- Aviso «auditoria lista»: HTML sobrio con wordmark, una linea y boton a
-  /app. Ya NO lleva cuantos hallazgos hay ni el capital en riesgo.
-- «Documento recibido» (armar_documento_recibido) no existe en el
-  codigo: hoy no se envia ningun correo de ese tipo. No se creo.
-- Pruebas: 6 nuevas/reescritas en test_resumen.py (200, error 422, sin
-  red, sin llave, sin cifras, escape del nombre). Suite: 519 OK, 1 omitida.
-- Envio real a contacto@: HTTP 200, id 01a12dd2-14e6-7de4-ba1b-ea8217bd320a.
-  Llego a bandeja principal.
-- Llave rotada: version 2 de certeza-resend-key, envio real OK
-  (id 01a12de7-a2e6-7a50-8796-2fdfefd86292). Version 1 desactivada (llave vieja borrada en Resend).
+DESPLEGADO: revision certeza-api-00083-x26, humo.sh todo OK, 546 pruebas
+(1 omitida; 27 nuevas). AST y secretos OK.
+- Planos de Cabaña Emma leidos en produccion (3 PDF, ~US$0.009 total) con
+  Gemini sobre la lamina rasterizada (vista + 4 cuartos). Solo lo ESCRITO.
+- Leido: proyecto, escala, clave, contenido, fechas, propietario,
+  ubicacion (un solo lote), espacios. Superficies: NINGUNA escrita.
+- Cruce con el contrato (210 m2 terreno / 140 m2 construccion): 0 puntos,
+  porque el plano no declara superficie. Se dice, no se deduce del dibujo.
+- R30 sigue sin evaluarse: nadie dice cuanto mide el lote.
+- No concluyente: clave «CACB-101» (capa de texto dice CAC08-101); «2
+  niveles» inferido del dibujo -> revisar en sitio, sin cifra.
+- Nada del plano entra al motor ni a dinero: puntos R30-P con monto 0,
+  certeza baja, confirmacion humana. Motor y reglas sin tocar.
+- Nuevo: boton «Leer planos pendientes» (Entregables), POST
+  /api/obras/{id}/planos/leer, infra/leer_planos.py.
+- No se corrio la auditoria en produccion (manda correo al cliente): el
+  cruce se calculo leyendo Firestore. Correrla desde la app cuando se quiera.
 
-Detalle: reportes/avisos_resend_20261012.txt.
+Detalle: lectura_planos_20261012.txt.
 
-SIGUE: ver el primer aviso real que salga desde Cloud Run; pendiente.txt
-puntos 1-3 (doble visor, planos, decision de no concluyentes).
+SIGUE: segundo visor para planos (despues, paso aparte); pendiente.txt
+puntos 1-4.

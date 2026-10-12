@@ -1,0 +1,73 @@
+CERTEZA - lectura de datos declarados del plano (PDF) y cruce con el contrato (2026-10-12)
+
+Version publica: sin nombre del propietario ni ubicacion exacta del predio.
+
+DESPLEGADO: revision certeza-api-00083-x26, humo.sh todo OK. Suite: 546 OK,
+1 omitida (antes 519; 27 nuevas en tests/test_plano.py). AST y secretos OK.
+
+PLANOS USADOS (obra Cabaña Emma)
+  Plano_Arquitectonico_Planta_Baja_CAC08-101.pdf (1 pag)
+  Plano_Estructural_Cimentacion_CAC08.pdf (1 pag)
+  Plano_Estructural_Trabes_Nervaduras_CAC08.pdf (1 pag)
+  Laminas de 36x24 in. El rotulo de los estructurales esta dibujado como
+  trazos: su capa de texto NO trae ubicacion, contenido ni fecha.
+
+COMO SE LEE (certeza/adaptadores/plano.py)
+- pypdfium2 rasteriza cada lamina: vista completa + 4 cuartos ampliados
+  (medido: con solo la vista a 3072 px el modelo leyo el lote en una lamina
+  y no en su gemela). Gemini 2.5 flash, temperatura 0, esquema JSON.
+- Pide SOLO lo escrito: proyecto, ubicacion, superficies, niveles, escala,
+  clave, contenido, fecha, propietario, espacios, notas. Cada dato trae el
+  renglon literal, pagina y confianza.
+- Validacion determinista -> «no concluyente» si: confianza baja; el valor
+  no aparece en el renglon citado; superficie sin etiqueta de area ni unidad
+  (es una cota); propietario citado junto a otro cargo; la capa de texto del
+  PDF trae una palabra casi igual pero distinta.
+- Lo deducido del dibujo -> «revisar en sitio», sin cifra. Nunca dato.
+- Se lee una vez por plano (campo datos_plano). La auditoria solo lee.
+- Costo real: ~US$0.009 los tres planos.
+
+DATOS DECLARADOS EXTRAIDOS (corrida en produccion)
+  Arquitectonico CAC08-101: proyecto, escala 1:50, contenido PLANTA BAJA /
+    ALBAÑILERIA / FASE 1; espacios TERRAZA, SALA, COCINA, RECAMARA, ZAGUAN,
+    BAÑO.
+  Estructurales: proyecto, propietario, ubicacion (un solo lote, con
+    fraccionamiento y municipio), contenido «PLANTA BAJA Y ALTA
+    ESTRUCTURALES» y «ALZADO & CORTE», clave CAC08-203, escala 1:100,
+    fechas 20 de mayo de 2026 y 25-05-2026 (rev. 01).
+  SUPERFICIES: NINGUNA. Ningun plano escribe superficie de terreno ni
+    construida. No se dedujo de las cotas.
+
+RESULTADO DEL CRUCE (cruce_plano.py, sin IA, fuera del motor)
+- 0 puntos de revision: no hay superficie en el plano que comparar.
+- El contrato declara 210.00 m2 de terreno y 140.00 m2 de construccion
+  (pag. 2): no se cruzan contra el plano por esa razon, y se dice.
+- Los estructurales nombran un solo lote. Ningun documento recibido dice
+  cuanto mide: no se puede saber si 210 m2 caben en el. R30 sigue sin
+  evaluarse hasta escritura o licencia (sin cambio).
+- Presupuesto: no declara superficie como dato (el trazo de 210 m2 es una
+  cantidad de concepto); no se cruza para no interpretar.
+
+NO CONCLUYENTE / REVISAR EN SITIO
+- Clave del arquitectonico leida «CACB-101»; la capa de texto dice
+  «CAC08-101» -> no concluyente (atrapado por la regla de capa).
+- «2 niveles» inferido del dibujo en ambos estructurales -> revisar en
+  sitio, sin cifra.
+- En la corrida grabada para pruebas el modelo puso al responsable de obra
+  como propietario -> no concluyente por la regla de cargo.
+
+OBSERVACIONES PARA EL EXPERTO (no se convirtieron en hallazgo)
+- Las dos laminas estructurales traen el MISMO cajetin (CAC08-203, «ALZADO
+  Y CORTE») aunque una muestra la planta de cimentacion y otra trabes.
+- Los planos dicen «PLANTA BAJA Y ALTA»; la obra se audita como
+  «residencial_un_nivel» (valor por omision). Decision en pendiente.txt.
+
+QUE SE AGREGO
+- certeza/adaptadores/plano.py, certeza/cruce_plano.py, infra/leer_planos.py
+- POST /api/obras/{id}/planos/leer + boton «Leer planos pendientes» en
+  Entregables. La auditoria agrega puntos R30-P (monto 0, certeza baja,
+  requiere_confirmacion_documental) y guarda notas en corte.lectura.planos.
+- requirements: pypdfium2 (wheel, sin poppler).
+- Pruebas con la respuesta cruda real de Gemini: positivo (150 vs 140 ->
+  punto con origen), negativo real (sin superficie -> sin punto y dicho),
+  igual (coincide).
