@@ -1,21 +1,14 @@
-CERTEZA - ultimo (2026-10-13 noche, comprobante de pago + CEP Banxico + triple empate)
+CERTEZA - ultimo (2026-10-13, intento de despliegue comprobante de pago + CEP)
 
-SIN DESPLEGAR: la sesion de gcloud caduco. Produccion sigue en
-certeza-api-00103-q75. 770 pruebas OK (1 omitida), antes 715. AST y secretos OK.
+SIN DESPLEGAR: la sesion de gcloud sigue caducada (sin cuenta activa,
+print-access-token falla). Produccion sigue en certeza-api-00103-q75.
+Suite completa en verde: 770 OK, 1 omitida. AST y secretos OK.
 
-- Bug arreglado: una transferencia subida para el anticipo ya no sale como
-  «factura con QR ilegible». Tipo propio «comprobante de pago».
-- Se lee: clave de rastreo, monto, fecha, bancos, cuentas, RFC, concepto.
-  XML del CEP = dato duro; PDF o pantallazo = propuesta.
-- Banxico (CEP) confirma la transferencia: «Pago verificado con Banxico».
-  No encontrada / distinta / sin datos = hallazgo (R41).
-- R42: el pago debe salir de quien paga y llegar a quien cobra (papeles
-  configurables por obra).
-- R43 triple empate factura (SAT) - CEP (Banxico) - concentrado, con R31.
-- Probado con sinteticos y con una consulta real a Banxico (clave
-  inventada, «no encontrada»). NO probado con una transferencia real.
-Detalle: comprobante_pago_banxico_20261013.txt
+- make verificar corrido de nuevo sobre afba4f5: verde.
+- d28070e (wip pago) y todo lo posterior estan en origin/main; nada se perdio.
+- deploy.sh no se corrio: falla al primer gcloud sin credenciales.
+- Pendiente 10 sigue vigente con los comandos exactos.
 
-SIGUE: gcloud auth login, desplegar, probar con la transferencia real de
-Cabana Emma (solo lectura); decidir aviso legal Banxico; luego TIPO DE CONTRATO.
-Doble visor (pendiente 1) sin tocar.
+SIGUE: Abner corre gcloud auth login (pendiente 10); luego
+bash infra/deploy.sh && bash infra/humo.sh; prueba real con la
+transferencia de Cabana Emma; aviso legal Banxico; TIPO DE CONTRATO.
