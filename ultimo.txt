@@ -1,21 +1,20 @@
-CERTEZA - ultimo (2026-10-13, capa 2: leer por vision documentos sin texto)
+CERTEZA - ultimo (2026-10-13, capa 3: facturas CFDI por XML y QR, con el SAT)
 
-DESPLEGADO: revision certeza-api-00097-6rt, 100% del trafico, humo.sh OK.
-654 pruebas OK (1 omitida); antes 639. Capa 1 sigue activa (R07 R08 R09 R15).
+DESPLEGADO: revision certeza-api-00099-5hc, 100% del trafico, humo.sh OK.
+690 pruebas OK (1 omitida); antes 654. Capas 1 y 2 siguen activas.
 
-- PDF sin texto e imagenes de documento se leen por vision (el mismo
-  Gemini de fotos y planos) al quedar listos; la transcripcion pasa por los
-  mismos clasificador y extractores que un PDF con texto.
-- Todo lo leido por vision es propuesta: cada cifra lleva duda y no entra
-  al calculo sin confirmacion humana; tipo nunca de confianza alta. PDF con
-  texto: nunca llama al modelo.
-- Tipo nuevo «nota»: se lee y se guarda con su resumen en el corte.
-- Boton «Leer documentos pendientes» reintenta lo que falle.
-- Ejemplo real: contrato de Cabana Emma convertido en escaneo (5 pag, sin
-  texto): clasificado contrato (media), 10 cifras iguales a las del PDF
-  original, las 10 como «confirmar», 0 al calculo. US$0.0039.
-- Cabana Emma sin cambio: mismos 28 hallazgos y exposicion.
-Detalle: capa2_vision_20261013.txt
+- Se acepta el XML del CFDI (4.0 y 3.3): UUID, RFC, total, subtotal, IVA,
+  conceptos como dato duro. El PDF de la factura: UUID, RFC y total exactos
+  de su QR; conceptos e IVA por vision como «confirmar». Sin QR legible: se
+  pide el XML.
+- Consulta al SAT: vigente/cancelado/no encontrado y ValidacionEFOS (lista
+  69-B), al subir y desde «Leer documentos pendientes».
+- Reglas R16 cancelado, R17 lista 69-B, R18 facturas vs entregado, R19 IVA,
+  R32 factura de un tercero, R39 factura usada dos veces.
+- Cabana Emma (sin facturas): mismos 28 hallazgos y misma exposicion.
+- Prueba con CFDI REAL: PENDIENTE (no hay uno en Cloud Shell). La
+  validacion SAT no se da por probada con un comprobante real.
+Detalle: capa3_cfdi_20261013.txt
 
-SIGUE: Capa 3 (CFDI XML + SAT) espera una factura real; Capa 4 (contrato
-como fuente de verdad) va encima de esta. pendiente.txt 1, 2, 4 y 5 siguen.
+SIGUE: Abner sube un CFDI real y corre infra/probar_cfdi_real.py
+(pendiente.txt 7). Decision legal sobre el aviso (8). Capa 4 aparte.

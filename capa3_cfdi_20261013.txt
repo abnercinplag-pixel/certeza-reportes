@@ -1,0 +1,79 @@
+CERTEZA - Capa 3: facturas CFDI por XML y por QR del PDF, con el SAT (2026-10-13)
+
+DESPLEGADO: revision certeza-api-00099-5hc, 100% del trafico, humo.sh todo OK.
+Commit d0f3ba0. Suite: 690 OK, 1 omitida (antes 654; 36 nuevas
+en tests/test_capa3_cfdi.py). AST y secretos OK.
+
+QUE SE LEE DEL CFDI
+- XML (CFDI 4.0 y 3.3), la via mas confiable: folio fiscal (UUID), RFC
+  emisor y receptor, nombre del emisor, fecha, tipo de comprobante,
+  SubTotal, Descuento, Total, IVA trasladado (impuesto 002: tasa e
+  importe), los ultimos 8 del sello (para la consulta) y cada concepto
+  (descripcion, cantidad, valor unitario, importe). Es dato duro: entra al
+  calculo. Se lee con defusedxml (sin DTD ni entidades); solo se acepta XML
+  que sea un CFDI. Un XML roto no tumba nada: se guarda con su motivo y la
+  auditoria lo dice.
+- PDF (o foto) de la factura: su codigo QR da UUID, RFC emisor, RFC
+  receptor y total EXACTOS. Lector de QR portado del de CINPLAG (OpenCV con
+  preprocesamiento, probado en la imagen del contenedor). Conceptos e IVA
+  del PDF: por vision, como propuesta «confirmar»; ninguna regla de dinero
+  los usa. PDF sin QR legible: no se concilia, certeza baja, y se pide el
+  XML o una copia con el QR nitido.
+- cfdibills no se uso: fija pydantic 1.9 (CERTEZA usa 2) y maneja el total
+  como float.
+
+QUE SE VALIDA CONTRA EL SAT
+Servicio publico ConsultaCFDIService con UUID + RFC emisor + RFC receptor +
+total (+ los 8 del sello). Se guarda: codigo de estatus, estado (Vigente /
+Cancelado / No Encontrado), si es cancelable y ValidacionEFOS:
+- 200 o 201 = el emisor NO esta en la lista del 69-B; otro codigo (100) =
+  SI esta; vacio = el SAT no lo dijo y no se concluye.
+Se consulta al subir la factura y desde «Leer documentos pendientes»; una
+consulta de mas de 7 dias se repite (un CFDI se puede cancelar despues).
+
+REGLAS NUEVAS (Decimal; cada cifra cita el CFDI y su UUID, y lo del SAT
+cita la consulta y su fecha)
+- R16 CFDI cancelado (hallazgo fuerte, monto = su total si respalda un
+  pago); «no encontrado» en el SAT: aclaracion sin monto.
+- R17 emisor en la lista 69-B (hallazgo fuerte, monto = su total).
+- R18 suma de facturas vigentes contra lo entregado del concentrado
+  (subtotal si el precio se pacto sin IVA): entregado de mas sin factura =
+  monto; facturado de mas = aclaracion. Notas de credito restan.
+- R19 IVA distinto al 16% de la base: aviso sin monto (solo XML).
+- R32 factura de un tercero: emisor distinto al RFC del contratista (se lee
+  del contrato si lo trae, o de la captura); sin ese RFC, se dice que no se
+  pudo verificar.
+- R39 la misma factura (UUID) presentada para dos pagos distintos. El XML y
+  el PDF de una misma factura no son repeticion y se cuentan una vez.
+- R31: la factura de un proveedor subida como soporte de una nota del
+  concentrado no se concilia contra los pagos ni se le exige ser del
+  contratista. Factura sin pedido: cuenta y se concilia como pago.
+- R35 ya no pide el comprobante cuando hay un CFDI de pago verificable; un
+  PDF sin QR no basta.
+
+PRUEBAS
+- Parseo: CFDI 4.0 y 3.3 sinteticos dan los campos exactos; XML malformado,
+  sin timbre, con cifra rota o con entidades: rechazados sin tronar.
+- QR: un PDF con el QR de un CFDI da UUID, RFC y total exactos; sin QR
+  queda «sin QR» con su motivo.
+- SAT: unitarias con cliente falso (Vigente/Cancelado, EFOS 200/201/100) y
+  el formato de respuesta fijado con una respuesta REAL del servicio a un
+  folio inventado («N - 602: Comprobante no encontrado»). El servicio del
+  SAT responde desde Cloud Shell.
+- Conciliacion: positivo (cuadra) y negativos (suma distinta de lo
+  entregado, IVA mal, RFC distinto, UUID repetido, cancelada excluida).
+- Camino de la app: XML subido -> leido -> SAT -> conciliado; PDF con QR
+  sin SAT -> pendiente -> boton -> EFOS en lista -> R17.
+- Cabana Emma (sin facturas): mismos 28 hallazgos y misma exposicion.
+
+PRUEBA CON CFDI REAL: PENDIENTE. Todavia no hay un CFDI real de CINPLAG en
+Cloud Shell. La validacion contra el SAT NO se da por probada con un
+comprobante real. Queda lista para correr en cuanto llegue
+(infra/probar_cfdi_real.py, imprime RFC y folio enmascarados);
+pendiente.txt punto 7.
+
+TAMBIEN
+- Arreglo: el boton «Leer documentos pendientes» en local creaba un lector
+  de vision real; ahora dice «no disponible».
+- pendiente.txt 8 (decision legal): mencionar en el aviso que se consulta
+  al SAT. 9: el disco de Cloud Shell se lleno al instalar OpenCV.
