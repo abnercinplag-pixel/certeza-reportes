@@ -1,23 +1,22 @@
-CERTEZA - ultimo (2026-10-13, estandar de lenguaje del informe)
+CERTEZA - ultimo (2026-10-13, auditoria: matriz de uso documental)
 
-DESPLEGADO: revision certeza-api-00093-n7b, 100% del trafico (00092 es el
-paso intermedio de deploy.sh). humo.sh todo OK. 608 pruebas OK (1 omitida).
-Commit b7dfd1d en certeza-auditor, con push.
+DESPLEGADO: sin cambios (revision certeza-api-00093-n7b). Solo analisis del
+codigo: no se toco motor, reglas ni API. Pruebas sin cambio (608 OK).
 
-- Informe y app sin lenguaje tibio: fuera «certeza limitada», «confianza
-  baja/media», «para su conocimiento», «indicio», «requiere confirmacion»
-  y codigos de regla (solo «Ref.» en letra chica).
-- Etiquetas: Verificado documentalmente / Falta un documento para cerrar /
-  Verificar en sitio. Lo que falta: «Para cerrarlo, sube: X».
-- «Solicita:» en imperativo; hallazgos en indicativo firme.
-- Fotos: observacion primero + una linea de encuadre; avisos de
-  fecha/GPS una sola vez al inicio de la seccion.
-- Encabezado sin campos vacios; titulo «Cabaña Emma — Mazamitla».
-- Cabaña Emma: $483,824.97 / $128,875.09 sin cambio. PDF real revisado a
-  ojo: 0 «certeza limitada», 0 «confianza».
-- Punto 5 de pendiente resuelto (certeza media ya no se imprime).
-Detalle: estandar_lenguaje_20261013.txt
+- Matriz documento -> reglas -> campos -> adorno, medida con
+  extraccion._destino() sobre cada campo extraido.
+- Contrato vs presupuesto: NO se cruzan precios ni alcance. Del contrato
+  solo cuentan total (como pregunta si difiere), calendario (eximente de
+  R21-002) y retencion (R05). Anticipo %, plazo, fecha de inicio: adorno.
+- Calendario vs pagos reales: NO existe como verificacion; solo calla
+  R21-002 si el anticipo cuadra con los primeros pagos.
+- Facturas: se LEEN, pero solo el total se compara con el monto del pedido,
+  fuera del motor. R35 detecta la falta, no concilia. Factura sin pedido,
+  licencia, honorarios aplicados al corte, Excel del concentrado: adorno.
+- 13 huecos priorizados; los 4 primeros usan documentos que Cabana Emma ya
+  tiene y tocan dinero (aritmetica del concentrado, capitulo del corte vs
+  catalogo, calendario vs pagos, honorarios aplicados).
+Detalle: matriz_uso_documental_20261013.txt
 
-SIGUE: Abner revisa la app con su sesion y, si quiere, llena nombre,
-ubicacion, contraparte y fecha de corte de la obra (pendiente.txt 5).
-pendiente.txt 1, 2 y 4 siguen abiertos.
+SIGUE: Abner decide que huecos construir (orden sugerido 1-4, luego 5
+facturas en el motor + XML de CFDI). pendiente.txt 1, 2, 4 y 5 siguen.

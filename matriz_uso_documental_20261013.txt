@@ -1,0 +1,295 @@
+CERTEZA - auditoria del codigo: matriz de uso documental (2026-10-13)
+
+Pregunta: cada documento que CERTEZA acepta, ¿se CRUZA de verdad o queda
+guardado de adorno? Esta es una auditoria del CODIGO. No se cambio logica,
+motor ni reglas. Sin datos del cliente: solo reglas, campos y modulos.
+
+COMO SE VERIFICO
+- Lectura completa de: clasificacion.py, extraccion.py, motor.py,
+  reglas/{catalogo,contrato,avance,proyecto}.py, capital.py, pedidos.py,
+  expediente.py, cruce_plano.py, adaptadores/{plano,analisis_visual,
+  evidencia_fotografica}.py y el armado de POST /auditar en api.py.
+- Medido, no supuesto: se corrio extraccion._destino() sobre cada campo que
+  los extractores producen, para saber cual entra al motor y cual no, y se
+  listaron las claves de ctx.contrato / corte que de verdad lee alguna regla.
+- ADORNO = se lee y se guarda (o solo se clasifica), se muestra, pero
+  NINGUNA regla ni cruce lo compara contra nada.
+
+Camino general: subida -> clasificacion (palabras) -> extraccion de cifras
+(SOLO de PDF con capa de texto) -> extraccion.insumos() decide que cifras
+entran a ctx.contrato / corte / avance -> motor (19 reglas) -> fuera del
+motor: cruce_plano (R30-P), analisis_visual (RF) y pedidos._cruce (factura).
+
+======================================================================
+1. MATRIZ  documento -> reglas que lo consumen -> campos -> adorno
+======================================================================
+
+1.1 PRESUPUESTO (xlsx/xls/csv/bc3 o PDF con catalogo)
+  Lector: _leer_catalogo + adaptadores excel/pdf/bc3 -> Concepto.
+  Campos: clave, capitulo, subcapitulo, descripcion, unidad, cantidad,
+          pu, importe.
+  Reglas: R22 (pu), R23 (descripcion/capitulo), R24 (cantidad x pu vs
+          importe), R26 (clave), R27 (unidad), R28 (descripcion + pu +
+          cantidad por subcapitulo), R29 (descripciones por capitulo).
+  Adorno parcial:
+  - Solo se audita UN catalogo: el mas reciente o el elegido. Si hay PDF y
+    xlsx del mismo presupuesto, la otra version no se compara con nada.
+  - Las notas del presupuesto (anticipo declarado, «+ IVA», % y $ de
+    indirectos y honorarios, subtotal, total) NO se leen del presupuesto:
+    extraccion no tiene extractor «presupuesto» (extraer() devuelve None).
+    Esas cifras llegan del pie que imprime el CONCENTRADO. Las evidencias
+    de R20/R21/R35 dicen «presupuesto», pero el dato sale del concentrado.
+
+1.2 CONCENTRADO DE AVANCE Y PAGOS (PDF)  <- el documento mas usado
+  Por capitulo:
+    importe contratado  -> R06, R13
+    avance $            -> R10, R11, R14, R31 (monto), capital (R11)
+    avance %            -> R06, R10, R11, R14, R31
+    nota del emisor     -> R31 (y baja R10/R11/R14/R06); pedido de soporte
+  Resumen del corte:
+    ANTICIPO            -> R04, R21-002, R35, capital, pedido de CFDI
+    SUMA % AVANCE       -> R05, R21-001, capital
+    INDIRECTOS          -> R21-001
+    HONORARIOS          -> NINGUNA. Entra a corte.honorarios_aplicados
+                           pero ninguna regla lo lee.            ADORNO
+    TOTAL GASTADO       -> R04, capital
+    RESTANTE            -> R04, capital
+    PAGO                -> capital (exposicion si se paga)
+    fecha de corte      -> se extrae, no se usa (las fotos usan la fecha
+                           de corte capturada a mano en la obra). ADORNO
+  Pie de presupuesto:
+    subtotal            -> R20, R06
+    % y $ indirectos    -> R20, R21-001
+    % y $ honorarios    -> R20
+    total               -> total_contratado_sin_iva: R21-002, R35, capital;
+                           tambien identifica la obra (correspondencia)
+    «se requiere X% de anticipo» -> R21-002
+    «+ IVA»             -> R35 (iva_aplicado = falso)
+  Concentrado en Excel: acredita concentrado_xlsx (quita el techo de
+  certeza de R04/R10/R11/R13) pero su CONTENIDO no se lee: «por ahora las
+  cifras solo se leen de PDF con texto».                       ADORNO
+
+1.3 CONTRATO DE OBRA (PDF)
+  total contratado      -> compite con el total del concentrado por
+                           total_contratado_sin_iva. Si difieren, sale una
+                           PREGUNTA («dos documentos dicen cifras
+                           distintas»), no un hallazgo.
+  pagos 1..6 del calendario -> anticipo_programado, pago_programado_N:
+                           SOLO R21-002, como eximente (ver 2b).
+  retencion %           -> R05. Si no aparece impresa -> R05 «el contrato
+                           no especifica retencion».
+  anticipo % y monto («anticipo del X%») -> no entran.          ADORNO
+  saldo del calendario  -> no entra.                            ADORNO
+  fecha de inicio       -> no entra.                            ADORNO
+  plazo de ejecucion    -> no entra.                            ADORNO
+  superficie construida / terreno -> solo cruce_plano (R30-P), y solo si
+                           un plano escribe la misma superficie.
+  Acreditar contrato_obra quita el techo de certeza de R05/R20/R21.
+  NO se lee: objeto/alcance, precios, catalogo anexo, forma de pago contra
+  estimacion, base de calculo de honorarios (R20 consulta
+  honorarios_base_declarada, que ningun extractor produce: solo captura a
+  mano), penas, garantias, partes. Contrato en docx: no se lee.
+
+1.4 PLANOS (PDF arquitectonico / estructural)
+  Lector: adaptadores/plano.py (Gemini, un visor) -> datos_plano.
+  superficie terreno / construida -> cruce_plano R30-P contra la misma
+                           superficie de contrato o escritura (certeza baja,
+                           monto 0).
+  ubicacion (lotes)     -> solo notas («el plano nombra el lote N»); no
+                           genera hallazgo.
+  no concluyente / inferido del dibujo -> lista «revisar en sitio».
+  nombre_proyecto, niveles, escala, clave_plano, contenido_lamina, fecha,
+  propietario           -> se leen, ninguna regla los usa.      ADORNO
+  DWG, DXF, IFC: se clasifican; nada se lee.                    ADORNO
+
+1.5 ESCRITURA (PDF)
+  superficie del terreno -> solo cruce_plano (vs plano). NO alimenta R30:
+                           R30 lee obra.proyecto, capturado a mano
+                           (superficie_terreno_cuadro_areas_m2,
+                           superficie_lote_topografia_m2, lotes del cajetin,
+                           superficie construida, COS maximo).
+  propietario           -> no se usa.                           ADORNO
+  Acreditar escritura_predio quita el techo de certeza de R30.
+
+1.6 LICENCIA DE CONSTRUCCION (PDF)
+  numero, vigencia, superficie autorizada -> ninguno se usa. cruce_plano
+  solo cruza terreno y construida; la autorizada no.            ADORNO
+  Acreditar licencia_construccion quita el techo de certeza de R30.
+
+1.7 FACTURAS / CFDI (PDF)
+  Se leen: total, subtotal, IVA, folio fiscal (UUID), fecha, RFC emisor.
+  Ninguna entra al motor (_destino = None para las seis).
+  total / subtotal      -> pedidos._cruce: comparacion al centavo contra el
+                           monto del PEDIDO para el que se subio (anticipo
+                           entregado, o el importe de un capitulo con nota).
+                           Resultado: «coincide / distinto / sin lectura»,
+                           pegado como «respaldo» junto a R35 o R31. No
+                           cambia el hallazgo, la certeza ni el capital.
+  IVA, UUID, fecha, RFC -> no se usan.                          ADORNO
+  Factura subida SIN pedido -> requisito «factura», que no existe en el
+                           catalogo del expediente: no acredita nada y sus
+                           cifras no se cruzan con nada.        ADORNO TOTAL
+  CFDI en XML: formato no aceptado en la subida.
+
+1.8 FOTOS DE OBRA (jpg/png/heic/webp)
+  EXIF fecha y GPS      -> si la foto cuenta y con que confianza (contra la
+                           fecha de corte y la ubicacion capturadas).
+  analisis visual: capitulo, estado, avance % -> ObservacionFisica -> R11,
+                           R14 (y capital via R11).
+  defectos / no concluyente + verificacion cruzada (2 visores) -> RF.
+  elemento              -> solo texto de la observacion.
+  No adorno: es de lo mejor conectado.
+
+1.9 OTROS
+  «otro», docx que no sea contrato, acuerdo de facturacion, bitacora:
+  pueden acreditar un requisito (acuerdo_facturacion quita el techo de
+  R35; bitacora_obra el de R11) pero su contenido no se lee.    ADORNO
+  Nota: varios requisitos dicen desbloquear reglas que el motor no tiene
+  (R01, R03, R12, R25, R33, R34, R36, R37, R38). pedidos.py ya no los pide,
+  pero el expediente los sigue listando.
+
+RESUMEN DE ADORNO POR DOCUMENTO
+  Concentrado PDF ........ casi todo cruzado; honorarios aplicados y fecha
+                           de corte de adorno.
+  Presupuesto ............ catalogo cruzado; notas de pie no leidas aqui;
+                           segunda version sin comparar.
+  Contrato ............... 3 de 10 datos cruzan (total como pregunta,
+                           calendario como eximente, retencion).
+  Planos ................. 2 superficies cruzan; 7 campos de adorno.
+  Escritura .............. superficie solo contra plano; no alimenta R30.
+  Licencia ............... ADORNO (solo acredita el expediente).
+  Facturas ............... total contra el monto del pedido; lo demas
+                           adorno; sin pedido, adorno total.
+  Fotos .................. cruzadas (R11, R14, RF).
+  Excel de concentrado, docx, DWG/DXF/IFC, bitacora, acuerdo: ADORNO de
+  contenido.
+
+======================================================================
+2. LOS TRES CRUCES SOSPECHOSOS
+======================================================================
+
+a) CONTRATO vs PRESUPUESTO: NO.
+   No se comparan precios, conceptos ni alcance del contrato contra el
+   catalogo. Del contrato se lee: total, calendario de pagos, retencion %,
+   anticipo %/monto, saldo, fecha de inicio, plazo y superficies. De eso
+   solo tres cosas tocan algo:
+   - total: si el total del contrato y el del pie del concentrado difieren,
+     sale una pregunta y ninguno entra hasta que alguien elija. Es un
+     control de consistencia de UN numero, no un cruce de catalogo, y no
+     produce hallazgo.
+   - retencion %: R05.
+   - calendario: eximente de R21-002 (ver b).
+   Lo demas del contrato no se cruza. En particular: el anticipo % del
+   contrato no se compara con el «X% de anticipo» del presupuesto (R21 usa
+   el del presupuesto/concentrado), y la base de calculo de honorarios no
+   se lee del contrato (R20 la toma del pie del concentrado).
+
+b) CALENDARIO DE PAGOS vs PAGOS REALES: NO como verificacion. Solo como
+   eximente.
+   _anticipo_en_calendario (reglas/contrato.py) se consulta UNICAMENTE
+   cuando R21-002 ya iba a disparar (anticipo entregado / total distinto
+   al % declarado). Si el anticipo entregado coincide (tolerancia $1) con
+   la suma acumulada de los primeros pagos programados, R21-002 se calla.
+   No existe:
+   - comparar pago_solicitado del corte contra el siguiente pago
+     programado;
+   - comparar lo entregado acumulado contra lo programado a la fecha de
+     corte (las fechas del calendario se leen, en la nota, y no se usan);
+   - un hallazgo «se pago distinto / antes / de mas respecto al
+     calendario». Si lo entregado no cuadra con el calendario, lo unico
+     que sale es R21-002 hablando del porcentaje, no del calendario.
+   Ademas, de pagos «reales» solo hay UNA cifra: el ANTICIPO del
+   concentrado. No hay lista de pagos con fecha.
+
+c) FACTURAS vs PAGOS: LEE el contenido, pero NO concilia contra los pagos
+   del concentrado en el motor.
+   - Si la factura se sube DESDE un pedido, su total (o subtotal) se
+     compara al centavo con el monto de ese pedido y el resultado se
+     muestra como respaldo junto al hallazgo. No suma varias facturas, no
+     revisa IVA, RFC, fecha ni UUID, y no cambia el hallazgo.
+   - R35 no lee facturas: dispara si la nota «+ IVA» existe
+     (iva_aplicado = falso). Con factura que coincide, R35 sigue igual; con
+     el acuerdo de facturacion acreditado solo se le quita el techo de
+     certeza.
+   - Factura subida sin pedido: no se cruza con nada.
+   Respuesta corta: R35 detecta la FALTA (pide el comprobante); la lectura
+   de la factura es un cotejo de un solo numero fuera del motor.
+
+======================================================================
+3. HUECOS (por valor; los que protegen capital primero)
+======================================================================
+
+ #  Cruce que falta                      Docs        Dinero  En Cabana Emma
+ -- ----------------------------------- ----------- ------- --------------
+ 1  Aritmetica interna del concentrado:  concentrado  SI      SI, ya hay
+    avance $ = % x importe por capitulo;
+    SUMA % AVANCE = suma de capitulos;
+    TOTAL GASTADO cuadra con avance,
+    indirectos y honorarios. Hoy solo R04
+    revisa RESTANTE = ANTICIPO - GASTADO;
+    lo demas nadie lo verifica (R24 solo
+    revisa el catalogo).
+ 2  Importe contratado por capitulo del  presupuesto  SI      SI, ya hay
+    concentrado vs suma de conceptos de  + concentrado
+    ese capitulo en el catalogo. Detecta
+    un capitulo inflado en el corte.
+ 3  Calendario vs pagos: pago solicitado contrato     SI      SI, ya hay
+    vs siguiente pago programado;        + concentrado
+    entregado acumulado vs programado a
+    la fecha de corte (fechas ya leidas).
+ 4  Honorarios aplicados al corte vs     concentrado  SI      SI, el dato ya
+    % contratado (gemelo de R21-001 para (+contrato)          se extrae
+    honorarios). El dato ya se extrae y
+    se tira.
+ 5  Facturas vs pagos en el motor: suma  facturas     SI      NO hay
+    de CFDI vs lo entregado; IVA = 16%   + concentrado        facturas
+    del subtotal; RFC emisor = RFC del   + contrato
+    contratista; fecha dentro del
+    periodo; UUID repetido entre
+    facturas; factura sin pedido tambien
+    cuenta. Aceptar XML de CFDI.
+ 6  Total y anticipo % del contrato vs   contrato     SI      SI, ya hay
+    presupuesto como HALLAZGO (no solo   + presupuesto
+    pregunta): si el contrato dice otro  /concentrado
+    total u otro % de anticipo, es dinero.
+ 7  Version PDF vs version Excel del     presupuesto  SI      SI, hay PDF y
+    presupuesto: mismos conceptos,       x2                   xlsx
+    cantidades, P.U. y total. Hoy solo
+    se audita una.
+ 8  Contrato (alcance/precios/anexo de   contrato     SI      Por confirmar:
+    catalogo) vs catalogo del            + presupuesto        el extractor no
+    presupuesto: conceptos pactados que                       busca anexo
+    no estan, o precios distintos.
+ 9  Retencion aplicada: R05 ya compara   concentrado  SI      Bajo valor hoy:
+    contra retencion_aplicada, pero      + contrato           el contrato no
+    ningun extractor la lee: R05 siempre                      pacta retencion
+    dice «no se muestra».
+10  Superficies de documentos -> R30:    escritura,   No      NO hay
+    alimentar R30 con la escritura y la  licencia,    (riesgo escritura ni
+    licencia en vez de captura a mano;   contrato     legal)  licencia
+    licencia: superficie autorizada vs
+    construida (contrato/plano); vigencia
+    vs fecha de corte.
+11  Plazo y fecha de inicio del contrato contrato     Indirec. SI (contrato);
+    vs fecha de corte y avance global    + concentrado (penas) programa no
+    (atraso grueso, sin programa).
+12  Propietario: escritura vs contrato   escritura    No      NO hay
+    vs plano.                            + contrato           escritura
+                                         + planos
+13  Contenido de concentrado Excel,      varios       Segun   xlsx de
+    contrato docx, bitacora, acuerdo:    doc                  presupuesto si;
+    leerlos en vez de solo acreditar.                         los demas no
+
+Recomendacion de orden: 1, 2, 3, 4 primero. Usan documentos que Cabana Emma
+YA tiene, tocan dinero y la mayoria de las cifras ya se extraen y hoy se
+tiran o no se comparan. 5 es el mas importante en cuanto lleguen facturas;
+conviene dejarlo listo (y aceptar XML) antes de que lleguen. 6 y 7 son
+baratos. 8 depende de que el contrato traiga anexo.
+
+Hallazgos laterales (no son cruces, pero afectan lo de arriba):
+- Las cifras solo se leen de PDF con capa de texto; contrato o concentrado
+  escaneados, en docx o en Excel no aportan cifras.
+- La evidencia de R20/R21/R35 cita «presupuesto» para datos que el codigo
+  toma del pie del concentrado. Si un concentrado no imprime ese pie, esas
+  reglas no se evaluan aunque el presupuesto si lo traiga.
+- El expediente lista requisitos que desbloquean reglas inexistentes.
