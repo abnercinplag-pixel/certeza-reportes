@@ -26,15 +26,15 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
         infra/cruzar_danos_obra.py e_bolo_s_inc_42ff33 o_mazamitla_cabana_emma_0f6795
       y volver a auditar la obra.
 
-2. LECTURA DEL DIBUJO DE PLANOS. No se promete. Los planos (PDF, DWG, DXF,
+2. LECTURA DEL DIBUJO DE PLANOS. No se promete.
+   Actualizado (2026-10-12, lectura_planos_20261012.txt): ya se leen los
+   DATOS ESCRITOS del plano con Gemini (rotulo, ubicacion, superficies si
+   estan escritas). Los de Cabaña Emma no escriben superficie: R30 no
+   cambia. El segundo visor para planos va despues, como paso aparte. Los planos (PDF, DWG, DXF,
    IFC) se guardan como evidencia en el expediente; CERTEZA lee su texto
    (cajetin, notas) pero no interpreta el dibujo. Lo que depende del dibujo
    (R30: superficie del lote y COS) sigue sin evaluarse hasta que llegue
    escritura o licencia con el cuadro de areas.
-   Actualizado (2026-10-12, lectura_planos_20261012.txt): ya se leen los
-   DATOS ESCRITOS del plano con Gemini (rotulo, ubicacion, superficies si
-   estan escritas). Los de Cabaña Emma no escriben superficie: R30 no
-   cambia. El segundo visor para planos va despues, como paso aparte.
 
 3. RESUELTO (2026-10-13, decision de Abner): los «no concluyente» salen
    en su propia seccion «Puntos a verificar en sitio», no cuentan como
@@ -43,8 +43,8 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
 
 4. DECISION DE NEGOCIO: tipo de obra de Cabaña Emma. Los planos
    estructurales dicen «PLANTA BAJA Y ALTA ESTRUCTURALES»; la obra se
-   audita como «residencial_un_nivel» (valor por omision; la obra no trae
-   «proyecto»). El tipo decide las partidas minimas de R29.
+   audita como «residencial_un_nivel» (valor por omision de api.py, la obra
+   no trae «proyecto»). El tipo decide las partidas minimas de R29.
    a) Dejarlo asi hasta que el experto confirme los niveles en sitio.
    b) Cambiarlo a dos niveles en la obra (dato de la obra, no del codigo).
    Recomendacion: (a); el dato viene de un solo visor y la lamina
@@ -68,3 +68,30 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
    «Cabaña Emma», ubicacion «Mazamitla, Jalisco», y llenar contraparte y
    fecha de corte. La fecha de corte ademas quita de las fotos el aviso
    «no se pudo confirmar que la foto sea anterior al corte».
+
+7. ACCION DE ABNER (2026-10-13, capa 3): prueba real del SAT con un CFDI de
+   CINPLAG. La lectura (XML y QR del PDF), la conciliacion y la consulta al
+   SAT ya estan probadas con datos sinteticos y el servicio del SAT responde
+   desde Cloud Shell, pero la validacion SAT NO se da por probada sin un
+   CFDI real (vigente + EFOS). Sube el XML (o el PDF) a Cloud Shell, FUERA
+   de los repos (por ejemplo ~/privado/), y corre:
+     cd ~/certeza && .venv/bin/python infra/probar_cfdi_real.py ~/privado/FACTURA.xml
+   Imprime RFC y folio enmascarados; no copia el archivo. Por que: es lo
+   unico que demuestra que la consulta real devuelve «Vigente» y la
+   validacion EFOS de un comprobante que existe.
+
+8. DECISION LEGAL (capa 3): al validar una factura, CERTEZA manda al
+   servicio publico del SAT el folio fiscal, los RFC y el total del CFDI.
+   El aviso integral ya lista R16-R39 como revisiones, pero no dice que se
+   consulta al SAT.
+   a) Agregar al aviso una linea: «para validar facturas se consulta el
+      servicio publico de verificacion de CFDI del SAT con su folio, RFC y
+      total».
+   b) Dejarlo como esta (el dato va a la autoridad que lo emitio).
+   Recomendacion: (a), y subir VERSION_AVISO para que se acepte de nuevo.
+
+9. ESPACIO (2026-10-13): /home de Cloud Shell llego al 100% al instalar
+   OpenCV (se libero la cache de pip; hoy queda ~1.4 GB). Lo que mas ocupa
+   en ~ son los .zip de versiones viejas de CINPLAG y ~/.cache/ms-playwright
+   (641 MB). No se borro nada tuyo. Si vuelve a llenarse, esos son los
+   candidatos; decides tu.
