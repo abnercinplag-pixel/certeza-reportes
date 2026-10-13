@@ -1,5 +1,5 @@
 CERTEZA — lo que de verdad queda para despues
-Actualizado: 2026-10-12 (lectura de datos declarados del plano desplegada). El historial completo de pendientes
+Actualizado: 2026-10-13 (estandar de lenguaje del informe desplegado). El historial completo de pendientes
 anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
 
 1. DOBLE VISOR (bloque 3B). Codigo listo, detenido por cuota de Vertex.
@@ -50,22 +50,21 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
    Recomendacion: (a); el dato viene de un solo visor y la lamina
    arquitectonica es «FASE 1, PLANTA BAJA».
 
-5. DECISION DE NEGOCIO: puntos que no son ni «firme» (evidencia + monto)
-   ni «no concluyente». No se acomodaron a la fuerza: siguen en
-   «Hallazgos», como antes. En Cabaña Emma:
-   - 6 de los 18 hallazgos no traen monto (R23, R27, R35, R26, R05, R20):
-     son diferencias documentales sin importe. Hoy cuentan como hallazgos
-     y no suman a ninguna cifra.
-   - El motor da a cada punto una «certeza» alta/media/baja, aparte de la
-     severidad: 14 de los 18 son certeza media («requiere confirmación» en
-     el PDF), 3 alta, 1 baja (R05). Hoy la certeza solo cambia la
-     etiqueta; no cambia el conteo ni las cifras.
-   - Puntos de foto con daño visto por los dos visores (certeza media) o
-     «posible daño sin confirmar» (certeza baja): hoy siguen en
-     «Hallazgos». En Cabaña Emma hay 0.
-   Opciones: a) dejarlos como estan (desplegado); b) llamar «firmes» solo
-   a los que traen monto y dar a los demas una tercera seccion; c) mandar
-   los daños de foto sin confirmar a «verificar en sitio».
-   Recomendacion: (a) para los documentales sin monto (son hechos del
-   documento, verificables en la fuente) y (c) para el «posible daño sin
-   confirmar», que por definicion se resuelve en la visita.
+5. RESUELTO (2026-10-13, estandar de lenguaje, estandar_lenguaje_20261013.txt):
+   la «certeza media» ya no se imprime como etiqueta. El hecho se afirma y
+   lleva VERIFICADO DOCUMENTALMENTE o FALTA UN DOCUMENTO PARA CERRAR («Para
+   cerrarlo, sube: X»). Los 6 hallazgos sin monto quedan como hechos firmes
+   en «Hallazgos». Desplegado en certeza-api-00093-n7b.
+   Decision tomada, revisable: lo que se cierra en la visita (estatus
+   «requiere_ratificacion»: R11, R14, daño de foto confirmado) lleva
+   VERIFICAR EN SITIO aunque siga en «Hallazgos». En Cabaña Emma: 0.
+
+6. DATO DE LA OBRA (lo hace Abner en la app, «Editar obra»; no es codigo).
+   El encabezado del informe ya no imprime campos vacios, pero Cabaña Emma
+   no tiene Contraparte, Ubicacion ni Fecha de corte capturadas: hoy el
+   encabezado solo muestra Documento base y Emitido. El nombre guardado es
+   «MAZAMITLA_ CABAÑA EMMA.»; el PDF lo limpia a «Cabaña Emma — Mazamitla»,
+   pero la app lo muestra tal cual. Recomendacion: renombrar la obra a
+   «Cabaña Emma», ubicacion «Mazamitla, Jalisco», y llenar contraparte y
+   fecha de corte. La fecha de corte ademas quita de las fotos el aviso
+   «no se pudo confirmar que la foto sea anterior al corte».

@@ -1,20 +1,23 @@
-CERTEZA - ultimo (2026-10-13, hallazgos firmes y puntos a verificar en sitio)
+CERTEZA - ultimo (2026-10-13, estandar de lenguaje del informe)
 
-DESPLEGADO: revision certeza-api-00091-sq8, 100% del trafico (00090 es el
-paso intermedio de deploy.sh). humo.sh todo OK. 573 pruebas OK (1 omitida).
-Commit 34e6e2f en certeza-auditor, con push.
+DESPLEGADO: revision certeza-api-00093-n7b, 100% del trafico (00092 es el
+paso intermedio de deploy.sh). humo.sh todo OK. 608 pruebas OK (1 omitida).
+Commit b7dfd1d en certeza-auditor, con push.
 
-- Los «no concluyente» de fotos ya no cuentan como hallazgos: van en su
-  propia seccion «Puntos a verificar en sitio», en el PDF y en la app,
-  con el mismo codigo (certeza/separacion.py).
-- Encabezado con el desglose real. Cabaña Emma: «27 puntos analizados:
-  18 hallazgos firmes · 9 a verificar en sitio.»
-- Exposicion sin cambio: $483,824.97 si se paga, $128,875.09 hoy.
-- Orden por cercania al dinero: primero lo que toca partida cobrada, de
-  mayor a menor cobro.
-- PDF real de Cabaña Emma abierto y revisado a ojo: la separacion se ve.
-- Tercer estado sin acomodar a la fuerza: pendiente.txt punto 5.
-Detalle: verificar_en_sitio_20261013.txt
+- Informe y app sin lenguaje tibio: fuera «certeza limitada», «confianza
+  baja/media», «para su conocimiento», «indicio», «requiere confirmacion»
+  y codigos de regla (solo «Ref.» en letra chica).
+- Etiquetas: Verificado documentalmente / Falta un documento para cerrar /
+  Verificar en sitio. Lo que falta: «Para cerrarlo, sube: X».
+- «Solicita:» en imperativo; hallazgos en indicativo firme.
+- Fotos: observacion primero + una linea de encuadre; avisos de
+  fecha/GPS una sola vez al inicio de la seccion.
+- Encabezado sin campos vacios; titulo «Cabaña Emma — Mazamitla».
+- Cabaña Emma: $483,824.97 / $128,875.09 sin cambio. PDF real revisado a
+  ojo: 0 «certeza limitada», 0 «confianza».
+- Punto 5 de pendiente resuelto (certeza media ya no se imprime).
+Detalle: estandar_lenguaje_20261013.txt
 
-SIGUE: Abner decide el punto 5 de pendiente.txt y revisa la vista en la
-app con su sesion. pendiente.txt 1, 2 y 4 siguen abiertos.
+SIGUE: Abner revisa la app con su sesion y, si quiere, llena nombre,
+ubicacion, contraparte y fecha de corte de la obra (pendiente.txt 5).
+pendiente.txt 1, 2 y 4 siguen abiertos.

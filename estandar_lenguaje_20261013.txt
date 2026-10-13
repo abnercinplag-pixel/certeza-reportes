@@ -1,0 +1,62 @@
+CERTEZA - estandar de lenguaje del informe: quitar lo tibio (2026-10-13)
+
+PRINCIPIO APLICADO
+- Certeza del CALCULO: total; el hecho se afirma.
+- Lo completo de la EVIDENCIA: si falta algo, se dice como accion firme
+  («Para cerrarlo, sube: X»), nunca como descuento sobre el hallazgo.
+- Capa de informe y app. Motor, reglas, cifras y cortes guardados intactos.
+
+QUE CAMBIO
+- Modulo nuevo certeza/lenguaje.py, usado por el PDF y por GET /resumen
+  (la app): etiquetas, titulo, descripcion, accion y «para cerrar».
+- Etiquetas nuevas: VERIFICADO DOCUMENTALMENTE / FALTA UN DOCUMENTO PARA
+  CERRAR / VERIFICAR EN SITIO. Se retiran «Para su conocimiento»,
+  «Requiere documento», «indicio», «requiere confirmacion». «Se retiene»
+  (accion de dinero) se queda igual.
+- «[Certeza limitada por documento faltante: X]» -> «Para cerrarlo, sube: X».
+- «Que conviene pedir:» -> «Solicita:» (una accion, en imperativo).
+- Frases tibias del motor reescritas al imprimir: «Administrativamente
+  puede interpretarse...» (R23), «conviene dejar por escrito» (R20),
+  «Conviene pactar» (R05), «por eso la certeza es media», etc. Los montos
+  se copian tal cual (prueba: el conjunto de $ de cada descripcion no cambia).
+- Codigos de regla fuera del texto: solo «Ref. R22-067» en letra chica al
+  pie de cada tarjeta. «Documentos que faltan» sin columna de regla; su
+  «por que» dice que revisa en palabras («Sin el no se puede revisar que la
+  superficie del proyecto corresponda con la documentacion. Con el se
+  cierran 8 hallazgos de este informe.»). Avisos de alcance igual.
+- Cortes ya guardados: su texto viejo se reescribe al mostrarlo (PDF y
+  GET /auditoria); el documento del corte no se modifica.
+- Fotos: la observacion primero y en negrita; una sola linea «No se afirma
+  daño: verificar en sitio si es etapa normal o defecto.» Sin «Confianza X»,
+  sin «Advertencia:» por foto. Fecha/GPS/fecha de corte: una nota al inicio
+  de la seccion, con cuantas fotos aplica cada cosa.
+- Encabezado: titulo limpio («Cabaña Emma — Mazamitla»); Contraparte,
+  Ubicacion y Corte revisado solo se imprimen si tienen valor.
+- Nombre de archivo de la foto: fuera del titulo, en letra chica.
+- Punto 5 de pendiente: «certeza media» ya no se imprime como etiqueta.
+
+DECISION TOMADA (revisable): un hallazgo cuyo cierre es la visita
+(estatus «requiere_ratificacion»: R11, R14, daño de foto confirmado) lleva
+VERIFICAR EN SITIO, no VERIFICADO DOCUMENTALMENTE, aunque siga en
+«Hallazgos». Llamarlo verificado seria sobre-afirmar. En Cabaña Emma: 0.
+
+CABAÑA EMMA (corte c_corte_2026_10_12, datos de produccion, solo lectura)
+- 27 puntos: 18 firmes (5 verificado, 13 falta un documento) + 9 en sitio.
+- Exposicion si se paga $483,824.97 y hoy $128,875.09: sin cambio.
+  Diferencias en la app $303,286.31 en 12 puntos: sin cambio.
+- Texto del PDF: 0 «certeza limitada», 0 «confianza», 0 «conviene»,
+  0 «para su conocimiento», 0 «indicio», 0 «requiere confirmacion»,
+  0 «advertencia», 0 codigos de regla fuera de «Ref.». 37 paginas, 58/58
+  fotos incrustadas.
+- Revisado a ojo (pags. 1, 2, 4, 9, 14, 15 renderizadas): encabezado sin
+  huecos (solo Documento base y Emitido); hallazgos afirmativos con su
+  etiqueta y «Solicita:» + «Para cerrarlo, sube:»; R05 se lee «El contrato
+  no incluye clausula de retencion de garantia» sin disculpas; cada foto
+  abre con la observacion y una linea de encuadre.
+- El PDF se genero con el codigo desplegado sobre los datos reales (mismo
+  camino que GET /informe). No se descargo desde la app: requiere la
+  sesion de Abner.
+
+PRUEBAS: 608 pasan, 1 omitida (antes 573). 35 nuevas en
+tests/test_estandar_lenguaje.py; 17 de ellas fallan con el informe
+anterior. 6 pruebas viejas que fijaban el texto anterior se actualizaron.
