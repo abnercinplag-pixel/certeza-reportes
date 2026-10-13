@@ -4,7 +4,7 @@ CERTEZA - Comprobante de pago + validacion Banxico (CEP) + triple empate
 ESTADO: construido y probado, NO desplegado. Produccion sigue en
 certeza-api-00103-q75. Motivo: la sesion de gcloud de Cloud Shell caduco;
 el comando para Abner esta en reportes/pendiente.txt (punto 10).
-Pruebas: 768 OK, 1 omitida (antes 715; 53 nuevas en
+Pruebas: 770 OK, 1 omitida (antes 715; 55 nuevas en
 tests/test_comprobante_pago.py). AST y secretos OK.
 Commits: e5add9c, d28070e (wip), 4f5196b, mas el de pendientes.
 

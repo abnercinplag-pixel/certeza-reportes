@@ -1,7 +1,7 @@
 CERTEZA - ultimo (2026-10-13 noche, comprobante de pago + CEP Banxico + triple empate)
 
 SIN DESPLEGAR: la sesion de gcloud caduco. Produccion sigue en
-certeza-api-00103-q75. 768 pruebas OK (1 omitida), antes 715. AST y secretos OK.
+certeza-api-00103-q75. 770 pruebas OK (1 omitida), antes 715. AST y secretos OK.
 
 - Bug arreglado: una transferencia subida para el anticipo ya no sale como
   «factura con QR ilegible». Tipo propio «comprobante de pago».
