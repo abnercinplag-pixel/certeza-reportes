@@ -36,16 +36,10 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
    estan escritas). Los de Cabaña Emma no escriben superficie: R30 no
    cambia. El segundo visor para planos va despues, como paso aparte.
 
-3. DECISION DE NEGOCIO: ¿los puntos «no concluyente» van en la lista de
-   hallazgos? Hoy Cabaña Emma tiene 9 (0 daños afirmados). Opciones:
-   a) Dejarlos como hallazgos RF «revisión en sitio, no concluyente»,
-      certeza baja, monto 0 (como esta desplegado). Quien revisa ve que
-      hay algo que mirar, aunque la lista de hallazgos crece de 23 a 27.
-   b) Quitarlos de la lista y mostrarlos solo en el detalle de cada foto
-      (informe y visor ya los muestran ahi). La lista queda mas limpia,
-      pero se pueden pasar por alto.
-   Recomendacion: (a) mientras no haya doble visor. Con cuota de Vertex,
-   el doble visor podria filtrarlos y entonces conviene pasar a (b).
+3. RESUELTO (2026-10-13, decision de Abner): los «no concluyente» salen
+   en su propia seccion «Puntos a verificar en sitio», no cuentan como
+   hallazgos ni entran en la exposicion. Desplegado en certeza-api-00091-sq8.
+   Detalle: certeza-reportes/verificar_en_sitio_20261013.txt.
 
 4. DECISION DE NEGOCIO: tipo de obra de Cabaña Emma. Los planos
    estructurales dicen «PLANTA BAJA Y ALTA ESTRUCTURALES»; la obra se
@@ -55,3 +49,23 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
    b) Cambiarlo a dos niveles en la obra (dato de la obra, no del codigo).
    Recomendacion: (a); el dato viene de un solo visor y la lamina
    arquitectonica es «FASE 1, PLANTA BAJA».
+
+5. DECISION DE NEGOCIO: puntos que no son ni «firme» (evidencia + monto)
+   ni «no concluyente». No se acomodaron a la fuerza: siguen en
+   «Hallazgos», como antes. En Cabaña Emma:
+   - 6 de los 18 hallazgos no traen monto (R23, R27, R35, R26, R05, R20):
+     son diferencias documentales sin importe. Hoy cuentan como hallazgos
+     y no suman a ninguna cifra.
+   - El motor da a cada punto una «certeza» alta/media/baja, aparte de la
+     severidad: 14 de los 18 son certeza media («requiere confirmación» en
+     el PDF), 3 alta, 1 baja (R05). Hoy la certeza solo cambia la
+     etiqueta; no cambia el conteo ni las cifras.
+   - Puntos de foto con daño visto por los dos visores (certeza media) o
+     «posible daño sin confirmar» (certeza baja): hoy siguen en
+     «Hallazgos». En Cabaña Emma hay 0.
+   Opciones: a) dejarlos como estan (desplegado); b) llamar «firmes» solo
+   a los que traen monto y dar a los demas una tercera seccion; c) mandar
+   los daños de foto sin confirmar a «verificar en sitio».
+   Recomendacion: (a) para los documentales sin monto (son hechos del
+   documento, verificables en la fuente) y (c) para el «posible daño sin
+   confirmar», que por definicion se resuelve en la visita.

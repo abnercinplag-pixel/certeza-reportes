@@ -1,40 +1,20 @@
-CERTEZA - ultimo (2026-10-12, PDF del informe: cerrado)
+CERTEZA - ultimo (2026-10-13, hallazgos firmes y puntos a verificar en sitio)
 
-DESPLEGADO: revision certeza-api-00089-vz9, 100% del trafico (00088 es el
-paso intermedio de deploy.sh). 560 pruebas OK (1 omitida). Commits en
-certeza-auditor: c01591a (arreglo) y dbdf456 (opciones de medicion).
-No queda nada sin guardar en ningun repo.
+DESPLEGADO: revision certeza-api-00091-sq8, 100% del trafico (00090 es el
+paso intermedio de deploy.sh). humo.sh todo OK. 573 pruebas OK (1 omitida).
+Commit 34e6e2f en certeza-auditor, con push.
 
-QUE SE ARREGLO (dia completo)
-1. Las fotos no salian en el PDF: ahora van incrustadas (00085).
-2. El informe podia pasar de 300 s: la miniatura se hace al subir la
-   foto; el informe lee 16 a la vez, 10 s por intento y 1 reintento (00087).
-3. Un timeout de red decia «archivo no se pudo abrir»: ahora el motivo
-   distingue red / danado / no encontrado (00087).
+- Los «no concluyente» de fotos ya no cuentan como hallazgos: van en su
+  propia seccion «Puntos a verificar en sitio», en el PDF y en la app,
+  con el mismo codigo (certeza/separacion.py).
+- Encabezado con el desglose real. Cabaña Emma: «27 puntos analizados:
+  18 hallazgos firmes · 9 a verificar en sitio.»
+- Exposicion sin cambio: $483,824.97 si se paga, $128,875.09 hoy.
+- Orden por cercania al dinero: primero lo que toca partida cobrada, de
+  mayor a menor cobro.
+- PDF real de Cabaña Emma abierto y revisado a ojo: la separacion se ve.
+- Tercer estado sin acomodar a la fuerza: pendiente.txt punto 5.
+Detalle: verificar_en_sitio_20261013.txt
 
-MEDIDO DENTRO DE CLOUD RUN (job certeza-tareas, imagen de 00089, cuenta
-certeza-api, 1 CPU / 2 GiB; sin auditoria, sin correo, sin bitacora)
-
-  caso                          fotos  total  fotos   PDF    pags   MB
-  Cabaña Emma real (00087)        58   11.6s   1.8s   7.0s    35  7.27
-  repetida x2                    116   13.7s   2.1s  10.3s    54  7.30
-  repetida x3                    174   25.2s   3.1s  16.9s    73  7.34
-  sin miniatura (desde original)  58   27.8s  19.6s   7.0s    35  7.27
-
-  Limite de Cloud Run: 300 s. Todos los casos con todas sus fotos y 0
-  «Imagen no disponible». Antes del arreglo: 194-321 s.
-
-- Las repetidas son los MISMOS bytes y el PDF los guarda una vez: el peso
-  de 116/174 no representa fotos distintas. Estimado para 174 fotos
-  distintas: ~22 MB (no medido). El tiempo si escala con las filas.
-- «sin miniatura» finge que ninguna foto la tiene (como una subida antes
-  de 00087) y no escribe nada: es el peor caso real, 27.8 s.
-- Migracion en produccion: 58 fotos, 58 ya con miniatura, 0 fallidas.
-- PDF real abierto y revisado a ojo (paginas 13, 16, 21, 30, 35): las
-  fotos se ven con su nombre, fecha y lo que muestran. El PDF de
-  verificacion se borro de la cubeta.
-- El job certeza-tareas queda creado para repetir mediciones (sin costo
-  si no corre). Borrar: gcloud run jobs delete certeza-tareas --region us-central1
-
-SIGUE: Abner descarga el informe de Cabaña Emma desde la app con su
-sesion real (prueba final, solo la puede hacer el). pendiente.txt 1-4.
+SIGUE: Abner decide el punto 5 de pendiente.txt y revisa la vista en la
+app con su sesion. pendiente.txt 1, 2 y 4 siguen abiertos.

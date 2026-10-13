@@ -1,0 +1,43 @@
+CERTEZA - hallazgos firmes aparte de puntos a verificar en sitio (2026-10-13)
+
+QUE CAMBIO (capa de informe y app; motor, reglas y capital intactos)
+- Modulo nuevo certeza/separacion.py: aparta los puntos «no concluyente»
+  (analisis visual, regla RF, titulo fijo «Revisión en sitio, no
+  concluyente») de los hallazgos. El PDF y la app (GET /resumen) usan el
+  mismo codigo, asi que cuentan igual.
+- PDF: linea de resumen con el desglose; seccion «Hallazgos (N)» solo con
+  los firmes; seccion nueva «Puntos a verificar en sitio (N)». Cada punto
+  lleva su foto incrustada, su origen impreso (R5), la etiqueta «Verificar
+  en sitio», «Qué revisar» y la partida cobrada que toca. Nunca afirma daño.
+- App: el mismo encabezado bajo la cifra; grupo aparte «Puntos a verificar
+  en sitio», sin botones de retener/liberar (no hay dinero en juego).
+- Orden por cercania al dinero: primero los que tocan un capitulo con
+  avance cobrado en el corte, de mayor a menor cobro; al final los que no.
+- Un no concluyente no suma en diferencias ni en lo retenido, aunque
+  trajera monto. La exposicion de capital ya solo tomaba R11 (confirmado
+  en capital.py): ningun no concluyente sumaba monto.
+
+CABAÑA EMMA (corte actual, 27 puntos), medido con datos de produccion
+  antes:   «Puntos identificados (27)», todo en una lista.
+  despues: «27 puntos analizados: 18 hallazgos firmes · 9 a verificar en
+           sitio.»  Hallazgos (18) / Puntos a verificar en sitio (9).
+  Exposicion si se paga: $483,824.97 antes y despues. Exposicion hoy:
+  $128,875.09 antes y despues. Diferencias en la app: $303,286.31 en 12
+  puntos, sin cambio.
+  Orden de los 9: 1 de cimentacion (cobrado $350,433.93), 6 de muros
+  ($91,984.97), 2 de instalaciones ($12,859.31). Los 9 tocan partida cobrada.
+- PDF abierto y revisado a ojo (pags. 1, 9 y 10 de 37): el encabezado se
+  lee en el resumen; la seccion de verificacion trae cada punto con su
+  foto, origen, etiqueta y partida cobrada; ningun punto RF dentro de
+  «Hallazgos». 0 «Imagen no disponible» en la seccion. 35 -> 37 paginas.
+- La app no se reviso con sesion real (solo Abner puede entrar a esa
+  obra). Si se verifico que produccion sirve la pagina nueva y que
+  /resumen arma el conteo y el orden correctos sobre el corte real.
+
+TERCER ESTADO: no se acomodo a la fuerza. Ver pendiente.txt punto 5
+(6 hallazgos sin monto, certeza media en 14 de 18, y los daños de foto
+sin confirmar, hoy 0 en Cabaña Emma).
+
+PRUEBAS: 573 pasan, 1 omitida (antes 560). 13 nuevas en
+tests/test_separacion_verificar_en_sitio.py; las 5 del PDF fallan con el
+informe anterior.
