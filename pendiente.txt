@@ -1,5 +1,5 @@
 CERTEZA — lo que de verdad queda para despues
-Actualizado: 2026-10-13 (estandar de lenguaje del informe desplegado). El historial completo de pendientes
+Actualizado: 2026-10-13 (punto 7 cerrado: CFDI real probado en produccion). El historial completo de pendientes
 anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
 
 1. DOBLE VISOR (bloque 3B). Codigo listo, detenido por cuota de Vertex.
@@ -69,16 +69,11 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
    fecha de corte. La fecha de corte ademas quita de las fotos el aviso
    «no se pudo confirmar que la foto sea anterior al corte».
 
-7. ACCION DE ABNER (2026-10-13, capa 3): prueba real del SAT con un CFDI de
-   CINPLAG. La lectura (XML y QR del PDF), la conciliacion y la consulta al
-   SAT ya estan probadas con datos sinteticos y el servicio del SAT responde
-   desde Cloud Shell, pero la validacion SAT NO se da por probada sin un
-   CFDI real (vigente + EFOS). Sube el XML (o el PDF) a Cloud Shell, FUERA
-   de los repos (por ejemplo ~/privado/), y corre:
-     cd ~/certeza && .venv/bin/python infra/probar_cfdi_real.py ~/privado/FACTURA.xml
-   Imprime RFC y folio enmascarados; no copia el archivo. Por que: es lo
-   unico que demuestra que la consulta real devuelve «Vigente» y la
-   validacion EFOS de un comprobante que existe.
+7. CERRADO (2026-10-13, prueba con CFDI real en produccion): una factura
+   real con QR se leyo, se consulto al SAT y salio CANCELADA; R16 disparo
+   con lenguaje firme y no acusatorio, citando el folio fiscal y la fecha
+   de la consulta. La validacion SAT con un comprobante real queda PROBADA.
+   Sin datos del cliente en ningun reporte (ni UUID ni RFC).
 
 8. DECISION LEGAL (capa 3): al validar una factura, CERTEZA manda al
    servicio publico del SAT el folio fiscal, los RFC y el total del CFDI.

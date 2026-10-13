@@ -1,0 +1,31 @@
+CERTEZA - Confirmacion positiva de verificaciones (2026-10-13)
+
+PROBLEMA: una factura vigente y limpia no producia nada. El usuario no
+podia distinguir «revisada y en orden» de «no revisada».
+
+QUE SE HIZO (capa de presentacion; motor y reglas sin cambio)
+- certeza/confirmaciones.py: lee lo que ya guardaron la consulta al SAT y
+  la auditoria. Confirma solo con estado «Vigente» Y ValidacionEFOS fuera
+  de la lista Y fecha de consulta. Cancelada, no encontrada, emisor en
+  lista o EFOS sin dato: no se confirma (o es hallazgo, o no hay base).
+  Una confirmacion por UUID (XML y PDF de la misma factura cuentan uno).
+- Emisor = contratista: solo cuando hay RFC del contratista con que
+  comparar y la factura respalda un pago (el caso de R32).
+- API: la auditoria (POST /auditar y GET /auditoria) trae «confirmaciones»;
+  se calculan de lo guardado, asi que cortes anteriores tambien las
+  muestran. La lista de documentos trae «confirmacion» en la fila.
+- App: grupo «Verificado sin observaciones» con marca verde, sin botones
+  de decision ni monto; la fila del documento dice la frase.
+- Informe PDF: seccion «Verificado sin observaciones (N)» despues de los
+  hallazgos, recuadro verde con el folio fiscal; «Hallazgos (N)» no cambia.
+
+PRUEBAS (11 nuevas)
+- Vigente + fuera de lista -> confirmacion con UUID y fecha, sin monto.
+- Cancelada, no encontrada, en lista, sin dato, sin consulta -> nada.
+- Camino de la app con SAT falso: vigente -> confirmacion en auditoria,
+  en GET /auditoria y en la fila; cancelada -> sin confirmacion y R16.
+- RFC del contratista igual al emisor -> confirmacion y sin R32.
+- PDF generado de verdad: el texto y el UUID aparecen.
+
+NO SE HIZO (no es barato hoy): confirmar IVA al 16% (R19) y R18 cuadrado;
+requeriria repetir la logica de la regla fuera del motor.

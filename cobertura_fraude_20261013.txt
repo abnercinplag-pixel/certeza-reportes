@@ -1,0 +1,101 @@
+CERTEZA - Auditoria de cobertura de fraude en obra (2026-10-13)
+
+DIAGNOSTICO. No se cambio logica. Leido sobre el codigo de certeza/reglas/
+(catalogo, contrato, avance, proyecto, estimacion, facturas) y motor.py.
+
+HECHO ESTRUCTURAL QUE EXPLICA LA MAYORIA DE LOS HUECOS
+El motor audita UN corte a la vez, y el corte se modela POR CAPITULO
+(importe contratado, % y $ de avance), no por concepto. No hay historial de
+estimaciones (ninguna regla compara contra un corte anterior) ni cantidades
+estimadas por concepto (generadores). Los conceptos del XML del CFDI se
+leen y se guardan, pero ninguna regla los usa. Todo lo que depende de
+"concepto por concepto" o de "corte contra corte" hoy no se puede revisar.
+
+TABLA
+ #  Patron                                   Estado    Regla / que falta
+ 1  Conceptos de factura y estimacion vs     FALTA     R32 solo compara RFC. R08
+    alcance contratado                                 compara el importe del
+                                                       capitulo vs catalogo, no el
+                                                       contenido. Conceptos del CFDI
+                                                       leidos pero sin regla.
+ 2  Ordenes de cambio / cobro fuera del      PARCIAL   R08 detecta un capitulo del
+    catalogo sin autorizacion                          corte que no existe en el
+                                                       catalogo y un capitulo inflado
+                                                       (pide adenda). R29 avisa
+                                                       partidas que llegaran como
+                                                       extraordinario. Falta: a nivel
+                                                       concepto, y contra adendas.
+ 3  Materiales almacenados (cobrado no       FALTA     Ninguna regla distingue
+    instalado)                                         instalado de comprado. R11/R14
+                                                       cubren el sintoma (avance sin
+                                                       sustento fisico) sin separarlo.
+ 4  Doble cobro entre cortes (mismo avance   FALTA     R39 es solo mismo UUID. No hay
+    cobrado en dos estimaciones)                       historial de cortes.
+ 5  Escalamiento de P.U. entre               FALTA     R22 compara P.U. dentro del
+    estimaciones                                       catalogo; nada entre cortes.
+ 6  Sobre-cantidad (mas unidades que las     FALTA     El corte no trae cantidades por
+    contratadas)                                       concepto. Tampoco se revisa
+                                                       avance de capitulo > 100%.
+ 7  Retencion: aplicada bien y no liberada   PARCIAL   R05 verifica % pactado vs
+    antes de tiempo                                    retenido en el corte (y avisa
+                                                       si no se pacto o no se imprime).
+                                                       Liberacion anticipada: no (sin
+                                                       historial ni evento de entrega).
+ 8  Carga frontal / unbalanced bid           CUBIERTO  R06 (peso del capitulo vs
+                                                       patron, ya cobrado alto).
+                                                       Certeza limitada a la solidez
+                                                       del patron de referencia.
+ 9  Avance fisico vs cobrado                 CUBIERTO  R11 (fotos/observacion vs %
+                                                       cobrado) y R14 (terminados
+                                                       cobrados con obra negra
+                                                       abierta). Requiere ratificar en
+                                                       sitio; doble visor en espera de
+                                                       cuota Vertex (pendiente 1).
+10  Legitimidad de factura mas alla de EFOS  PARCIAL   Cubierto: R16 cancelada / no
+                                                       encontrada, R17 lista 69-B, R18
+                                                       suma de facturas vs entregado,
+                                                       R19 IVA, R32 emisor, R39
+                                                       repetida. Falta: fecha del CFDI
+                                                       fuera del periodo del contrato
+                                                       (fecha_inicio y plazo ya se
+                                                       extraen; fecha del CFDI ya se
+                                                       lee); RFC de reciente creacion
+                                                       (no hay fuente); conciliacion
+                                                       factura-por-pago (R18 es por
+                                                       suma).
+11  Aritmetica e identidad del corte         CUBIERTO  R07 (avance $ = % x importe,
+                                                       suma de capitulos, total
+                                                       gastado), R04 saldo de
+                                                       anticipo, R08 capitulo vs
+                                                       catalogo, R13 cobertura,
+                                                       R24 aritmetica del catalogo.
+
+HUECOS PRIORIZADOS POR VALOR (los FALTA y lo que falta de los PARCIAL)
+ 1. Correspondencia de conceptos (#1, y #2 a nivel concepto). TOCA DINERO.
+    Necesita: XML del CFDI (ya se lee, conceptos incluidos) y el catalogo
+    (ya se lee). Es el mas barato de los grandes: los dos datos ya estan
+    en el sistema. Hace falta emparejar texto de concepto contra catalogo
+    (no exacto: clave, unidad y descripcion) sin IA en la decision.
+ 2. Doble cobro y escalamiento entre cortes (#4, #5). TOCA DINERO.
+    Necesita: guardar cada corte como serie de la obra (hoy cada auditoria
+    guarda su corte, pero ninguna regla lee el anterior) y estimaciones con
+    detalle por concepto. Con detalle por capitulo solo se detecta
+    "% acumulado que baja o se repite".
+ 3. Sobre-cantidad (#6). TOCA DINERO.
+    Necesita: la estimacion con generadores (cantidad por concepto). Barato
+    y parcial ya: avance de capitulo > 100% con los datos de hoy.
+ 4. Materiales almacenados (#3). TOCA DINERO.
+    Necesita: la estimacion con columna de material en obra (formato G703 o
+    equivalente) o facturas de material separadas de mano de obra.
+ 5. Fecha del CFDI fuera del periodo del contrato (#10). Senal de riesgo,
+    sin monto directo. Barato: todos los datos ya se leen.
+ 6. Liberacion anticipada de la retencion (#7). TOCA DINERO, pero solo al
+    cierre. Necesita: historial de cortes o el acta de entrega-recepcion.
+ 7. Factura por pago (#10). Necesita comprobantes de pago individuales.
+ 8. RFC de reciente creacion (#10). Sin monto. Necesita una fuente de fecha
+    de alta del RFC (constancia de situacion fiscal); no hay servicio
+    publico confiable.
+
+RECOMENDACION: construir primero la correspondencia de conceptos
+factura/estimacion vs catalogo (hueco 1). Despues, la serie de cortes
+(hueco 2), que destraba 4, 5 y la parte de retencion de 7.

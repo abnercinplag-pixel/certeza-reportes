@@ -1,20 +1,27 @@
-CERTEZA - ultimo (2026-10-13, capa 3: facturas CFDI por XML y QR, con el SAT)
+CERTEZA - ultimo (2026-10-13, cierre punto 7, confirmacion positiva SAT y cobertura de fraude)
 
-DESPLEGADO: revision certeza-api-00099-5hc, 100% del trafico, humo.sh OK.
-690 pruebas OK (1 omitida); antes 654. Capas 1 y 2 siguen activas.
+DESPLEGADO: revision certeza-api-00101-plq, 100% del trafico, humo.sh todo OK.
+701 pruebas OK (1 omitida); antes 690 (11 nuevas en tests/test_confirmaciones.py).
+AST y secretos OK. Commit b358016.
 
-- Se acepta el XML del CFDI (4.0 y 3.3): UUID, RFC, total, subtotal, IVA,
-  conceptos como dato duro. El PDF de la factura: UUID, RFC y total exactos
-  de su QR; conceptos e IVA por vision como «confirmar». Sin QR legible: se
-  pide el XML.
-- Consulta al SAT: vigente/cancelado/no encontrado y ValidacionEFOS (lista
-  69-B), al subir y desde «Leer documentos pendientes».
-- Reglas R16 cancelado, R17 lista 69-B, R18 facturas vs entregado, R19 IVA,
-  R32 factura de un tercero, R39 factura usada dos veces.
-- Cabana Emma (sin facturas): mismos 28 hallazgos y misma exposicion.
-- Prueba con CFDI REAL: PENDIENTE (no hay uno en Cloud Shell). La
-  validacion SAT no se da por probada con un comprobante real.
-Detalle: capa3_cfdi_20261013.txt
+- Punto 7 CERRADO: una factura real con QR se leyo en produccion, se
+  consulto al SAT y salio CANCELADA; R16 disparo con lenguaje firme y no
+  acusatorio, con folio fiscal y fecha de la consulta. (Sin datos del
+  cliente en este reporte.) Nota: la respuesta «Vigente + fuera de la
+  lista» de un comprobante real aun no se ha visto; esa via esta probada
+  con el formato real del servicio y datos sinteticos.
+- Visibilidad: una factura vigente y con emisor fuera de la lista 69-B ya
+  no queda en silencio. Dice «Factura verificada ante el SAT: vigente,
+  emisor fuera de la lista 69-B. Consultado el <fecha>.» con su UUID, en
+  la fila del documento, en la auditoria (seccion «Verificado sin
+  observaciones») y en el informe PDF. No es hallazgo: sin monto, sin
+  botones de decision, fuera de los conteos, con aspecto propio (verde).
+  Mismo principio, barato: si hay RFC del contratista y coincide con el
+  emisor, se confirma tambien. PDF verificado: el texto aparece.
+- Cobertura de fraude (diagnostico, sin cambiar logica): 3 cubiertos,
+  3 parciales, 5 faltan. Detalle y prioridad: cobertura_fraude_20261013.txt
+Detalle del fix: confirmacion_sat_20261013.txt
 
-SIGUE: Abner sube un CFDI real y corre infra/probar_cfdi_real.py
-(pendiente.txt 7). Decision legal sobre el aviso (8). Capa 4 aparte.
+SIGUE: Abner decide que construir de la tabla de cobertura (recomendado:
+correspondencia de conceptos factura/estimacion vs catalogo). Pendientes
+1, 4, 6, 8 y 9 de pendiente.txt sin cambio.
