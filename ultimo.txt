@@ -1,18 +1,21 @@
-CERTEZA - ultimo (2026-10-13, capa 1: estimacion auditada + origen veridico)
+CERTEZA - ultimo (2026-10-13, capa 2: leer por vision documentos sin texto)
 
-DESPLEGADO: revision certeza-api-00095-4hs, 100% del trafico, humo.sh OK.
-639 pruebas OK (1 omitida); antes 608.
+DESPLEGADO: revision certeza-api-00097-6rt, 100% del trafico, humo.sh OK.
+654 pruebas OK (1 omitida); antes 639. Capa 1 sigue activa (R07 R08 R09 R15).
 
-- FIX 0 (R5): las evidencias citan el documento y la pagina reales de cada
-  cifra; captura a mano dice «captura manual». El pie del presupuesto ya se
-  lee del presupuesto y corrobora al del concentrado.
-- R07 aritmetica del corte, R08 capitulo del corte vs catalogo, R09
-  calendario de pagos vs entregado/solicitado, R15 honorarios aplicados vs
-  % contratado. Positivo y negativo por regla.
-- Cabana Emma: exposicion sin cambio ($128,875.09 / $483,824.97), los 27
-  hallazgos previos iguales. Nuevo: R15-001, honorarios del corte sobre una
-  base distinta a la del presupuesto, a favor del contratante (sin monto).
-  R07, R08 y R09: el corte cuadra y sigue el calendario.
-Detalle: capa1_estimacion_20261013.txt
+- PDF sin texto e imagenes de documento se leen por vision (el mismo
+  Gemini de fotos y planos) al quedar listos; la transcripcion pasa por los
+  mismos clasificador y extractores que un PDF con texto.
+- Todo lo leido por vision es propuesta: cada cifra lleva duda y no entra
+  al calculo sin confirmacion humana; tipo nunca de confianza alta. PDF con
+  texto: nunca llama al modelo.
+- Tipo nuevo «nota»: se lee y se guarda con su resumen en el corte.
+- Boton «Leer documentos pendientes» reintenta lo que falle.
+- Ejemplo real: contrato de Cabana Emma convertido en escaneo (5 pag, sin
+  texto): clasificado contrato (media), 10 cifras iguales a las del PDF
+  original, las 10 como «confirmar», 0 al calculo. US$0.0039.
+- Cabana Emma sin cambio: mismos 28 hallazgos y exposicion.
+Detalle: capa2_vision_20261013.txt
 
-SIGUE: Capa 2 (leer por vision documentos sin texto), en curso.
+SIGUE: Capa 3 (CFDI XML + SAT) espera una factura real; Capa 4 (contrato
+como fuente de verdad) va encima de esta. pendiente.txt 1, 2, 4 y 5 siguen.
