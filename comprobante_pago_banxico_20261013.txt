@@ -1,56 +1,90 @@
-CERTEZA - comprobante de pago como tipo propio + CEP de Banxico (2026-10-13, EN CURSO)
+CERTEZA - Comprobante de pago + validacion Banxico (CEP) + triple empate
+(2026-10-13). Reemplaza la version «en curso» de este mismo archivo.
 
-ESTADO: SIN DESPLEGAR. Trabajo a medias. Produccion sigue en certeza-api-00103-q75.
-- Commit e5add9c (wip): adaptador y reglas, sin integrar.
-- Integracion en api/web: en el arbol de trabajo, SIN commit.
-- Pruebas: 712 OK, 3 FALLAN, 1 omitida (antes 715 OK). No se puede desplegar asi.
+ESTADO: construido y probado, NO desplegado. Produccion sigue en
+certeza-api-00103-q75. Motivo: la sesion de gcloud de Cloud Shell caduco;
+el comando para Abner esta en reportes/pendiente.txt (punto 10).
+Pruebas: 768 OK, 1 omitida (antes 715; 53 nuevas en
+tests/test_comprobante_pago.py). AST y secretos OK.
+Commits: e5add9c, d28070e (wip), 4f5196b, mas el de pendientes.
 
-QUE RESUELVE
-Hasta aqui «lo entregado» lo declaraba el concentrado del propio
-contratista. Con esto se VERIFICA con Banxico (CEP): que la transferencia
-existe, por cuanto, cuando, de que cuenta y a que cuenta. Es al pago lo
-que la consulta al SAT es a la factura. Corrige ademas el error medido en
-el diagnostico: una transferencia subida como comprobante del anticipo se
-leia como «factura con QR ilegible».
+BLOQUE 1 - El bug de clasificacion, arreglado
+- Antes: lo subido al pedido «Comprobante fiscal del anticipo» se trataba
+  como factura por el pedido; a una transferencia se le buscaba un QR de
+  CFDI y R18 decia «la factura no se pudo verificar: su QR no se lee».
+- Ahora: tipo propio «comprobante de pago (transferencia)». Se reconoce por
+  su contenido (clave de rastreo, ordenante, beneficiario, SPEI, CEP), por
+  el XML del CEP, por lo que transcribe la vision en un pantallazo, o porque
+  una persona lo confirma. No se le busca QR ni se le exige folio fiscal.
+- Una factura pagada por transferencia («forma de pago 03 transferencia»)
+  sigue siendo factura: probado. Un CFDI con QR leido es factura aunque se
+  suba en el pedido del pago.
+- En «Documentos que faltan», la transferencia subida donde se pedia la
+  factura se dice como comprobante de pago y la factura se sigue pidiendo.
+  Nuevo pedido: «Comprobante de la transferencia del anticipo» (a quien
+  pago).
 
-LO CONSTRUIDO (e5add9c, 1157 lineas)
-- certeza/adaptadores/pago.py: lector en tres vias, de mas a menos
-  confiable: XML del CEP, PDF con texto (por etiquetas), pantallazo por
-  vision (mismo lector de etiquetas). Lo leido es PROPUESTA: al calculo
-  solo entra lo que Banxico confirma. Cliente propio del servicio publico
-  CEP (valida.do / descarga.do), monto en texto desde Decimal, respuesta
-  con defusedxml. No se uso cepmex: manda el monto como float y valida
-  con assert. Validacion de CLABE.
-- certeza/reglas/pagos.py: Banxico confirma la transferencia; el dinero va
-  de quien paga a quien cobra; triple empate factura (CFDI/SAT) -
-  transferencia (CEP/Banxico) - concentrado. Ventana de 31 dias entre
-  factura y pago. R31: si el concentrado explica el pago se pide soporte.
-  Cero IA, cero float.
-- certeza/modelos.py: ComprobantePago, papeles de pago.
+BLOQUE 2 - Que se lee del comprobante
+- Campos: clave de rastreo (con sus minusculas), monto (Decimal), fecha,
+  banco ordenante, banco beneficiario, cuenta beneficiaria y ordenante
+  (CLABE con digito verificador, tarjeta o celular), RFC y nombre de cada
+  lado, concepto y referencia.
+- XML del CEP: dato duro. PDF con texto o pantallazo (vision): propuesta.
+- Lo leido NUNCA entra al calculo por si solo: sirve para preguntarle a
+  Banxico. Entra lo que Banxico confirma, con sus cifras.
+- Sin clave de rastreo (o sin cuenta completa: «****1234» no sirve) se dice
+  que falta y se pide el CEP o el dato. La persona puede escribirlo o
+  corregirlo en la app («Datos del pago») y se vuelve a consultar.
 
-INTEGRACION (sin commit)
-- Deteccion acepta el XML del CEP como formato «cep».
-- cfdi.es_factura: un comprobante de pago ya no es factura.
-- Vision: tipo «comprobante_pago», copia clave de rastreo, cuentas, monto.
-- API: lectura al subir y al auditar; consulta a Banxico con reintento
-  visible si no responde (nada en silencio).
-  PUT /api/documentos/{id}/pago: captura/correccion manual de datos; lo
-  escrito tampoco entra al calculo, solo sirve para preguntar a Banxico.
-  PUT /api/obras/{id}/partes: quien paga y quien cobra (papel, nombre,
-  RFC, cuentas) por obra.
-- El corte guarda vista de pagos con su estado de empate.
-- agente.html: pantalla de pagos y partes.
+BLOQUE 3 - Que valida Banxico
+- Consulta directa al servicio publico del CEP (valida.do + descarga.do del
+  XML). No se uso cepmex: manda el monto como float y valida con assert.
+- Con fecha, clave de rastreo, banco emisor, banco receptor, cuenta
+  beneficiaria y monto, Banxico confirma que la transferencia existe y
+  entrega monto, fecha, ordenante y beneficiario (nombre, banco, cuenta,
+  RFC).
+- Confirmada: confirmacion positiva visible, no hallazgo: «Pago verificado
+  con Banxico: $X a <beneficiario>, <fecha>, clave <...>.»
+- R41: no encontrada, sin CEP todavia, comprobante que no dice lo mismo
+  que Banxico, o sin datos para consultar -> hallazgo «comprobante de pago
+  no verificable». Si los datos venian de vision, certeza media.
+- Banxico caido o con limite de consultas: queda pendiente y se dice;
+  «Leer documentos pendientes» lo reintenta.
 
-LAS 3 FALLAS (por corregir antes de cerrar)
-1. test_agente_sin_aritmetica: agente.html formatea un monto en JS
-   (Number(dt.monto).toLocaleString). Debe venir formateado del servidor.
-2. test_aislamiento_por_empresa: falta el cuerpo de PUT /obras/{id}/partes
-   en EXTRA_POR_RUTA para probar el aislamiento entre empresas.
-3. test_capa2_vision: la respuesta de leer por vision trae la clave nueva
-   «banxico»; actualizar lo esperado.
+BLOQUE 4 - Quien paga a quien
+- Por obra se capturan dos papeles (por omision «dueño» y «contratista";
+  configurables: constructora / subcontratista) con nombre, RFC y CLABEs.
+  Si falta el RFC del contratista se usa el leido del contrato.
+- R42: ordenante distinto a quien paga -> hallazgo (el pago no salio de su
+  cuenta). Beneficiario distinto a quien cobra -> hallazgo (pago a un
+  tercero), con monto. Se compara por RFC; si Banxico no lo trae, por
+  cuenta. Sin datos para comparar, se dice y se piden.
 
-SIGUE
-- Corregir las 3 fallas, pruebas propias de pago (XML CEP, PDF, vision,
-  Banxico simulado, empate), commit.
-- Probar contra Banxico real con un CEP verdadero antes de desplegar.
-- Desplegar y humo.
+BLOQUE 5 - Triple empate
+- R43, pago por pago: CEP verificado <-> factura (mismo monto, partes
+  iguales, fecha a 31 dias o menos) <-> lo que el concentrado da por
+  entregado.
+- Los tres coinciden y la factura esta vigente en el SAT -> confirmacion
+  «Pago verificado en las tres fuentes».
+- Sin factura en la obra -> empate doble (Banxico + concentrado); la
+  factura la sigue pidiendo R35.
+- Descuadre -> hallazgo con monto, diciendo que fuente difiere. R31: si el
+  concentrado explica el pago, se pide su soporte en vez de senalarlo.
+
+PRUEBAS
+- Unitarias (sinteticas): lectura XML y texto, fechas, clave con
+  minusculas, CLABE invalida, cuenta enmascarada, bancos; clasificacion
+  (transferencia NO es factura, factura sigue siendo factura); Banxico
+  mockeado (confirmada, no encontrada, sin CEP, limite, respuesta rara,
+  monto mandado como texto); R41, R42 (incluye papeles configurables), R43
+  positivo y negativos, R31; confirmaciones; camino completo en la app.
+- Real, contra Banxico: consulta con una clave inventada -> «operacion no
+  encontrada», leida bien. Demuestra que el servicio responde y que el
+  formato de la peticion es aceptado.
+- NO PROBADO con una transferencia real: no se dio por probado. La obra real
+  ya tiene una transferencia subida, pero sin gcloud no se pudo leer
+  (pendiente 11). El comprobante real es privado: no va al repo.
+
+Sin tocar: el doble visor (pendiente 1).
+SIGUE: gcloud login -> desplegar -> prueba con la transferencia real;
+decidir el aviso legal de la consulta a Banxico; despues, TIPO DE CONTRATO.
