@@ -1,14 +1,18 @@
-CERTEZA - ultimo (2026-10-13, intento de despliegue comprobante de pago + CEP)
+ESTADO: FALLO gcloud sin sesion (No credentialed accounts); deploy.sh abortado, nada desplegado
+CERTEZA - ultimo (2026-10-13, despliegue comprobante de pago + CEP)
 
-SIN DESPLEGAR: la sesion de gcloud sigue caducada (sin cuenta activa,
-print-access-token falla). Produccion sigue en certeza-api-00103-q75.
-Suite completa en verde: 770 OK, 1 omitida. AST y secretos OK.
+SIN DESPLEGAR. Produccion sigue en la revision anterior (certeza-api-00103-q75
+segun el ultimo dato medido; hoy no se pudo consultar sin credenciales).
 
-- make verificar corrido de nuevo sobre afba4f5: verde.
-- d28070e (wip pago) y todo lo posterior estan en origin/main; nada se perdio.
-- deploy.sh no se corrio: falla al primer gcloud sin credenciales.
-- Pendiente 10 sigue vigente con los comandos exactos.
+- bash infra/deploy.sh -> exit 1, mensaje exacto:
+  "no existe certeza-escaner en cinplag-v4-core: corre primero escaner/desplegar.sh"
+- Ese mensaje engana: certeza-escaner no falta. El describe esconde stderr y
+  la causa real es gcloud sin cuenta: "No credentialed accounts" /
+  "You do not currently have an active account selected".
+- infra/humo.sh no se corrio (va encadenado con && tras deploy.sh).
+- Doble visor (pendiente 1) no se toco.
+- Regla nueva en CLAUDE.md: todo reporte empieza con "ESTADO: ...".
 
-SIGUE: Abner corre gcloud auth login (pendiente 10); luego
-bash infra/deploy.sh && bash infra/humo.sh; prueba real con la
-transferencia de Cabana Emma; aviso legal Banxico; TIPO DE CONTRATO.
+SIGUE: Abner corre gcloud auth login y gcloud config set project
+cinplag-v4-core; luego bash infra/deploy.sh && bash infra/humo.sh;
+despues la prueba real contra Banxico con una transferencia (Abner).
