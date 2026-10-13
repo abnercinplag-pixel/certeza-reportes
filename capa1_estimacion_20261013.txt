@@ -1,0 +1,67 @@
+CERTEZA - Capa 1: auditar la estimacion + origen veridico (2026-10-13)
+
+DESPLEGADO: revision certeza-api-00095-4hs, 100% del trafico. humo.sh todo
+OK. Suite: 639 OK, 1 omitida (antes 608; 31 nuevas en
+tests/test_capa1_estimacion.py). AST y secretos OK. Commit ce4799a
+en certeza-auditor, con push.
+
+FIX 0 - EL ORIGEN DICE LA VERDAD (R5)
+- Antes: R20/R21/R35 citaban «presupuesto» para cifras que el codigo tomaba
+  del pie del CONCENTRADO. R04/R05/R06/R10-R14/R31 citaban «concentrado»
+  aunque el dato pudiera venir de captura a mano.
+- Ahora la auditoria arma contrato["origenes"] con el rastro de lectura:
+  cada cifra cita «documento», pagina real. Lo capturado a mano dice
+  «captura manual de la obra». Sin rastro (caso cargado de archivos) dice
+  «datos capturados de la obra»; nunca un documento supuesto.
+- Ademas el pie del presupuesto PDF se LEE del presupuesto (extractor
+  nuevo). En Cabana Emma coincide con el del concentrado: la evidencia cita
+  los dos («Concentrado...pdf, pag. 3 y Presupuesto...pdf, pag. 5»). Si un
+  presupuesto dijera otra cifra, corrobora pero no compite: se avisa y no
+  se detiene el corte.
+- Descripciones: «Segun el concentrado y el presupuesto, ...» en vez de
+  «El presupuesto establece...».
+
+REGLAS NUEVAS (Decimal, ROUND_HALF_UP, origen impreso, estatus explicito)
+Criterio comun: diferencia en contra del contratante = hallazgo con monto
+(lo cobrado de mas); a su favor = se dice, sin monto. Con nota del emisor
+en el capitulo (R31) no se acusa: explicado_pendiente_de_soporte.
+- R07 ARITMETICA DEL CORTE. Al centavo: por capitulo avance $ = % x
+  importe; SUMA % AVANCE = suma de capitulos; TOTAL GASTADO = avance +
+  indirectos + honorarios. Un % impreso redondeado («90%») se respeta: si
+  el avance $ cae dentro de ese redondeo no es hallazgo.
+- R08 CAPITULO DEL CORTE CONTRA CATALOGO. Importe contratado del capitulo
+  en el concentrado vs suma de sus conceptos en el catalogo. Empareja por
+  clave (2.00, 6.00.01) o por nombre (el catalogo leido de PDF no trae
+  claves). Monto = diferencia x % de avance cobrado. Capitulo del corte sin
+  pareja: se dice, no se compara contra nada supuesto.
+- R09 CALENDARIO CONTRA PAGOS. Lo entregado vs lo exigible a la fecha de
+  corte; lo entregado vs el total del calendario; el pago solicitado vs lo
+  que falta para el siguiente pago pactado, y si se pide antes de su
+  fecha. Se leen ahora las fechas del calendario, el saldo y la fecha de
+  corte del concentrado. Tolerancia $1 (los pagos del calendario se
+  imprimen redondeados; la misma que R21).
+- R15 HONORARIOS APLICADOS. Gemelo de R21-001: honorarios del corte vs % 
+  contratado sobre la base que usa el propio presupuesto (cascada
+  subtotal + indirectos, la de R20).
+Todas con prueba positiva (cuadra) y negativa (no cuadra), mas una de
+punta a punta por la API.
+
+CABANA EMMA (copia de produccion auditada en memoria, antes y despues)
+- Exposicion SIN CAMBIO: $128,875.09 hoy / $483,824.97 si se paga.
+  Capital identico campo por campo.
+- Los 27 hallazgos previos siguen, con el mismo monto y estatus.
+- Nuevo: 1 hallazgo.
+  R15-001: el corte aplico honorarios al 12% de lo ejecutado SIN sus
+  indirectos; con la cascada del presupuesto serian $1,818.02 mas. Es a
+  favor del contratante: sin monto, se pide fijar la base por escrito.
+- R07: el corte cuadra (capitulos, suma del avance y total gastado).
+- R08: los 6 capitulos con avance cuadran con el catalogo (Cimentacion
+  difiere un centavo: dentro de la tolerancia).
+- R09: Cabana sigue el calendario: lo entregado es el primer pago (un
+  centavo de diferencia), el 2o pago ya era exigible a la fecha de corte
+  y lo solicitado es exactamente el 2o pago.
+
+LO QUE NO SE TOCO
+Motor, capital y reglas previas: mismos calculos. Lenguaje del informe: R15
+y R09 con su «Solicita» en imperativo. Aviso legal: R07, R08, R09 y R15
+agregados a la tabla de lo que se revisa.

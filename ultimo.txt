@@ -1,22 +1,18 @@
-CERTEZA - ultimo (2026-10-13, auditoria: matriz de uso documental)
+CERTEZA - ultimo (2026-10-13, capa 1: estimacion auditada + origen veridico)
 
-DESPLEGADO: sin cambios (revision certeza-api-00093-n7b). Solo analisis del
-codigo: no se toco motor, reglas ni API. Pruebas sin cambio (608 OK).
+DESPLEGADO: revision certeza-api-00095-4hs, 100% del trafico, humo.sh OK.
+639 pruebas OK (1 omitida); antes 608.
 
-- Matriz documento -> reglas -> campos -> adorno, medida con
-  extraccion._destino() sobre cada campo extraido.
-- Contrato vs presupuesto: NO se cruzan precios ni alcance. Del contrato
-  solo cuentan total (como pregunta si difiere), calendario (eximente de
-  R21-002) y retencion (R05). Anticipo %, plazo, fecha de inicio: adorno.
-- Calendario vs pagos reales: NO existe como verificacion; solo calla
-  R21-002 si el anticipo cuadra con los primeros pagos.
-- Facturas: se LEEN, pero solo el total se compara con el monto del pedido,
-  fuera del motor. R35 detecta la falta, no concilia. Factura sin pedido,
-  licencia, honorarios aplicados al corte, Excel del concentrado: adorno.
-- 13 huecos priorizados; los 4 primeros usan documentos que Cabana Emma ya
-  tiene y tocan dinero (aritmetica del concentrado, capitulo del corte vs
-  catalogo, calendario vs pagos, honorarios aplicados).
-Detalle: matriz_uso_documental_20261013.txt
+- FIX 0 (R5): las evidencias citan el documento y la pagina reales de cada
+  cifra; captura a mano dice «captura manual». El pie del presupuesto ya se
+  lee del presupuesto y corrobora al del concentrado.
+- R07 aritmetica del corte, R08 capitulo del corte vs catalogo, R09
+  calendario de pagos vs entregado/solicitado, R15 honorarios aplicados vs
+  % contratado. Positivo y negativo por regla.
+- Cabana Emma: exposicion sin cambio ($128,875.09 / $483,824.97), los 27
+  hallazgos previos iguales. Nuevo: R15-001, honorarios del corte sobre una
+  base distinta a la del presupuesto, a favor del contratante (sin monto).
+  R07, R08 y R09: el corte cuadra y sigue el calendario.
+Detalle: capa1_estimacion_20261013.txt
 
-SIGUE: Abner decide que huecos construir (orden sugerido 1-4, luego 5
-facturas en el motor + XML de CFDI). pendiente.txt 1, 2, 4 y 5 siguen.
+SIGUE: Capa 2 (leer por vision documentos sin texto), en curso.
