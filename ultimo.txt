@@ -1,27 +1,18 @@
-CERTEZA - ultimo (2026-10-13, cierre punto 7, confirmacion positiva SAT y cobertura de fraude)
+CERTEZA - ultimo (2026-10-13, R40 correspondencia de conceptos - bloque 1 de 2)
 
-DESPLEGADO: revision certeza-api-00101-plq, 100% del trafico, humo.sh todo OK.
-701 pruebas OK (1 omitida); antes 690 (11 nuevas en tests/test_confirmaciones.py).
-AST y secretos OK. Commit b358016.
+DESPLEGADO: sigue certeza-api-00101-plq. R40 va en el despliegue del cierre.
+715 pruebas OK (1 omitida); antes 701 (14 nuevas en tests/test_r40_alcance.py).
+Commit 5a2a134.
 
-- Punto 7 CERRADO: una factura real con QR se leyo en produccion, se
-  consulto al SAT y salio CANCELADA; R16 disparo con lenguaje firme y no
-  acusatorio, con folio fiscal y fecha de la consulta. (Sin datos del
-  cliente en este reporte.) Nota: la respuesta «Vigente + fuera de la
-  lista» de un comprobante real aun no se ha visto; esa via esta probada
-  con el formato real del servicio y datos sinteticos.
-- Visibilidad: una factura vigente y con emisor fuera de la lista 69-B ya
-  no queda en silencio. Dice «Factura verificada ante el SAT: vigente,
-  emisor fuera de la lista 69-B. Consultado el <fecha>.» con su UUID, en
-  la fila del documento, en la auditoria (seccion «Verificado sin
-  observaciones») y en el informe PDF. No es hallazgo: sin monto, sin
-  botones de decision, fuera de los conteos, con aspecto propio (verde).
-  Mismo principio, barato: si hay RFC del contratista y coincide con el
-  emisor, se confirma tambien. PDF verificado: el texto aparece.
-- Cobertura de fraude (diagnostico, sin cambiar logica): 3 cubiertos,
-  3 parciales, 5 faltan. Detalle y prioridad: cobertura_fraude_20261013.txt
-Detalle del fix: confirmacion_sat_20261013.txt
+- R40 nueva: cada concepto de factura de pago (XML) y de estimacion se
+  coteja contra el catalogo por clave + unidad + descripcion (aproximado,
+  determinista, Decimal, sin IA). Fuera de catalogo = hallazgo con monto;
+  parecido parcial = se pregunta; explicado por el emisor = se pide la
+  orden de cambio (R31). Facturas de proveedor no se cotejan (costo).
+- Medido: 88 conceptos reales de Cabana Emma, recortados a 3-8 palabras,
+  0 falsos «fuera de catalogo».
+- Una estimacion que solo trae totales por capitulo se avisa, no se calla.
+Detalle: correspondencia_conceptos_20261013.txt
 
-SIGUE: Abner decide que construir de la tabla de cobertura (recomendado:
-correspondencia de conceptos factura/estimacion vs catalogo). Pendientes
-1, 4, 6, 8 y 9 de pendiente.txt sin cambio.
+SIGUE: bloque 2, diagnostico de pago no-CFDI, roles/direccion del dinero
+y tipo de contrato; luego deploy.

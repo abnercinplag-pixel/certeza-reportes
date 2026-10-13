@@ -1,0 +1,62 @@
+CERTEZA - R40 correspondencia de conceptos vs catalogo (2026-10-13)
+
+PARTE 1 de 2 del encargo. Hueco #1 de cobertura_fraude_20261013.txt.
+Commit 5a2a134 (certeza-auditor). Aun NO desplegado: el despliegue va al
+cierre, junto con el diagnostico de la parte 2.
+
+QUE REVISA
+Cada concepto cobrado se coteja contra el catalogo de conceptos contratado:
+ - los conceptos del XML de cada factura de PAGO vigente (tipo I);
+ - los conceptos de cada documento tipo «estimacion», leidos renglon por
+   renglon con los mismos adaptadores del catalogo (PDF con texto o Excel).
+Pregunta: ¿lo cobrado esta dentro del alcance contratado? NO revisa costo
+ni margen del contratista: las facturas de proveedor (rol «proveedor») son
+costo del contratista y no se cotejan.
+
+COMO DECIDE (certeza/emparejamiento.py, determinista, Decimal, sin IA)
+ - Clave: la de la estimacion o el NoIdentificacion del CFDI. Ceros no
+   distinguen (02.01 = 2.01 = 2.01.00). Si la clave existe en el catalogo
+   (con claves repetidas, R26, se toma la que mas se parece).
+ - Unidad por familias (M2/MTK, M3/MTQ, PZA/H87, KG/KGM, TON/TNE...).
+   E48 (unidad de servicio) y vacia no cuentan en contra.
+ - Descripcion: cobertura = parte de las palabras que distinguen al
+   concepto cobrado (sin la coletilla «incluye materiales, mano de obra...»,
+   raiz de 6 letras, numeros enteros) que aparece en el concepto del
+   catalogo. >= 0.60 corresponde; < 0.34 fuera; entre medias, dudoso.
+ - Renglones de cobro («Anticipo», «Estimacion 3», «Avance de obra segun
+   contrato») son genericos: no describen obra, no se cotejan.
+
+RESULTADOS (regla R40_CONCEPTO_FUERA_DE_ALCANCE)
+ - fuera: severidad alta si hay monto, certeza media, requiere_aclaracion.
+   Monto: factura = importe del concepto sin IVA; estimacion = importe del
+   renglon x % de avance de su capitulo (0 si aun no hay avance).
+   No se suma como verificado: el texto es aproximado, puede existir una
+   adenda no presentada, y R08 ya cuenta ese dinero a nivel capitulo.
+ - dudoso (clave del catalogo con otra descripcion, unidad de otra familia,
+   parecido parcial): media, certeza baja, sin monto, se pregunta la clave.
+ - R31: si el emisor lo explico (lo llama extraordinario/adicional/orden de
+   cambio, o hay nota junto al concepto o a su capitulo) -> estatus
+   explicado_pendiente_de_soporte; se pide la orden de cambio, no se acusa.
+ - Sin catalogo: un aviso baja (no hay contra que cotejar).
+ - Factura leida solo por QR: aviso baja, pide el XML (el QR no trae conceptos).
+ - Estimacion que solo trae totales por capitulo (como el concentrado de
+   Cabana Emma): advertencia visible «no se cotejaron», nunca silencio.
+
+MEDIDO
+ - Catalogo real de Cabana Emma (88 conceptos): cada concepto recortado a
+   3, 4, 6 y 8 palabras se empareja consigo; 0 falsos «fuera».
+ - 14 pruebas nuevas (tests/test_r40_alcance.py): 5 positivas (alberca en
+   factura $85,000; pergola en estimacion = $9,000 por 90% de avance;
+   extraordinario explicado; clave 2.01 usada para pintura; despalme en M2
+   contratado en M3), 6 negativas (catalogo reimpreso con y sin clave = 0;
+   factura que resume el catalogo + anticipo + estimacion = 0; proveedor y
+   cancelada = 0; sin catalogo; solo QR; Cabana sin cambios), emparejador,
+   lectura del XML y una de punta a punta por la API (PDF de estimacion).
+ - Suite: 715 OK, 1 omitida (antes 701). Ruff limpio en los archivos nuevos.
+
+LIMITES CONOCIDOS
+ - Facturas ya leidas antes de hoy no guardaron NoIdentificacion ni unidad:
+   se cotejan solo por descripcion hasta que se relean.
+ - Una factura con un solo concepto generico («Servicios de construccion»)
+   no permite cotejar nada: se trata como renglon de cobro.
+ - No mide sobre-cantidad (hueco #6) ni doble cobro entre cortes (#4).
