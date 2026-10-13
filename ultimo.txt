@@ -1,25 +1,29 @@
-CERTEZA - ultimo (2026-10-13, R40 + diagnostico pago/roles/contrato - bloque 2 de 2)
+CERTEZA - ultimo (2026-10-13, R40 correspondencia de conceptos + diagnostico pago/roles/contrato)
 
-DESPLEGADO: sigue certeza-api-00101-plq. R40 va en el despliegue del cierre.
+DESPLEGADO: revision certeza-api-00103-q75, 100% del trafico, humo.sh todo OK.
 715 pruebas OK (1 omitida); antes 701 (14 nuevas en tests/test_r40_alcance.py).
-Commit 5a2a134.
+AST y secretos OK. Commits 5a2a134 (R40), bfecc1c (reportes).
 
 - R40 nueva: cada concepto de factura de pago (XML) y de estimacion se
   coteja contra el catalogo por clave + unidad + descripcion (aproximado,
   determinista, Decimal, sin IA). Fuera de catalogo = hallazgo con monto;
   parecido parcial = se pregunta; explicado por el emisor = se pide la
   orden de cambio (R31). Facturas de proveedor no se cotejan (costo).
-- Medido: 88 conceptos reales de Cabana Emma, recortados a 3-8 palabras,
+- Medido: 88 conceptos reales de Cabana Emma recortados a 3-8 palabras,
   0 falsos «fuera de catalogo».
-- Una estimacion que solo trae totales por capitulo se avisa, no se calla.
-Detalle: correspondencia_conceptos_20261013.txt
-
+- Obra real auditada en memoria (solo lectura, infra/auditar_cabana_local):
+  28 hallazgos antes y despues, identicos. R40 no dispara: no hay CFDI de
+  pago en XML y el concentrado solo trae totales por capitulo; lo dice
+  como advertencia visible.
 - Diagnostico (sin construir): pago no-CFDI FALTA, roles/direccion del
   dinero PARCIAL, tipo de contrato FALTA (un solo modelo mixto fijo).
-  Hallazgo de fondo: «lo entregado» lo declara el propio contratista.
-  Error concreto: una transferencia subida como comprobante del anticipo
-  se lee como factura con QR ilegible.
-Detalle: diagnostico_pago_roles_contrato_20261013.txt
+  De fondo: «lo entregado» lo declara el propio contratista. Error
+  concreto: una transferencia subida como comprobante del anticipo se
+  lee como factura con QR ilegible.
+Detalle: correspondencia_conceptos_20261013.txt,
+         diagnostico_pago_roles_contrato_20261013.txt
 
-SIGUE: cierre (AST, suite, deploy). Prioridad sugerida para construir:
-conciliacion de costos bajo administracion (con tipo de contrato antes).
+SIGUE: Abner decide que construir. Recomendado: tipo de contrato +
+conciliacion de costos bajo administracion; luego comprobante de pago
+como tipo propio. R40 falta verla disparar con un XML de pago real.
+Doble visor (pendiente 1) sin tocar.
