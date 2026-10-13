@@ -1,0 +1,124 @@
+CERTEZA - Diagnostico: pago no-CFDI, roles y direccion del dinero, tipo de
+contrato (2026-10-13)
+
+PARTE 2 de 2 del encargo. DIAGNOSTICO: no se construyo nada. Leido sobre
+certeza/ (motor, reglas, modelos, extraccion, clasificacion, pedidos,
+adaptadores/cfdi.py y documento_vision.py) con el codigo del commit 5a2a134.
+
+HECHO DE FONDO QUE CRUZA LAS TRES
+"Lo entregado" (anticipo_pagado) que usan R04, R09, R18 y R35 sale del
+renglon ANTICIPO del concentrado del CONTRATISTA o de la captura manual de
+la obra. No hay ninguna fuente independiente de que el dinero salio: el
+pago lo declara la misma parte que lo cobra. Ninguna regla lo distingue.
+
+------------------------------------------------------------------ a) PAGO
+a) Evidencia de pago que no es CFDI          Estado: FALTA
+
+ - No existe un tipo de documento para ella. clasificacion.TIPOS: presupuesto,
+   contrato, estimacion, planos, licencia, escritura, factura, foto_obra,
+   nota, otro. No hay «comprobante de pago / transferencia / recibo».
+ - Campos (monto, fecha, clave de rastreo, CLABE, banco): no se leen. No hay
+   extractor; grep de rastreo/SPEI/CEP/CLABE/transferencia en certeza/: 0.
+ - Lo mas cercano: una imagen subida como «nota» se transcribe por vision
+   (documento_vision.py) y queda como evidencia con resumen, sin cifras que
+   entren al calculo.
+ - Error concreto hoy: el pedido «Comprobante fiscal del anticipo»
+   (pedidos.COMPROBANTE) trata TODO lo que se sube ahi como factura
+   (cfdi.es_factura por el pedido). Si alguien sube el pantallazo de la
+   transferencia, se busca un QR de CFDI, no lo hay, y R18 dice «La factura
+   no se pudo verificar: su QR no se lee». El comprobante bancario se lee
+   como factura defectuosa y R35 sigue pidiendo el comprobante.
+ - Validacion contra Banxico (CEP por clave de rastreo): no existe. Nota
+   sin medir: el CEP de Banxico se consulta con fecha, clave de rastreo,
+   banco emisor, banco receptor, cuenta beneficiaria y monto; hay que medir
+   si hay via automatizable antes de prometerla.
+ - Triple empate CFDI - CEP - concentrado: no existe. Hoy hay un empate
+   doble y por SUMA: R18 (suma de CFDI vigentes vs lo entregado que declara
+   el concentrado). No hay pago por pago (ya en la tabla anterior, #10).
+ - Complemento de pago (CFDI tipo P, REP): se ignora (facturas._signo
+   devuelve None para P). En obra con pagos en parcialidades (PPD) el REP
+   es la prueba fiscal de cada pago y hoy no se lee.
+
+------------------------------------------- b) ROL Y DIRECCION DEL DINERO
+b) Quien audita / contraparte / emite / paga, y direccion   Estado: PARCIAL
+
+ Lo que SI existe:
+ - Contratista: su RFC se extrae del contrato (extraccion._rfc_contratista,
+   el RFC mas cercano a «EL CONTRATISTA») o se captura. R32 exige que las
+   facturas de PAGO las emita ese RFC.
+ - Dos roles de factura: «pago» y «proveedor» (modelos.ROL_PAGO /
+   ROL_PROVEEDOR). R40 y R18 solo usan las de pago.
+ Lo que FALTA:
+ - El receptor del CFDI no se verifica. rfc_receptor se lee del XML y del
+   QR, pero ninguna regla lo compara: solo aparece en el texto de R16. Una
+   factura a nombre de otra persona se concilia como si fuera del dueno.
+ - El RFC del dueno/contratante no se extrae: _rfc_contratista descarta a
+   proposito el RFC que esta junto a «CONTRATANTE». El dato esta en el
+   contrato y se tira.
+ - El rol de una factura no sale de sus RFC: lo decide el pedido en el que
+   se subio (cfdi.rol). Una factura proveedor->constructora subida como
+   «pago» la marca R32 (emisor distinto al contratista), pero no se sabe
+   que es de proveedor; una constructora->dueno subida como soporte de
+   nota se excluye de la conciliacion.
+ - Direccion del dinero (entrada/salida) y cuentas: no hay modelo. Ni
+   cuenta del dueno ni del contratista; no se puede verificar que una
+   transferencia salga de la cuenta del dueno hacia la del contratista.
+ - Quien audita: implicito y fijo. El motor y el lenguaje asumen al dueno
+   (contratante) auditando al contratista: «a favor del contratante»,
+   «no pagar contra esta factura», R35 pide al contratista. No es
+   configurable: una constructora auditando a sus subcontratistas tendria
+   el lenguaje y las reglas de signo al reves (lo que para el dueno es
+   «se cobra de mas», para la constructora como pagadora es lo mismo,
+   pero sus facturas de cliente pasan a ser ingreso, no gasto).
+
+---------------------------------------------------- c) TIPO DE CONTRATO
+c) Precio alzado / precios unitarios / administracion / mixto
+                                             Estado: FALTA (un solo modelo fijo)
+
+ - No hay campo de tipo de contrato (grep alzado/administracion/costo mas/
+   modalidad/tipo_contrato en certeza/: 0, salvo la palabra en el
+   filtro de renglones de cobro de R40).
+ - El motor asume UN modelo, el de Cabana Emma: catalogo a precios
+   unitarios + indirectos % + honorarios % en cascada, cobrado por % de
+   avance de capitulo. Eso es un MIXTO (precios unitarios con honorario de
+   administracion). Todas las reglas corren siempre; las que no tienen su
+   dato (p. ej. R15 sin honorarios) se saltan o salen como advertencia
+   «falta el dato», no porque el tipo lo excluya.
+ - Factura proveedor->constructora (costo) vs constructora->dueno (lo que
+   se paga): PARCIAL. Existen los dos roles, pero los asigna el pedido, no
+   los RFC (ver b). No se compara el receptor contra contratista ni dueno.
+ - Bajo precio alzado, ¿evita marcar el margen?: SI, pero por omision: no
+   existe ninguna regla que compare costo de proveedor contra precio
+   cobrado (R31 no concilia facturas de proveedor; R40 tampoco las
+   coteja). Riesgo a cuidar al construir administracion: una regla de
+   costo debe quedar APAGADA bajo precio alzado y precios unitarios.
+ - Bajo administracion, ¿exige y concilia facturas de proveedores?: NO. Solo
+   se pide una factura de proveedor cuando el concentrado trae una nota
+   del emisor en un capitulo (R31, «soporte de nota»). No hay suma de
+   costos comprobados vs costo cobrado, ni honorario sobre costo
+   COMPROBADO (R15 calcula el honorario sobre el avance declarado).
+ - Bajo precio alzado: R22/R24/R26/R27/R28 (aritmetica y coherencia del
+   catalogo) siguen corriendo y pueden reportar defectos de un catalogo
+   que en precio alzado es solo informativo; no cambian lo que se paga.
+
+---------------------------------------------- PRIORIDAD POR DINERO
+ 1. (c) Administracion: conciliar costo cobrado vs facturas de proveedor
+    comprobadas, y honorario sobre lo comprobado. Expone el 100% del costo
+    de una obra por administracion; hoy 0% cubierto. Requiere antes el
+    campo tipo de contrato (si no, la regla dispararia bajo precio alzado
+    contra el margen legitimo).
+ 2. (a) Pago independiente: leer comprobantes de transferencia (monto,
+    fecha, clave de rastreo, cuentas) como tipo propio y dejar de tratarlos
+    como factura; empate pago por pago CFDI - transferencia - concentrado.
+    Quita que "lo entregado" dependa solo de lo que declara el contratista.
+    El CEP de Banxico va despues, una vez medido si se puede consultar.
+ 3. (b) Receptor del CFDI = dueno: barato. El RFC del contratante ya esta
+    impreso junto al del contratista; rfc_receptor ya se lee. Protege el
+    importe completo de cada factura mal dirigida. Derivar el rol de la
+    factura de sus RFC (emisor/receptor) en vez del pedido.
+ 4. (b) Rol de quien audita configurable por obra (dueno / constructora
+    auditando subcontratistas). Sin monto directo; abre el segundo
+    mercado. Toca lenguaje e informe mas que reglas.
+ 5. (a) REP (CFDI tipo P) por parcialidad: leerlo y conciliarlo.
+
+Nada de esto se construyo en esta sesion.

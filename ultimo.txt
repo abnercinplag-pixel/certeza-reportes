@@ -1,4 +1,4 @@
-CERTEZA - ultimo (2026-10-13, R40 correspondencia de conceptos - bloque 1 de 2)
+CERTEZA - ultimo (2026-10-13, R40 + diagnostico pago/roles/contrato - bloque 2 de 2)
 
 DESPLEGADO: sigue certeza-api-00101-plq. R40 va en el despliegue del cierre.
 715 pruebas OK (1 omitida); antes 701 (14 nuevas en tests/test_r40_alcance.py).
@@ -14,5 +14,12 @@ Commit 5a2a134.
 - Una estimacion que solo trae totales por capitulo se avisa, no se calla.
 Detalle: correspondencia_conceptos_20261013.txt
 
-SIGUE: bloque 2, diagnostico de pago no-CFDI, roles/direccion del dinero
-y tipo de contrato; luego deploy.
+- Diagnostico (sin construir): pago no-CFDI FALTA, roles/direccion del
+  dinero PARCIAL, tipo de contrato FALTA (un solo modelo mixto fijo).
+  Hallazgo de fondo: «lo entregado» lo declara el propio contratista.
+  Error concreto: una transferencia subida como comprobante del anticipo
+  se lee como factura con QR ilegible.
+Detalle: diagnostico_pago_roles_contrato_20261013.txt
+
+SIGUE: cierre (AST, suite, deploy). Prioridad sugerida para construir:
+conciliacion de costos bajo administracion (con tipo de contrato antes).
