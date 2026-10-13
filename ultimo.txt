@@ -6,7 +6,7 @@ segun el ultimo dato medido; hoy no se pudo consultar sin credenciales).
 
 - bash infra/deploy.sh -> exit 1, mensaje exacto:
   "no existe certeza-escaner en cinplag-v4-core: corre primero escaner/desplegar.sh"
-- Ese mensaje engana: certeza-escaner no falta. El describe esconde stderr y
+- Ese mensaje probablemente engana (no verificable sin sesion): el describe esconde stderr y
   la causa real es gcloud sin cuenta: "No credentialed accounts" /
   "You do not currently have an active account selected".
 - infra/humo.sh no se corrio (va encadenado con && tras deploy.sh).
