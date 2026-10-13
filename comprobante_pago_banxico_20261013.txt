@@ -1,0 +1,56 @@
+CERTEZA - comprobante de pago como tipo propio + CEP de Banxico (2026-10-13, EN CURSO)
+
+ESTADO: SIN DESPLEGAR. Trabajo a medias. Produccion sigue en certeza-api-00103-q75.
+- Commit e5add9c (wip): adaptador y reglas, sin integrar.
+- Integracion en api/web: en el arbol de trabajo, SIN commit.
+- Pruebas: 712 OK, 3 FALLAN, 1 omitida (antes 715 OK). No se puede desplegar asi.
+
+QUE RESUELVE
+Hasta aqui «lo entregado» lo declaraba el concentrado del propio
+contratista. Con esto se VERIFICA con Banxico (CEP): que la transferencia
+existe, por cuanto, cuando, de que cuenta y a que cuenta. Es al pago lo
+que la consulta al SAT es a la factura. Corrige ademas el error medido en
+el diagnostico: una transferencia subida como comprobante del anticipo se
+leia como «factura con QR ilegible».
+
+LO CONSTRUIDO (e5add9c, 1157 lineas)
+- certeza/adaptadores/pago.py: lector en tres vias, de mas a menos
+  confiable: XML del CEP, PDF con texto (por etiquetas), pantallazo por
+  vision (mismo lector de etiquetas). Lo leido es PROPUESTA: al calculo
+  solo entra lo que Banxico confirma. Cliente propio del servicio publico
+  CEP (valida.do / descarga.do), monto en texto desde Decimal, respuesta
+  con defusedxml. No se uso cepmex: manda el monto como float y valida
+  con assert. Validacion de CLABE.
+- certeza/reglas/pagos.py: Banxico confirma la transferencia; el dinero va
+  de quien paga a quien cobra; triple empate factura (CFDI/SAT) -
+  transferencia (CEP/Banxico) - concentrado. Ventana de 31 dias entre
+  factura y pago. R31: si el concentrado explica el pago se pide soporte.
+  Cero IA, cero float.
+- certeza/modelos.py: ComprobantePago, papeles de pago.
+
+INTEGRACION (sin commit)
+- Deteccion acepta el XML del CEP como formato «cep».
+- cfdi.es_factura: un comprobante de pago ya no es factura.
+- Vision: tipo «comprobante_pago», copia clave de rastreo, cuentas, monto.
+- API: lectura al subir y al auditar; consulta a Banxico con reintento
+  visible si no responde (nada en silencio).
+  PUT /api/documentos/{id}/pago: captura/correccion manual de datos; lo
+  escrito tampoco entra al calculo, solo sirve para preguntar a Banxico.
+  PUT /api/obras/{id}/partes: quien paga y quien cobra (papel, nombre,
+  RFC, cuentas) por obra.
+- El corte guarda vista de pagos con su estado de empate.
+- agente.html: pantalla de pagos y partes.
+
+LAS 3 FALLAS (por corregir antes de cerrar)
+1. test_agente_sin_aritmetica: agente.html formatea un monto en JS
+   (Number(dt.monto).toLocaleString). Debe venir formateado del servidor.
+2. test_aislamiento_por_empresa: falta el cuerpo de PUT /obras/{id}/partes
+   en EXTRA_POR_RUTA para probar el aislamiento entre empresas.
+3. test_capa2_vision: la respuesta de leer por vision trae la clave nueva
+   «banxico»; actualizar lo esperado.
+
+SIGUE
+- Corregir las 3 fallas, pruebas propias de pago (XML CEP, PDF, vision,
+  Banxico simulado, empate), commit.
+- Probar contra Banxico real con un CEP verdadero antes de desplegar.
+- Desplegar y humo.

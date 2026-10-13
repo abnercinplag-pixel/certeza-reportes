@@ -1,3 +1,18 @@
+CERTEZA - ultimo (2026-10-13 noche, EN CURSO: comprobante de pago + CEP Banxico)
+
+SIN DESPLEGAR. Produccion sigue en certeza-api-00103-q75.
+- Comprobante de pago como tipo propio, verificado con el CEP de Banxico,
+  y triple empate factura (SAT) - transferencia (Banxico) - concentrado.
+- Adaptador y reglas en commit e5add9c (wip); integracion en api/web sin
+  commit todavia.
+- Pruebas: 712 OK, 3 FALLAN (montos formateados en JS, aislamiento de la
+  ruta nueva de partes, clave «banxico» en la respuesta de vision).
+Detalle: comprobante_pago_banxico_20261013.txt
+
+SIGUE: corregir las 3 fallas, pruebas de pago, probar con un CEP real,
+desplegar.
+
+---- anterior ----
 CERTEZA - ultimo (2026-10-13, R40 correspondencia de conceptos + diagnostico pago/roles/contrato)
 
 DESPLEGADO: revision certeza-api-00103-q75, 100% del trafico, humo.sh todo OK.
