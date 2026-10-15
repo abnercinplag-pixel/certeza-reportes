@@ -1,0 +1,96 @@
+ESTADO: DESPLEGADO certeza-api-00113-288
+CERTEZA - tipo de contrato: se DETERMINA leyendo el contrato (2026-10-15)
+
+Sin datos del cliente: no se nombran personas, montos reales ni RFC.
+
+PROBLEMA
+- CERTEZA le preguntaba al usuario «¿qué tipo de contrato es?» teniendo el
+  contrato en el expediente. Un auditor lo lee y lo determina.
+- Bajo precio alzado, R22 decía «mismo concepto con dos precios unitarios:
+  te cobran de más por unidad». En alzado el precio por unidad no se paga
+  (el total está cerrado): un contratista lo rebate al instante.
+- Un mismo anticipo salía a la vez como efectivo no deducible afirmado
+  (REF1), como «confirma la forma de pago» (REF3) y en «Documentos que
+  faltan» pidiendo el CEP de Banxico de la transferencia. Se contradicen.
+
+COMO SE DETERMINA EL TIPO (certeza/tipo_contrato.py, determinar)
+Marco: LOPSRM art. 45, aplicado por analogía en obra privada.
+La señal decisiva es el MECANISMO DE PAGO, no una palabra suelta:
+1. Monto total cerrado: pagos como % de ese total que suman 100% y cuadran
+   con él, «precio fijo», «no sujeto a ajuste» -> PRECIO ALZADO.
+2. Pago por cantidad realmente ejecutada, números generadores, «el importe
+   es estimado / podrá variar con las cantidades» -> PRECIOS UNITARIOS. Aquí
+   el monto total declarado es un estimado y no hace alzado al contrato.
+3. Reembolso del costo real, pago contra facturas, costo más honorario
+   -> ADMINISTRACIÓN.
+4. Capítulos a un régimen y capítulos a otro -> MIXTO, con el mapa de
+   capítulos; cada regla usa el régimen del capítulo del concepto.
+- Un catálogo con «precio unitario» no vuelve unitarios a un alzado;
+  «administrado por una empresa externa» no es administración; «extras a
+  precios unitarios» no cambia el régimen de la obra.
+- Se imprime con su origen (R5): «Tipo de contrato: precio alzado.
+  Determinado del contrato «X», pág. N, cláusula «…» (por qué)».
+- Lo determinado es vigente: se audita con él sin pedir confirmación.
+- Solo se pide confirmación si es GENUINAMENTE ambiguo (dos mecanismos sin
+  que uno tenga al menos el doble de señales), mostrando los candidatos.
+- Si el contrato no fija su mecanismo de pago: hallazgo R45 «el contrato no
+  define su tipo ni su mecanismo de pago», no una pregunta.
+- Una persona puede corregirlo en la app; queda en la bitácora con lo que
+  CERTEZA había determinado, y lo confirmado manda en auditorías siguientes.
+
+OBRA PILOTO
+- Su contrato no dice «alzado»: fija un monto total y tres pagos como % de
+  ese total (suman 100% y cuadran). CERTEZA determina PRECIO ALZADO solo,
+  sin preguntar, citando las dos cláusulas.
+
+R22 REPLANTEADA POR TIPO
+- Precios unitarios (y sin tipo determinado): igual que antes; cuál precio
+  rige es dinero.
+- Precio alzado: «concepto repetido» se mide como DOBLE CONTEO contra el
+  subtotal contratado:
+  - el catálogo completo (con los dos renglones) da el subtotal -> los dos
+    entran al total: hallazgo con el importe del renglón repetido (el
+    menor, para no exagerar), «requiere aclaración»;
+  - sin el repetido da el subtotal -> no infla el total: dato de catálogo a
+    corregir, sin monto;
+  - sin subtotal o sin cuadre -> se dice, sin monto inventado.
+  El texto ya no habla de cobrar de más por unidad.
+- No existe hoy otra regla con lógica de PU entre cortes (escalamiento);
+  R24 (cantidad x PU) es aritmética del catálogo y vale en cualquier tipo.
+- Sin cambio por tipo: R10, R28, R23, R35/REF2, REF1, R05, R20/R15, R21, R26.
+- R31 (factura de proveedor): bajo alzado/PU no se pide; por administración
+  sí. Ahora también con el tipo determinado, no solo confirmado.
+
+ANTICIPO: UNA SOLA TARJETA CONDICIONAL
+- REF1 se AFIRMA («no es deducible») solo con la forma de pago confirmada
+  por una persona. Leído por visión o con forma ambigua: una tarjeta «falta
+  confirmar si fue en efectivo o por transferencia» con las dos ramas: si
+  fue efectivo, no deducible (LISR 27-III) y falta su CFDI; si fue
+  transferencia, sube el CEP para verificarlo en Banxico.
+- REF3 no repite ese mismo pago.
+- En «Documentos que faltan» el CEP queda «solo si fue transferencia»;
+  con efectivo confirmado no se pide; sin recibo en efectivo se pide firme.
+
+PRUEBAS (874 verdes, 1 omitida; antes 855)
+- Determinación: total fijo + hitos -> alzado; pago por unidad y total que
+  flota -> PU; costo + honorario -> administración; mixto con capítulos;
+  sin mecanismo -> R45 sin pregunta; ambiguo -> se confirma; contrato de la
+  piloto -> alzado sin preguntar (también por la API).
+- R22 alzado: sumado dos veces (monto) / no sumado (sin monto) / sin
+  subtotal; R22 PU sin cambio; mixto por capítulo.
+- Anticipo: sin forma confirmada una sola tarjeta y CEP condicionado;
+  efectivo confirmado sin CEP; sin recibo CEP firme.
+- Caso local de la piloto, sin tipo vs alzado determinado: capital en
+  riesgo idéntico; todos los hallazgos fuera de R22/R31 idénticos (id y
+  monto); R31 cisterna/cantera ya no piden proveedor.
+- Corrida contra la copia real de producción: NO se hizo; leer producción
+  quedó bloqueado por permisos en la sesión. Quedó un script de solo
+  lectura para correrla (pendiente).
+
+DESPLIEGUE: certeza-api-00113-288, 100% del tráfico. deploy.sh corrió la
+suite y terminó bien; humo.sh OK; /app sirve la pantalla nueva.
+
+NO SE TOCÓ: el doble visor (pendiente 1).
+
+SIGUE: correr la verificación de la piloto real (requiere permiso de lectura
+de producción); decisión de negocio sobre la severidad de R22 bajo alzado.
