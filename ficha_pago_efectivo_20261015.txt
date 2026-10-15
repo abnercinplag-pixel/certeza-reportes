@@ -1,0 +1,32 @@
+ESTADO: DESPLEGADO certeza-api-00109-v24
+CERTEZA - ultimo (2026-10-15, parche: aviso del comprobante de pago en la ficha)
+
+Produccion sirve certeza-api-00109-v24 con 100% del trafico (gcloud).
+deploy.sh termino bien (suite 831 verdes, 1 omitida); humo.sh OK.
+Verificado: /app en produccion ya sirve el codigo nuevo (sin «clave ${»).
+
+- Que ruta lo hacia: la linea de la ficha del documento (web/agente.html,
+  lecturaDe) armaba el texto en la pantalla. No conocia el subtipo recibo
+  y trataba todo comprobante como transferencia: «clave ${clave_rastreo}:
+  pendiente de verificar con Banxico». Un recibo no tiene clave -> el
+  undefined. La auditoria si ramificaba; esta ruta no.
+- Arreglo: el texto lo decide el servidor (pago.aviso_documento) con la
+  MISMA decision de subtipo que la auditoria (pago.es_recibo). La pantalla
+  solo lo muestra. Efectivo: «Pago en efectivo de $X: no se verifica con
+  Banxico» + el cruce contra el concentrado y «Falta el CFDI» segun la
+  ultima auditoria. Transferencia sin clave: «falta la clave de rastreo».
+  Con clave: «pendiente de verificar con Banxico».
+- «Datos del pago» de un recibo ya no pide clave/CLABE ni habla de
+  Banxico: pide monto, fecha, quien entrego, quien recibio, concepto,
+  forma de pago y folio.
+- Sin literales: fecha y tamano de la ficha ya no pueden pintar «Invalid
+  Date» ni «NaN».
+- Pruebas: 18 nuevas (tests/test_ficha_pago.py). Las 18 fallan con el
+  codigo anterior y pasan con el arreglo. Incluyen: ningun aviso con
+  campos vacios contiene undefined/null/None/NaN; los 2 recibos reales,
+  tipados como efectivo o como transferencia, no mencionan clave.
+- Contra produccion (solo lectura): los 2 recibos de la obra piloto ya
+  estan leidos como efectivo; su aviso nuevo no menciona clave.
+- Doble visor (pendiente 1): no se toco.
+
+SIGUE: TIPO DE CONTRATO (orden aparte).
