@@ -1,0 +1,101 @@
+ESTADO: DESPLEGADO certeza-api-00107-frm
+CERTEZA - pagos en efectivo y recibos informales (2026-10-15)
+
+Sin datos del cliente: no se nombran personas, montos reales ni RFC.
+Los recibos reales se usaron solo en local y en el repo privado.
+
+PROBLEMA
+- Un recibo de pago en efectivo («recibí de», firmado a mano, sin CFDI ni
+  clave de rastreo) caía en «otro», o en «contrato» si era un escaneo que
+  citaba el contrato. Subido como comprobante de pago, salía como R41 «no
+  se puede verificar con Banxico» y su monto se sumaba a las diferencias.
+
+BLOQUE 1 - CLASIFICACION
+- Nuevo subtipo recibo_pago: «Comprobante de pago (efectivo / recibo
+  informal)», distinto del CEP (transferencia) y del CFDI (factura).
+- Señales: «recibí de», «recibo de pago/anticipo», «cantidad recibida»,
+  «en efectivo», «por concepto de», «cantidad en letra». No es recibo si
+  trae clave de rastreo, SPEI, cuentas ordenante/beneficiaria o folio fiscal.
+- Un documento confirmado como «comprobante de pago» antes de existir el
+  subtipo se lee como recibo si su contenido lo es.
+- La sugerencia guardada lleva versión: las viejas se recalculan solas (lo
+  leído por visión, desde la transcripción guardada, sin llamar al modelo).
+- Resultado con los 2 recibos reales: recibo A (anticipo, escaneado, por
+  visión) -> recibo_pago confianza media (antes: contrato); recibo B (abono,
+  PDF con texto) -> recibo_pago confianza alta (antes: otro). Los otros 7
+  PDF de la obra no cambian de tipo.
+
+BLOQUE 2 - LECTURA (propuesta, se confirma)
+- adaptadores/recibo.py lee por etiquetas, del texto o de la transcripción
+  por visión: monto (número y letra), fecha, quién paga, quién recibe y su
+  empresa/RFC, concepto, forma de pago, folio/referencia, número de recibo,
+  firmantes. La visión ahora devuelve además si está firmado y las
+  anotaciones a mano (esquema v2, probado con el modelo real: 1 llamada,
+  USD 0.0025).
+- Origen impreso: «leído del recibo por visión, confirmar» / «leído del
+  texto del recibo, confirmar» / «confirmado a mano en la app».
+- Monto en letra -> número, determinista (español, hasta millones,
+  centavos NN/100). Si hay un carácter ilegible no se adivina.
+- La persona corrige en la app (PUT /api/documentos/{id}/pago): monto,
+  fecha, paga, recibe, concepto, forma de pago, referencia.
+
+BLOQUE 3 - REGLAS DE EFECTIVO (reglas/efectivo.py)
+- REF1 no deducible: efectivo y monto > $2,000 (constante nombrada,
+  LISR 27-III). Con dos formas a la vez, certeza media.
+- REF2 pago sin CFDI: recibo (o transferencia verificada en obra sin
+  facturas) sin CFDI del mismo monto. Una factura no respalda dos pagos.
+- REF3 forma de pago por confirmar (punto a verificar, sin monto): dos
+  formas a la vez, transferencia sin folio, o sin forma declarada.
+- REF7 número contra letra, tolerancia de un centavo; sin monto se pide.
+- Lenguaje: se pide, no se acusa (R31). Sello «Falta un documento para
+  cerrar», nunca «verificado documentalmente» sobre algo leído por visión.
+
+BLOQUE 4 - CRUCE CONTRA CONCENTRADO Y DIRECCION
+- REF4: cada recibo contra lo que el concentrado da por entregado. Cuadra
+  (tolerancia $1) -> no es hallazgo y no se duplica. Recibo que no
+  registra -> hallazgo con su monto. Al revés (concentrado declara más) ->
+  hallazgo con la diferencia. Recibo posterior al corte -> se pide el
+  concentrado actualizado.
+- REF5: «recibí de» debe ser el dueño y quien firma, el contratista
+  (papeles configurables). Tercero o dirección invertida -> hallazgo.
+  Compartir un apellido no es la misma persona.
+- REF6: anotación a mano sobre un recibo -> punto a verificar, citada tal
+  cual, sin interpretarla.
+
+BLOQUE 5 - VISIBILIDAD
+- Recibo leído que cuadra: confirmación propia («Recibo de pago leído: $X
+  del <fecha>, de <dueño> a <contratista>, concepto <...>. Cruzado contra
+  el concentrado»), en la app y en el informe.
+- Los montos de efectivo se muestran en cada punto pero no suman a
+  «diferencias» ni a «lo que retienes» (decisión anotada como pendiente).
+
+PRUEBAS
+- 43 pruebas nuevas (tests/test_recibo_efectivo.py), positivo y negativo
+  de cada regla, los 2 recibos reales, y una de punta a punta por la API.
+- Encontraron un error real que se corrigió: un «[?]» de la visión en el
+  monto en letra se saltaba y cambiaba el monto.
+- Suite: 813 verdes, 1 omitida (antes 770). AST ok, sin secretos.
+
+AUDITORIA REAL DE CABANA EMMA (en memoria, nada escrito en producción)
+- Antes: 29 puntos (20 hallazgos + 9 en sitio).
+- Datos tal como están hoy: 32 puntos. Sale R41 (Banxico sobre un
+  efectivo). Entran REF2 (sin CFDI, monto del recibo B), REF4 (recibo B
+  posterior al corte), REF3 (recibo B no dice la forma de pago), REF5
+  (faltan las partes de la obra para comparar). El recibo A no entra: una
+  persona lo confirmó como «otro» y lo confirmado manda.
+- Con el recibo A confirmado como recibo: 36 puntos. Además: REF1 no
+  deducible por el monto completo del anticipo, REF2 sin CFDI del
+  anticipo, REF3 «efectivo / transferencia» sin folio, REF6 anotación a
+  mano. El anticipo cuadra con el concentrado (1 centavo de redondeo) y
+  sale como confirmación, no como hallazgo. Firmado: sí (visión).
+- Capital en riesgo y exposición: idénticos antes y después.
+- Diferencias: bajan exactamente el monto del recibo B, que R41 sumaba por
+  error. Todos los demás montos, iguales.
+
+DESPLIEGUE: certeza-api-00107-frm con 100% del trafico (medido con gcloud).
+  deploy.sh corrio la suite (813 verdes) y termino bien; humo.sh 5/5 OK.
+
+NO SE TOCO: el doble visor (pendiente 1).
+
+SIGUE: confirmar en la app el tipo del recibo escaneado, la forma de pago
+del abono y las partes de la obra; luego TIPO DE CONTRATO (orden aparte).

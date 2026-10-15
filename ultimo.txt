@@ -1,17 +1,26 @@
-ESTADO: DESPLEGADO certeza-api-00105-t6l
-CERTEZA - ultimo (2026-10-14, despliegue comprobante de pago + CEP)
+ESTADO: DESPLEGADO certeza-api-00107-frm
+CERTEZA - ultimo (2026-10-15, pagos en efectivo y recibos informales)
 
-DESPLEGADO. Produccion sirve certeza-api-00105-t6l con 100% del trafico
-(medido con gcloud run services describe; creada 2026-10-14 03:18 UTC).
-Antes estaba certeza-api-00103-q75.
+Produccion sirve certeza-api-00107-frm con 100% del trafico (gcloud).
+deploy.sh termino bien (corrio la suite); humo.sh 5/5 OK.
+Suite: 813 verdes, 1 omitida (antes 770). AST ok, sin secretos.
 
-- Despliegue hecho a mano por Abner (no con este agente), tras renovar la
-  sesion de gcloud que bloqueo el intento del 2026-10-13.
-- Humo OK segun Abner (infra/humo.sh no lo corri yo).
-- Se creo tambien certeza-api-00104-78h 40 s antes; quedo sin trafico.
-- Suite: 770 verdes en la ultima corrida (2026-10-13); hoy no se volvio a correr.
-- Entra a produccion: comprobante de pago + CEP Banxico + triple empate
-  (detalle en comprobante_pago_banxico_20261013.txt).
-- Doble visor (pendiente 1) no se toco.
+- Clasificacion: nuevo subtipo «Comprobante de pago (efectivo / recibo
+  informal)». Los 2 recibos reales de la obra piloto ya no salen «otro»
+  ni «contrato»: los dos clasifican como recibo de pago.
+- Lectura del recibo (texto o vision, siempre propuesta): monto en numero
+  y en letra, fecha, quien paga, quien recibe, concepto, forma de pago,
+  folio, firma y anotaciones a mano.
+- Reglas nuevas: REF1 no deducible (efectivo > $2,000, LISR 27-III),
+  REF2 sin CFDI, REF3 forma de pago por confirmar (punto a verificar),
+  REF4 cruce contra el concentrado, REF5 quien entrega y quien recibe,
+  REF6 anotacion suelta (punto a verificar), REF7 numero contra letra.
+- R41 ya no le pregunta a Banxico por un pago en efectivo.
+- Confirmacion visible del recibo que cuadra con el concentrado.
+- Auditoria real (en memoria): capital en riesgo sin cambio; 29 -> 32
+  puntos con los datos de hoy, 36 al confirmar el recibo escaneado.
+- Doble visor (pendiente 1): no se toco.
+Detalle: pagos_efectivo_20261015.txt
 
-SIGUE: prueba real contra Banxico con una transferencia (Abner).
+SIGUE: Abner confirma en la app el tipo del recibo escaneado, la forma de
+pago del abono y las partes de la obra; luego TIPO DE CONTRATO.
