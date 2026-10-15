@@ -1,32 +1,80 @@
-ESTADO: DESPLEGADO certeza-api-00109-v24
-CERTEZA - ultimo (2026-10-15, parche: aviso del comprobante de pago en la ficha)
+ESTADO: DESPLEGADO certeza-api-00111-b4w
+CERTEZA - tipo de contrato: auditar dentro del estandar (2026-10-15)
 
-Produccion sirve certeza-api-00109-v24 con 100% del trafico (gcloud).
-deploy.sh termino bien (suite 831 verdes, 1 omitida); humo.sh OK.
-Verificado: /app en produccion ya sirve el codigo nuevo (sin «clave ${»).
+Sin datos del cliente: no se nombran personas, montos reales ni RFC.
 
-- Que ruta lo hacia: la linea de la ficha del documento (web/agente.html,
-  lecturaDe) armaba el texto en la pantalla. No conocia el subtipo recibo
-  y trataba todo comprobante como transferencia: «clave ${clave_rastreo}:
-  pendiente de verificar con Banxico». Un recibo no tiene clave -> el
-  undefined. La auditoria si ramificaba; esta ruta no.
-- Arreglo: el texto lo decide el servidor (pago.aviso_documento) con la
-  MISMA decision de subtipo que la auditoria (pago.es_recibo). La pantalla
-  solo lo muestra. Efectivo: «Pago en efectivo de $X: no se verifica con
-  Banxico» + el cruce contra el concentrado y «Falta el CFDI» segun la
-  ultima auditoria. Transferencia sin clave: «falta la clave de rastreo».
-  Con clave: «pendiente de verificar con Banxico».
-- «Datos del pago» de un recibo ya no pide clave/CLABE ni habla de
-  Banxico: pide monto, fecha, quien entrego, quien recibio, concepto,
-  forma de pago y folio.
-- Sin literales: fecha y tamano de la ficha ya no pueden pintar «Invalid
-  Date» ni «NaN».
-- Pruebas: 18 nuevas (tests/test_ficha_pago.py). Las 18 fallan con el
-  codigo anterior y pasan con el arreglo. Incluyen: ningun aviso con
-  campos vacios contiene undefined/null/None/NaN; los 2 recibos reales,
-  tipados como efectivo o como transferencia, no mencionan clave.
-- Contra produccion (solo lectura): los 2 recibos de la obra piloto ya
-  estan leidos como efectivo; su aviso nuevo no menciona clave.
-- Doble visor (pendiente 1): no se toco.
+PROBLEMA
+- CERTEZA pedia «la factura del proveedor» de un concepto (cisterna,
+  cantera) sin saber el tipo de contrato. Solo es correcto por
+  ADMINISTRACION. Bajo precio alzado o precios unitarios el costo del
+  insumo y el margen son de la constructora.
+- Rutas que lo pedian: R31 (nota del emisor -> «sube factura o recibo del
+  proveedor»), R10 con nota (cierre: «el comprobante de la nota»), el
+  requisito del expediente «soporte del anticipo a proveedor» (que ademas
+  limitaba la certeza de R31) y los pedidos de «Documentos que faltan».
 
-SIGUE: TIPO DE CONTRATO (orden aparte).
+COMO SE CAPTURA / LEE EL TIPO (certeza/tipo_contrato.py)
+- Campo de obra tipo_contrato: alzado | precios_unitarios | administracion,
+  con estado «propuesto» o «confirmado». Solo lo confirmado cuenta.
+- Al auditar, si no esta confirmado, se lee el contrato (texto del PDF o
+  transcripcion por vision) y se PROPONE con la frase y la pagina:
+  «leído del contrato «X», página N: «…frase…»; confirmar». Senales con
+  limite de palabra: «precio alzado», «suma alzada»; «a base de precios
+  unitarios»; «por administración», «costo más honorarios», «honorarios
+  sobre lo ejecutado». «Administrado por una empresa externa» o el
+  «precio unitario» de un catalogo NO cuentan.
+- La persona confirma en la app (Obra > Tipo de contrato, o desde el
+  pedido): PUT /api/obras/{id}/tipo-contrato. Bitacora. Si coincide con lo
+  leido, se conserva de donde salio (R5).
+- Sin tipo confirmado: el PRIMER pedido es «Confirma el tipo de contrato»,
+  con la propuesta si la hay.
+
+QUE CAMBIA POR TIPO
+- Alzado y precios unitarios:
+  - No se pide la factura del proveedor de ningun concepto; el requisito
+    del soporte de proveedor no aplica (no falta ni limita certeza).
+  - Se pide una foto fechada del concepto en la obra (la foto subida a ese
+    pedido entra como foto de obra, no como documento) y el CFDI de la
+    constructora al dueno por el pago.
+  - R31 y R10 con nota: «verificar en sitio que lo cobrado este
+    ejecutado», sin pedir proveedor. Conservan su monto: las cifras no se
+    mueven.
+- Administracion:
+  - La factura del proveedor de cada concepto se pide como obligatoria.
+  - R44 nueva: lo cobrado de un concepto contra lo que suman las facturas
+    de su proveedor; cobrar por encima del costo es hallazgo (alta, con su
+    monto). Solo corre con administracion confirmada.
+  - Honorario fuera del % pactado: R15 (ya existia; aplica).
+- Sin confirmar: se pide la factura del proveedor diciendo «según el tipo
+  de contrato (confírmalo), este documento puede no aplicar».
+- Siempre: REF2 pide el CFDI de la constructora al dueno; las reglas de
+  cantidad x precio unitario y de % del monto siguen igual.
+- Cada pedido dice bajo que tipo aplica («En cualquier tipo de contrato»,
+  «Bajo contrato a precio alzado», «...por administración: obligatorio»).
+- R44 no usa la palabra del vocabulario prohibido del informe; dice «lo
+  cobrado rebasa el costo facturado por el proveedor».
+
+PRUEBAS (24 nuevas, tests/test_tipo_contrato.py)
+- Alzado y PU: no aparece la factura del proveedor de la cisterna; si el
+  CFDI del pago y la foto. PU sigue auditando cantidad x precio unitario.
+- Administracion: la factura del proveedor es obligatoria; cobrar 25 por
+  un insumo facturado en 20 dispara R44 por 5; cobrar 20 no.
+- Margen legitimo (20 -> 25): NO es hallazgo bajo alzado, PU ni sin tipo.
+- Honorario fuera del %: hallazgo por administracion (R15).
+- Lectura: propone y deja «confirmar»; la propuesta sola no quita nada;
+  al confirmar si; una auditoria posterior no pisa lo confirmado.
+- Suite: 855 verdes, 1 omitida (antes 831). AST ok, sin secretos.
+
+OBRA PILOTO (copia real en memoria, nada escrito en produccion)
+- El contrato real no dice su tipo: no se propone ninguno; se pide.
+- Sin tipo: se piden 2 comprobantes de proveedor (con la advertencia).
+- Con alzado y con PU: esos 2 pedidos desaparecen y se vuelven fotos
+  fechadas. Capital en riesgo, diferencias, y todos los hallazgos con su
+  monto (no deducible, CFDI del pago, aritmetica) quedan identicos.
+
+DESPLIEGUE: certeza-api-00111-b4w, 100% del trafico (gcloud). deploy.sh
+corrio la suite y termino bien; humo.sh OK; /app sirve la pantalla nueva.
+
+NO SE TOCO: el doble visor (pendiente 1).
+
+SIGUE: Abner confirma en la app el tipo de contrato de la obra piloto.
