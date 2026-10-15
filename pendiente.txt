@@ -90,3 +90,97 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
    en ~ son los .zip de versiones viejas de CINPLAG y ~/.cache/ms-playwright
    (641 MB). No se borro nada tuyo. Si vuelve a llenarse, esos son los
    candidatos; decides tu.
+
+10. PERMISO (2026-10-13 noche; sigue vigente, reintento fallido): la sesion de gcloud en Cloud Shell caduco
+    (print-access-token falla). Sin ella no se lee Firestore ni se despliega
+    el comprobante de pago + CEP Banxico (commits e5add9c..4f5196b, suite
+    770 OK). Comandos:
+      gcloud auth login && gcloud auth application-default login
+      gcloud config set project cinplag-v4-core
+      cd ~/certeza && bash infra/deploy.sh && bash infra/humo.sh
+    Por que: el despliegue y la prueba real necesitan credenciales.
+
+11. PRUEBA REAL PENDIENTE: la validacion con Banxico esta probada con datos
+    sinteticos y con una consulta real a Banxico con clave inventada
+    (respuesta «operacion no encontrada», leida bien). NO esta probada con
+    una transferencia real. Opciones:
+    a) Con gcloud de nuevo, leer en solo lectura la transferencia que ya
+       esta en Cabana Emma (subida al pedido del comprobante del anticipo)
+       y correrla por el lector + Banxico, sin escribir en produccion.
+    b) Subir un CEP descargado de banxico.org.mx/cep (XML o PDF) a una obra
+       de prueba.
+    Recomendacion: (a); el comprobante es dato privado y no va al repo.
+
+12. DECISION LEGAL (pagos): para verificar un pago, CERTEZA manda al
+    servicio publico del CEP de Banxico la fecha, la clave de rastreo, los
+    bancos, la cuenta beneficiaria y el monto de la transferencia.
+    a) Agregar al aviso integral: «para verificar pagos se consulta el
+       servicio publico CEP de Banxico con los datos de la transferencia».
+    b) Dejarlo como esta.
+    Recomendacion: (a), junto con el punto 8 (SAT), en un solo cambio de
+    VERSION_AVISO.
+
+13. (2026-10-15, pagos en efectivo) CORRECCION AL PUNTO 11: en Cabana Emma
+    no hay ninguna transferencia. Los dos «comprobantes» son recibos en
+    efectivo (anticipo escaneado y abono en PDF). La opcion 11a no aplica;
+    la prueba real con Banxico sigue necesitando un CEP real (opcion 11b).
+
+14. ACCION DE ABNER EN LA APP (Cabana Emma):
+    a) «CamScanner 27-09-2026 12.45.pdf» esta confirmado a mano como «Otro»
+       (2026-10-15 00:43). Lo confirmado por una persona manda: mientras
+       siga asi, ese recibo no se audita. Cambia su tipo a «Comprobante de
+       pago (efectivo / recibo informal)» (la app ya lo sugiere) y pulsa
+       «Leer documentos pendientes».
+    b) El recibo del abono no dice la forma de pago: confirmala en la app
+       (PUT /api/documentos/{id}/pago con forma_pago). Si fue efectivo, sale
+       el hallazgo de no deducible por ese monto.
+    c) Captura en la obra el nombre del dueno y del contratista (Partes):
+       sin eso REF5 no puede comparar quien entrego y quien recibio.
+
+15. DECISION DE NEGOCIO: los montos de los hallazgos de efectivo (REF1 no
+    deducible, REF2 sin CFDI, REF4 recibo fuera del concentrado) se
+    MUESTRAN en cada punto pero NO se suman a «diferencias» ni a «lo que
+    retienes» (separacion.suma_en_diferencias). Razon: son exposicion
+    fiscal o falta de soporte de un pago ya hecho; sumarlos haria que el
+    dueno retuviera un pago por un tema fiscal y contaria el mismo dinero
+    dos o tres veces. Opciones: a) asi; b) mostrar aparte un total de
+    «exposicion fiscal» (pagos en efectivo no deducibles) en la pantalla y
+    el informe. Recomendacion: (a) ya, (b) en una orden aparte.
+
+16. DECISION DE NEGOCIO: un recibo que dice dos formas («EFECTIVO /
+    TRANSFERENCIA») dispara REF1 (no deducible) con certeza media ademas del
+    punto REF3. Un recibo que no dice la forma de pago NO dispara REF1:
+    solo REF3 pide confirmarla. Si se prefiere presumir efectivo cuando no
+    hay clave de rastreo, es un cambio de una linea; no lo recomiendo (R31:
+    no se afirma lo que el papel no dice).
+
+17. (2026-10-15) ACCION DE ABNER: confirmar el tipo de contrato de Cabana
+    Emma en la app (Obra > Tipo de contrato). El contrato no lo dice con
+    ninguna frase reconocible; CERTEZA no lo adivina. Con alzado o precios
+    unitarios desaparecen los pedidos de factura de proveedor (cisterna,
+    cantera) y se piden fotos fechadas; las cifras no cambian.
+18. Pendiente menor: el pedido «Comprobante de la transferencia del
+    anticipo» (Banxico) se sigue haciendo aunque el anticipo ya tenga un
+    recibo en efectivo. Recomendacion: no pedirlo cuando un recibo cuadra
+    con el anticipo. Orden aparte si se quiere.
+
+== 2026-10-15 · tipo de contrato determinado (00113-288) ==
+1) [PERMISO] Verificar la obra piloto real con el codigo nuevo. Leer
+   produccion (Firestore/GCS) fue bloqueado por permisos en la sesion; el
+   script SOLO LEE produccion y audita en memoria (no escribe nada):
+     source ~/cinplag.sh && cd ~/certeza && python3 infra/verificar_tipo_contrato_piloto.py
+   Debe imprimir TIPO: alzado determinado, «pide tipo: False», R22 con
+   regla R22_CONCEPTO_REPETIDO_EN_SUMA_ALZADA, 0 pedidos de proveedor y el
+   capital igual al ultimo corte de produccion.
+2) [NEGOCIO] R22 bajo precio alzado: en el caso local los 6 conceptos
+   repetidos entran los dos al subtotal (el catalogo completo cuadra con el
+   subtotal), asi que todos salen como «sumado dos veces» con el importe del
+   renglon menor. La suma de R22 sube (de diferencia de PU a importe del
+   renglon). Descripcion identica no prueba que sea la misma partida (pueden
+   ser dos ubicaciones), por eso va como «requiere aclaracion».
+   Opciones: (a) dejarlo asi (es lo que pide la orden); (b) severidad media
+   como tope mientras la constructora no aclare. Recomendacion: (a), el texto
+   ya dice «si es la misma partida» y pide la aclaracion por escrito.
+   RESUELTO 2026-10-15 (certeza-api-00115-w46): retencion uniforme. Probado
+   el doble conteo (al centavo) se retiene SIN umbral, como hold condicional
+   que se libera al aclarar. Ver r22_retencion_uniforme_20261015.txt.

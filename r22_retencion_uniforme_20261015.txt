@@ -1,0 +1,61 @@
+ESTADO: DESPLEGADO certeza-api-00115-w46
+CERTEZA - R22 bajo precio alzado: retencion uniforme (2026-10-15)
+
+PROBLEMA
+- Antes, en un R22 bajo precio alzado con doble conteo probado, la
+  retencion dependia del monto: el informe ponia «Se retiene» solo si el
+  repetido pasaba de $10,000 (severidad alta). Los chicos no. Y la app no
+  marcaba ninguno como retener (el estatus «requiere aclaracion» lo
+  impedia). Dos criterios distintos y un umbral sin principio.
+
+LA REGLA (unica)
+- R22 bajo precio alzado con doble conteo PROBADO: la suma del catalogo,
+  con los dos renglones, es igual al subtotal contratado con tolerancia de
+  UN CENTAVO (antes 1 peso). Se retiene el importe del renglon repetido (el
+  menor, la inflacion minima cierta), SIN importar su tamano.
+- Sin la prueba aritmetica (no cuadra, o cuadra sin el repetido, o no hay
+  subtotal) NO se retiene: queda como dato de catalogo a aclarar, sin monto.
+- R22 bajo precios unitarios: sin cambio.
+
+POR QUE ES REVERSIBLE
+- En precio alzado la carga de justificar un renglon repetido es de la
+  constructora. La retencion es un hold, no una acusacion: se libera en
+  cuanto la constructora dice por escrito que distingue a los renglones
+  (ubicacion o plano) o retira el repetido del monto alzado. Entre retener
+  de mas (molestia recuperable) y no retener un cobro doble real (dinero
+  perdido) se elige el error reversible. Esta razon quedo como comentario
+  en reglas/catalogo.py (_r22_alzado).
+
+LENGUAJE (R31)
+- Se mantiene «Si es la misma partida, la suma alzada esta inflada por $X;
+  si son partidas distintas, la constructora debe decir por escrito que las
+  distingue». Se agrega: sin la aclaracion el monto no tiene sustento y se
+  retiene; se libera al aclarar.
+- Sello en PDF y app: «Se retiene hasta que se aclare». Texto: «Retencion
+  condicional, no un senalamiento: se libera en cuanto la constructora diga
+  por escrito que distingue a los renglones o retire el repetido».
+- Solicita: sin cambio. Nada afirma que hubo cobro doble (probado en test).
+
+PRUEBA: GRANDE Y CHICO, MISMO TRATO (caso local Cabana Emma, alzado)
+  hallazgo  repetido     antes                 ahora
+  R22-030   $58,347.21   se retiene            se retiene
+  R22-067   $41,446.80   se retiene            se retiene
+  R22-050   $15,900.00   se retiene            se retiene
+  R22-008   $11,280.00   se retiene            se retiene
+  R22-010    $8,400.00   NO (media)            se retiene
+  R22-002    $6,142.80   NO (media)            se retiene
+- Los 6 cuadran al centavo con el subtotal ($2,061,265.27): todos probados.
+- «Requieren retencion» en el informe: 12 -> 14.
+- Capital en riesgo: identico. Demas hallazgos (fuera de R22): identicos.
+- El monto que la app suma como retenido no cambia (ya sumaba los 6); cambia
+  la categoria y el sello, que ahora coinciden con el dinero.
+
+PRUEBAS
+- Fixtures nuevos (tests/test_r22_por_tipo.py): alzado probado grande
+  ($5,834.72) y chico ($614.28) retienen igual; un centavo repetido tambien
+  retiene (sin umbral); no cuadra por 2 centavos -> no retiene; cuadra sin
+  el repetido -> no retiene; dentro del centavo -> retiene; PU sin cambio;
+  Cabana Emma: los 6 con el mismo trato, total $141,516.81.
+- Suite 879 verdes, 1 omitida (antes 874). AST ok. deploy.sh y humo.sh OK.
+- Produccion sirve el sello nuevo en /app (verificado con curl).
+- No se toco el doble visor (pendiente 1).

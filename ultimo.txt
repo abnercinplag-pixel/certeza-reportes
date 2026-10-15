@@ -1,17 +1,18 @@
-ESTADO: DESPLEGADO certeza-api-00113-288
-CERTEZA - ultimo (2026-10-15, tipo de contrato determinado)
-
-- Revisión certeza-api-00113-288, 100% del tráfico; humo.sh OK.
-- Pruebas: 874 verdes, 1 omitida (antes 855). AST ok.
-- CERTEZA DETERMINA el tipo de contrato por el mecanismo de pago (total
-  cerrado / total que flota / reembolso / mixto) y lo imprime con página y
-  cláusula. Solo pregunta si es ambiguo; sin mecanismo -> hallazgo R45.
-- Obra piloto: determina PRECIO ALZADO sin preguntar.
-- R22 bajo alzado = doble conteo contra el subtotal (con monto si entra dos
-  veces, sin monto si no); bajo PU sin cambio.
-- Anticipo: una sola tarjeta condicional (efectivo / transferencia); el CEP
-  se pide solo si fue transferencia.
-- Capital en riesgo y hallazgos firmes sin cambio en el caso local.
-- No verificado contra la copia real de producción (permiso de lectura).
-- Detalle: tipo_contrato_determinado_20261015.txt
-SIGUE: verificación piloto real (permiso) y decisión de severidad R22 alzado.
+ESTADO: DESPLEGADO certeza-api-00115-w46
+CERTEZA - ultimo (2026-10-15, R22 alzado: retencion uniforme)
+- Despliegue: certeza-api-00115-w46, deploy.sh y humo.sh OK.
+- Pruebas: 879 verdes, 1 omitida (antes 874). AST ok.
+- Regla unica: R22 bajo precio alzado con doble conteo PROBADO (catalogo
+  con los dos renglones = subtotal, al centavo) se retiene SIN umbral de
+  monto. Sin la prueba aritmetica no se retiene (sin monto). PU sin cambio.
+- Es un hold reversible, no una acusacion: se libera cuando la constructora
+  aclara por escrito que distingue a los renglones o retira el repetido.
+- Sello en PDF y app: «Se retiene hasta que se aclare» + texto condicional.
+  Nada afirma cobro doble (R31).
+- Cabana Emma (alzado): los 6 R22 retienen; antes los de $8,400 y
+  $6,142.80 no. «Requieren retencion» 12 -> 14. Capital y demas hallazgos
+  identicos.
+- Detalle: r22_retencion_uniforme_20261015.txt
+- Tema tipo de contrato: cerrado.
+SIGUE: pendiente.txt 2026-10-15 punto 1 (corrida piloto real con permiso);
+  doble visor (pendiente 1) sin tocar.
