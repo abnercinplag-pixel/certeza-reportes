@@ -1,17 +1,16 @@
-ESTADO: EN CURSO Bloque 0 entregado (inventario); espera revision antes del Bloque 1
-CERTEZA - ultimo (2026-10-23, inventario del motor, Bloque 0)
-- Despliegue: sin cambios; produccion sigue en certeza-api-00115-w46 (medido).
-- Pruebas: 879 verdes, 1 omitida, 0 fallas (medido hoy).
-- Solo lectura: no se construyo ni se cambio codigo.
-- Reglas de la lista maestra: todas EXISTEN y estan registradas.
-  Choque de IDs: R05/R06 del codigo no son los principios "origen impreso"
-  y "fixtures" de la orden (ver seccion 0 del detalle).
-- PARCIAL: Excel multi-hoja (elige sola), plano.py solo PDF, DWG/DXF/IFC
-  detectados pero no leidos, mensaje "usa la plantilla" para lo que no es
-  catalogo, auto-reauditoria al cargar (solo en documentos pedidos),
-  guardarrailes/telemetria.
-- FALTA: modo parametrico/etapas/mixto, programa de flujos, panel de
-  cobertura, NIP/TOTP (no esta en el repo).
-- Doble visor (pendiente 1): sin tocar.
-- Detalle: inventario_motor_20261023.txt
-SIGUE: luz verde para el Bloque 1; decidir IDs R05/R06 vs principios.
+ESTADO: EN CURSO Bloque 1 terminado y probado; falta desplegar (credenciales de gcloud caducadas)
+CERTEZA - ultimo (2026-10-23, Bloque 1: cualquier estructura de presupuesto)
+- Despliegue: NO. deploy.sh se detuvo antes de tocar nada (gcloud caduco).
+  Produccion sigue en certeza-api-00115-w46. Codigo en main (bfca7af).
+- Pruebas: 909 verdes, 1 omitida (30 nuevas). AST ok.
+- Estructura del presupuesto determinada con origen y confirmable:
+  catalogo / parametrico / por etapas / mixto.
+- Multi-hoja: se listan las cotizaciones y las hojas de catalogo; si el
+  contenido no decide, se pregunta. Nunca se elige a ciegas.
+- Reglas R46-R51: aritmetica m2, superficie, base de honorarios, calendario,
+  IVA, presupuesto sin catalogo (pide el catalogo).
+- Ley de usuario: lo que no es presupuesto se dice, sin plantilla.
+- Obra real del caso multi-hoja (en memoria): de 409 a 5 puntos con origen.
+- No regresion: catalogo piloto identico (corte y PDF).
+- Detalle: bloque1_presupuesto_parametrico_20261023.txt
+SIGUE: gcloud auth login + deploy.sh; revision; Bloque 2.

@@ -1,0 +1,79 @@
+ESTADO: EN CURSO Bloque 1 terminado y probado; falta desplegar (credenciales de gcloud caducadas)
+CERTEZA - Bloque 1 (2026-10-23, auditar cualquier estructura de presupuesto)
+
+Despliegue: NO desplegado. deploy.sh se detuvo antes de tocar nada: la sesion
+de gcloud caduco a media tarea (hace falta `gcloud auth login`, interactivo).
+Produccion sigue en certeza-api-00115-w46. Codigo en main, commit bfca7af.
+Pruebas: 909 verdes, 1 omitida (antes 879; 30 nuevas). AST ok. JS de la app
+compila (node --check).
+
+QUE PASABA ANTES (medido con la obra real del caso multi-hoja, en memoria):
+- Una cotizacion por m2 en Excel terminaba en «Falto reconocer: cantidad.
+  Vacia tu presupuesto en la plantilla». El PDF, en «no encontramos el
+  encabezado de un catalogo». La auditoria completa moria en 409.
+
+QUE SE HIZO
+- Estructura del presupuesto (estructura.py). CERTEZA la determina por lo que
+  el documento trae impreso: catalogo / parametrico / por etapas / mixto. La
+  imprime con su origen (hoja y celda) y una persona la confirma o la cambia,
+  con el mismo patron que el tipo de contrato. Decision tecnica: se determina
+  con codigo, no con el modelo. Una hoja de calculo trae celdas y formulas:
+  leerlas es exacto, cuesta cero y cada cifra cita su celda. Se puede revisar.
+- Lector parametrico (adaptadores/parametrico.py): rubros m2 x precio,
+  honorarios con su formula, IVA, totales, importes sueltos y calendario de
+  pagos en %, desde Excel (celda + formula) y desde PDF (pagina + renglon).
+  El Excel y su PDF dan la misma estructura.
+- Multi-hoja, sin elegir a ciegas. Un libro con varias cotizaciones (de
+  otras obras o versiones) o con varias hojas de catalogo se lista. Si solo
+  una nombra a la obra en su encabezado, se usa esa y se dice por que. Si son
+  varias o ninguna, se pregunta. Las hojas que no son cotizacion (ficha
+  tecnica, tramites) no se ofrecen. Mientras no se elija, el resto de la obra
+  se audita igual: no hay callejon sin salida.
+- Reglas nuevas, deterministas, en Decimal y con origen:
+  R46 aritmetica (m2 x precio = importe; suma = total; importe sin concepto)
+  R47 la misma superficie en todos los rubros
+  R48 base de honorarios: se imprime que rubros entran, contra lo que el texto
+      declara; detecta una formula que suma una celda vacia
+  R49 calendario: cada % x total = su monto, suma 100%, suma = total
+  R50 IVA: el impreso es el 16% de su base (y si es un valor escrito a mano
+      que no cambio); precio «mas IVA si se factura» con el monto que queda fuera
+  R51 presupuesto sin catalogo de partidas: no se puede verificar el avance
+      fisico; se dice claro y se pide el catalogo en «Documentos que faltan»
+- Sin catalogo, el motor no corre las reglas que comparan partidas (R29 daria
+  por faltantes todas las partidas minimas; R40 pondria fuera de alcance todo
+  lo facturado) y lo declara. Con catalogo no cambia nada.
+- Ley de usuario: un archivo que no es presupuesto se dice como tal («queda en
+  el expediente; elige o sube el presupuesto»), sin ofrecer la plantilla. La
+  plantilla solo se ofrece a un catalogo al que le falta una columna.
+- Lo que cuadra queda como confirmacion positiva en el informe (aritmetica,
+  superficie unica, calendario al 100%, base de honorarios completa).
+- Informe y app: estructura del presupuesto en el cajetin, cotizacion
+  auditada, «diferencias en el presupuesto» (no «0 conceptos del catalogo»).
+
+PRUEBA CON LA OBRA REAL (en memoria; nada se escribio en produccion)
+- El Excel trae 8 hojas: 6 cotizaciones (2 nombran la obra) y 2 que no lo
+  son. CERTEZA pregunta cual es la vigente. Elegida, salen 5 puntos:
+  honorarios calculados sin un rubro que el texto incluye (la formula suma
+  una celda vacia), un IVA escrito que no corresponde a la superficie
+  vigente, un importe sin concepto, precios sin IVA y la falta de catalogo.
+  El calendario cuadra al centavo y queda como confirmacion.
+- App vista en Chromium a 390 px (datos inventados): elegir cotizacion,
+  confirmar o cambiar la estructura, hallazgos. Sin errores de JavaScript,
+  sin «undefined», «NaN» ni «null». Se corrigieron en el camino: un
+  selector que se salia del ancho, una linea de origen «pagina 0» y la
+  redaccion de una accion.
+
+NO REGRESION
+- Obra de catalogo (piloto): corte identico campo por campo (38 hallazgos,
+  mismo capital, mismas advertencias, faltantes y confirmaciones). El texto
+  del informe PDF es identico linea por linea, salvo la fecha de emision.
+- Suite completa en verde.
+
+PENDIENTE
+- Desplegar (permiso: gcloud auth login). Despues, verificarlo en la app real.
+- Decision legal: agregar R46-R51 al aviso integral.
+- Para el Bloque 2: si una obra trae un catalogo y, en otro documento, una
+  cotizacion, hoy gana el catalogo y la cotizacion no se audita.
+
+SIGUE: desplegar con credenciales; revision del Bloque 1; luego Bloque 2
+  (procesar y cruzar todo el expediente + reauditar en subida general).
