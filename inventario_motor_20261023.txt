@@ -1,0 +1,179 @@
+ESTADO: EN CURSO Bloque 0 entregado (inventario); espera revision antes del Bloque 1
+CERTEZA - inventario del motor (2026-10-23, Bloque 0)
+
+Que es: auditoria de solo lectura de ~/certeza contra la lista maestra de lo
+disenado. NO se construyo ni se cambio nada. Sin despliegue nuevo.
+- Produccion: certeza-api-00115-w46 (medido hoy con gcloud: revision lista y
+  con 100% del trafico). Es el mismo codigo que HEAD de main.
+- Suite medida hoy: 879 verdes, 1 omitida, 0 fallas (pytest tests/).
+- Arbol de trabajo: hay un cambio sin confirmar en
+  infra/verificar_tipo_contrato_piloto.py (de la sesion anterior). No se toco.
+
+Leyenda: EXISTE = implementado, registrado y con pruebas. PARCIAL = existe
+pero no cubre lo que pide la orden. FALTA = no hay codigo.
+
+== 0. DOS CHOQUES DE NOMENCLATURA (decidir antes del Bloque 1) ==
+- "R5 origen impreso" de la orden es un PRINCIPIO; en el codigo R05 es otra
+  regla: R05_RETENCION (reglas/contrato.py). El principio vive en
+  modelos.Fuente + motor.py (hallazgo sin evidencia se descarta, "R3") +
+  informe "De donde sale cada cifra".
+- "R6 fixtures" de la orden es un PRINCIPIO; en el codigo R06 es
+  R06_CARGA_FRONTAL (reglas/avance.py + patrones.py).
+- Recomendacion: dejar los IDs del codigo como estan (ya salen en informes
+  emitidos) y llamar a los principios P5/P6 en la documentacion.
+
+== 1. REGLAS DE DINERO / AUDITORIA ==
+Todas las de abajo estan en reglas/__init__.py REGISTRO y cada una tiene al
+menos un archivo de prueba que la ejercita. El par positivo+negativo por
+regla (R6) NO se reviso una por una en este bloque: se hace en el Bloque 4.
+
+ID    Estado  Que hace                                          Archivo
+R04   EXISTE  saldo de anticipo (anticipo - amortizado/gastado) reglas/contrato.py
+R05   EXISTE  (en codigo) retencion pactada vs aplicada         reglas/contrato.py
+P5    EXISTE  origen impreso de cada cifra (Fuente)             modelos.py, motor.py, informe.py
+R06   EXISTE  (en codigo) carga frontal vs patron de capitulo   reglas/avance.py, patrones.py
+P6    PARCIAL fixtures pos/neg: hay pruebas por regla; pares    tests/
+              no auditados uno por uno
+R07   EXISTE  aritmetica del corte                              reglas/estimacion.py
+R08   EXISTE  capitulo del corte vs catalogo                    reglas/estimacion.py
+R09   EXISTE  calendario contratado vs pagos                    reglas/estimacion.py
+R10   EXISTE  avance contra precedencia (secuencia)             reglas/avance.py, precedencia.py
+R11   EXISTE  avance cobrado sin sustento fisico                reglas/avance.py
+R14   EXISTE  secuencia de avance contra fotos                  reglas/avance.py
+R15   EXISTE  honorarios aplicados en el corte                  reglas/estimacion.py
+R16   EXISTE  CFDI cancelado (consulta SAT)                     reglas/facturas.py
+R17   EXISTE  emisor en lista EFOS 69-B                         reglas/facturas.py
+R18   EXISTE  facturas vs lo entregado/pagado                   reglas/facturas.py
+R19   EXISTE  IVA de la factura                                 reglas/facturas.py
+R20   EXISTE  base de calculo de honorarios no declarada        reglas/contrato.py
+R21   EXISTE  % de indirectos/honorarios distinto al pactado    reglas/contrato.py
+R22   EXISTE  mismo concepto, dos precios; bajo alzado: doble   reglas/catalogo.py
+              conteo probado al centavo -> retencion uniforme
+R23   EXISTE  concepto fuera de su capitulo                     reglas/catalogo.py
+R26   EXISTE  claves duplicadas                                 reglas/catalogo.py
+R27   EXISTE  unidades distintas para el mismo concepto         reglas/catalogo.py
+R28   EXISTE  alcance incluido y cobrado aparte                 reglas/catalogo.py
+R31   EXISTE  nota/explicacion del emisor -> peticion, no       reglas/avance.py + transversal
+              acusacion (tambien hold condicional R22)
+R32   EXISTE  factura de un tercero (RFC distinto)              reglas/facturas.py
+R35   EXISTE  pagos sin comprobante fiscal                      reglas/contrato.py
+R39   EXISTE  UUID repetido                                     reglas/facturas.py
+R40   EXISTE  correspondencia concepto facturado vs alcance     reglas/alcance.py, correspondencia.py
+R41   EXISTE  pago verificado con Banxico (CEP); el efectivo    reglas/pagos.py
+              no se consulta a Banxico
+R44   EXISTE  administracion: cobrado vs costo del proveedor    reglas/administracion.py
+R45   EXISTE  contrato sin mecanismo de pago definido           reglas/contrato.py, tipo_contrato.py
+REF1  EXISTE  efectivo no deducible (LISR 27-III)               reglas/efectivo.py
+REF2  EXISTE  pago sin CFDI                                     reglas/efectivo.py
+REF3  EXISTE  forma de pago por confirmar                       reglas/efectivo.py
+REF4  EXISTE  recibo vs concentrado                             reglas/efectivo.py
+REF5  EXISTE  quien entrega / quien recibe                      reglas/efectivo.py
+REF6  EXISTE  anotacion suelta sobre el recibo                  reglas/efectivo.py
+REF7  EXISTE  monto en numero vs en letra                       reglas/efectivo.py
+
+En el codigo y NO en la lista maestra (no se pierden; se listan para que la
+lista quede completa): R13 cobertura parcial del reporte, R24 aritmetica del
+catalogo, R29 partida minima faltante, R30 superficie declarada vs predios
+(+ R30 plano vs documentos en cruce_plano.py), R42 quien paga a quien,
+R43 triple empate.
+
+== 2. LECTORES / ADAPTADORES ==
+pdf (texto)          EXISTE   catalogo desde PDF con texto      adaptadores/pdf.py
+excel                PARCIAL  lee catalogo; con varias hojas    adaptadores/excel.py (_mejor_hoja)
+                              ELIGE SOLA la de mas numeros: no
+                              lista ni pregunta (Bloque 1)
+bc3                  EXISTE   catalogo FIEBDC                   adaptadores/bc3.py
+plano.py             PARCIAL  Gemini lee datos escritos de      adaptadores/plano.py
+                              planos SOLO en PDF (es_plano
+                              exige formato pdf)
+analisis visual      EXISTE   fotos de obra (descripcion,       adaptadores/analisis_visual.py
+                              no concluyente)
+Capa 2 escaneados    EXISTE   documento escaneado/nota por      adaptadores/documento_vision.py
+                              vision, con gasto de tokens
+evidencia EXIF       EXISTE   fecha/GPS de la foto              adaptadores/evidencia_fotografica.py
+recibo (efectivo)    EXISTE   recibo informal                   adaptadores/recibo.py
+tipo_contrato        EXISTE   alzado/PU/administracion por el   tipo_contrato.py
+                              mecanismo de pago, con cita
+CFDI (XML + QR)      EXISTE   XML y QR de PDF/imagen            adaptadores/cfdi.py
+comprobante de pago  EXISTE   CEP XML y transferencia en texto  adaptadores/pago.py
+lector QR (OpenCV)   EXISTE   con preprocesamiento              adaptadores/qr.py
+DWG                  PARCIAL  se DETECTA (firma AC10xx) y se    adaptadores/deteccion.py,
+                              guarda; se clasifica "plano" con  clasificacion.py
+                              certeza baja. NO se convierte ni
+                              se lee. No hay convertidor en el
+                              Dockerfile (Bloque 3)
+DXF / IFC            PARCIAL  se detectan; su texto crudo solo  clasificacion.py
+                              sirve para clasificar; no se
+                              extrae rotulo ni superficie
+presupuesto          FALTA    no hay modo parametrico/por m2,   (Bloque 1)
+parametrico                   por etapas ni mixto
+programa de flujos   FALTA    no existe como tipo de documento  (Bloque 2)
+                              ni cruce contra pagos
+
+== 3. VALIDACION DE FUENTE ==
+SAT ConsultaCFDI (vigente/cancelado)  EXISTE  adaptadores/cfdi.py ClienteSATPublico; probado con un CFDI real
+SAT EFOS 69-B                         EXISTE  respuesta EFOS de la misma consulta; R17
+Banxico CEP (clave de rastreo)        EXISTE  adaptadores/pago.py ClienteBanxicoCEP; probado con consulta
+                                              real de clave inventada; SIN prueba con transferencia real
+Triple empate CFDI-CEP-concentrado    EXISTE  reglas/pagos.py empatar() / R43
+
+== 4. CAPAS DOCUMENTALES ==
+Capa 1 cruces de estimacion  EXISTE  R07, R08, R09, R15 (reglas/estimacion.py)
+Capa 2 vision de escaneados  EXISTE  documento_vision.py + analisis_visual.py
+Capa 3 CFDI XML + SAT        EXISTE  cfdi.py + reglas/facturas.py
+
+== 5. INFORME Y APP ==
+capital en riesgo             EXISTE   capital.py, informe.py
+hallazgos                     EXISTE   informe.py
+verificar en sitio            EXISTE   separacion.py, informe.py
+documentos que faltan         EXISTE   pedidos.py, informe.py
+evidencia fotografica         EXISTE   informe.py
+de donde sale cada cifra      EXISTE   informe.py _seccion_origen
+alcance de la revision        EXISTE   informe.py (lo no evaluable se declara)
+panel de cobertura            FALTA    no hay "N documentos: X leidos y cruzados, Y no
+                                       legibles, Z de otra obra" (Bloque 2)
+trazabilidad de obra          EXISTE   correspondencia.py + PUT /api/documentos/{id}/obra
+                                       (documento de otra obra no cuenta)
+no concluyentes aparte        EXISTE   separacion.py
+lenguaje de certeza +         EXISTE   lenguaje.py, tests/test_vocabulario_prohibido.py
+vocabulario prohibido
+confirmaciones positivas      EXISTE   confirmaciones.py (SAT vigente, Banxico, recibo)
+notificaciones Resend         EXISTE   resumen.py
+tipos de contrato             EXISTE   tipo_contrato.py, R22/R44/R45 por tipo
+miniaturas                    EXISTE   GET /api/documentos/{id}/miniatura
+RBAC                          EXISTE   roles en api.py, aislamiento por empresa (pruebas)
+bitacora                      EXISTE   nube/bitacora.py
+NIP / TOTP                    FALTA    no hay codigo de NIP ni TOTP en ~/certeza. Si el
+                                       segundo factor vive en Firebase Auth (consola), no
+                                       se ve desde el repo: confirmar
+suite + deploy.sh + humo.sh   EXISTE   tests/ (879), infra/deploy.sh, infra/humo.sh
+guardarrailes de loop +       PARCIAL  no hay bucle agentico en el motor; las llamadas a
+telemetria                             modelos tienen reintentos acotados (3) y registran
+                                       tokens/costo por lectura. No hay tope global de
+                                       llamadas por obra ni tablero de telemetria
+mensaje "no es catalogo"      PARCIAL  un Excel que no es catalogo termina en 422 con
+                                       "usa la plantilla": choca con la Ley de usuario
+                                       (Bloque 1)
+
+== 6. PENDIENTES A VERIFICAR ==
+Auto-actualizacion al cargar  PARCIAL, DESPLEGADA (00115-w46). Se reaudita sola
+  tras: subir un documento PEDIDO desde "Documentos que faltan", contestar
+  todas las preguntas, y guardar el tipo de contrato. Una subida general
+  desde la cola solo refresca la lista de documentos: NO reaudita.
+Doble visor (pendiente 1)     SIN TOCAR. Codigo listo, detenido por cuota de
+  Vertex para modelos Claude. No se toca en esta orden.
+
+== 7. DONDE SE CONECTA LO NUEVO (sin duplicar) ==
+- Bloque 1: estructura del presupuesto junto a tipo_contrato.py (mismo
+  patron: el modelo propone, el humano confirma); reglas parametricas en un
+  modulo nuevo de reglas/ registrado en REGISTRO; multi-hoja en
+  adaptadores/excel.py (sustituir la eleccion ciega); mensaje honesto en
+  api.py (_leer_presupuesto, ruta 422).
+- Bloque 2: ficha por documento sobre clasificacion.py + correspondencia.py;
+  cruce de m2 extendiendo cruce_plano.py (hoy no cruza contra presupuesto a
+  proposito); panel de cobertura en informe.py y la app.
+- Bloque 3: convertidor en Dockerfile; DWG/DXF -> PDF/imagen -> el mismo
+  adaptadores/plano.py (abrir es_plano a lo convertido), sin lector nuevo.
+
+SIGUE: revision de esta tabla y luz verde para el Bloque 1. Decidir los
+  IDs R05/R06 vs principios P5/P6 (seccion 0).

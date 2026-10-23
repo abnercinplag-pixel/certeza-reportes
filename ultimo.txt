@@ -1,18 +1,17 @@
-ESTADO: DESPLEGADO certeza-api-00115-w46
-CERTEZA - ultimo (2026-10-15, R22 alzado: retencion uniforme)
-- Despliegue: certeza-api-00115-w46, deploy.sh y humo.sh OK.
-- Pruebas: 879 verdes, 1 omitida (antes 874). AST ok.
-- Regla unica: R22 bajo precio alzado con doble conteo PROBADO (catalogo
-  con los dos renglones = subtotal, al centavo) se retiene SIN umbral de
-  monto. Sin la prueba aritmetica no se retiene (sin monto). PU sin cambio.
-- Es un hold reversible, no una acusacion: se libera cuando la constructora
-  aclara por escrito que distingue a los renglones o retira el repetido.
-- Sello en PDF y app: «Se retiene hasta que se aclare» + texto condicional.
-  Nada afirma cobro doble (R31).
-- Cabana Emma (alzado): los 6 R22 retienen; antes los de $8,400 y
-  $6,142.80 no. «Requieren retencion» 12 -> 14. Capital y demas hallazgos
-  identicos.
-- Detalle: r22_retencion_uniforme_20261015.txt
-- Tema tipo de contrato: cerrado.
-SIGUE: pendiente.txt 2026-10-15 punto 1 (corrida piloto real con permiso);
-  doble visor (pendiente 1) sin tocar.
+ESTADO: EN CURSO Bloque 0 entregado (inventario); espera revision antes del Bloque 1
+CERTEZA - ultimo (2026-10-23, inventario del motor, Bloque 0)
+- Despliegue: sin cambios; produccion sigue en certeza-api-00115-w46 (medido).
+- Pruebas: 879 verdes, 1 omitida, 0 fallas (medido hoy).
+- Solo lectura: no se construyo ni se cambio codigo.
+- Reglas de la lista maestra: todas EXISTEN y estan registradas.
+  Choque de IDs: R05/R06 del codigo no son los principios "origen impreso"
+  y "fixtures" de la orden (ver seccion 0 del detalle).
+- PARCIAL: Excel multi-hoja (elige sola), plano.py solo PDF, DWG/DXF/IFC
+  detectados pero no leidos, mensaje "usa la plantilla" para lo que no es
+  catalogo, auto-reauditoria al cargar (solo en documentos pedidos),
+  guardarrailes/telemetria.
+- FALTA: modo parametrico/etapas/mixto, programa de flujos, panel de
+  cobertura, NIP/TOTP (no esta en el repo).
+- Doble visor (pendiente 1): sin tocar.
+- Detalle: inventario_motor_20261023.txt
+SIGUE: luz verde para el Bloque 1; decidir IDs R05/R06 vs principios.
