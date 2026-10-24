@@ -1,0 +1,131 @@
+ESTADO: DESPLEGADO certeza-api-00117-6q6
+CERTEZA - Bloques 2, 3 y 4 (2026-10-24, expediente completo, DWG, cruces, no regresion)
+
+Despliegue: certeza-api-00117-6q6 con 100% del trafico (deploy.sh + humo.sh en verde). El
+convertidor se verifico DENTRO de la imagen desplegada: dwgread presente, DWG sintetico
+convertido, rotulo extraido y PDF generado.
+Un solo despliegue con los Bloques 1+2+3+4 (antes en produccion: certeza-api-00115-w46).
+Pruebas: 934 verdes, 1 omitida (la de siempre); 25 nuevas en
+tests/test_expediente_completo.py. AST ok (129 archivos). JS de la app compila.
+Imagen del servicio construida y probada en local antes de desplegar.
+
+== BLOQUE 2: TODO EL EXPEDIENTE, NO SOLO EL PRESUPUESTO ==
+- Ficha por documento (certeza/cobertura.py, sobre clasificacion.py y
+  correspondencia.py, sin duplicar): que ES, que DICE en una linea, si fue
+  LEGIBLE (si / no y por que / en espera de lectura) y de que OBRA
+  (corresponde / otra obra / no dice). Sale de lo ya guardado en cada
+  documento: no relee archivos ni llama a ningun modelo.
+- Panel de cobertura en la app y en el informe PDF:
+  «N documentos: X leidos y cruzados, Y no legibles (se pidio su PDF), Z de
+  otra obra», mas las fotos de obra aparte y «Para una auditoria completa
+  falta: ...». Un documento ilegible queda como pendiente visible: se pide su
+  PDF (plano CAD) o una copia legible (escaneado) en «Documentos que faltan».
+- Trazabilidad: un documento que dice ser de otra obra se avisa y NO entra a
+  ningun cruce hasta que una persona confirme que si es de esta obra.
+- Cruce de SUPERFICIE: m2 que cobra el presupuesto parametrico contra la
+  superficie construida ESCRITA en el plano (extiende cruce_plano.py; un
+  catalogo sigue sin cruzarse por superficie, a proposito). Cuadra:
+  confirmacion. No cuadra: hallazgo R30_PLANO_VS_PRESUPUESTO, monto 0,
+  ambos origenes. Certeza media si el dato del plano esta tambien en su texto
+  exacto (PDF con capa de texto o DWG), baja si solo lo leyo el visor. Lo que
+  el plano no escribe no se deduce de las cotas.
+- PROGRAMA DE FLUJOS (tipo nuevo, lector adaptadores/programa_flujos.py,
+  cruce certeza/cruce_flujos.py, regla R52_PROGRAMA_FLUJOS_VS_PAGOS):
+  1) aritmetica propia: partidas = total, cada partida reparte 100%, flujo
+     mensual = suma de sus partidas, acumulado cierra en el total;
+  2) total del programa = total que reparte el calendario de pagos;
+  3) meses con flujo = numero de pagos periodicos;
+  4) nota (no hallazgo): cuanto va lo pagado por delante de lo ejecutado,
+     con el supuesto de fechas dicho.
+  Se reconoce por CONTENIDO: un programa que una persona confirmo como
+  «concentrado» se cruza igual y la ficha lo dice.
+- Subida general REAUDITA: la app vuelve a auditar sola cuando terminan la
+  cola y el escaneo de una subida general. Guardarrailes: una vez por tanda,
+  tope de 3 por obra cada 10 minutos, y el servidor no repite la auditoria si
+  la huella de los documentos no cambio (motivo=subida; queda en la bitacora
+  «reauditoria_omitida» o «auditoria_corrida» con su motivo).
+- CATALOGO + COTIZACION en la misma obra: se auditan los dos (camino
+  «mixto» que ya existia). Medido en la obra piloto: su catalogo en PDF y su
+  concentrado se leian como «88 rubros»; por eso una cotizacion aparte con mas
+  de 12 rubros no se toma como cotizacion. La piloto no cambia.
+- PRESUPUESTO ESCANEADO: se clasifica por vision (Capa 2) al subirlo y sus
+  cifras entran como propuesta, para confirmar. Antes, si era el unico
+  presupuesto, la auditoria completa moria en 409; ahora sigue y dice que la
+  aritmetica partida por partida necesita el Excel o un PDF con texto
+  (decision tecnica: no se corren reglas de dinero sobre numeros que leyo un
+  modelo sin confirmacion).
+
+== BLOQUE 3: DWG CONVERTIDO DE VERDAD ==
+- Convertidor: LibreDWG 0.13.3, compilado en una etapa aparte del Dockerfile
+  (no viene en los paquetes de Debian 13); solo se copian sus binarios
+  (~24 MB). La imagen no se construye si el convertidor no arranca. ODA File
+  Converter no se uso: pide aceptar una licencia en su sitio y Qt/X headless.
+- Como se lee: `dwgread -O JSON` da el TEXTO EXACTO del plano (rotulo:
+  proyecto, propietario, ubicacion, escala, clave, contenido, fecha; notas;
+  nombres de espacios). Con ese texto se arma un PDF «lo escrito en el plano»
+  que va al MISMO lector de planos (plano.py, es_plano abierto a lo
+  convertido, sin lector nuevo); el texto exacto es la capa contra la que se
+  comprueba cada dato que copie el visor. Lo leido sigue siendo PROPUESTA.
+- Lo que NO se hace, y por que: el DIBUJO (lineas) no se interpreta. Se
+  probaron dwg2dxf (el DXF que produce trae saltos de linea crudos dentro de
+  los textos y ezdxf no lo abre) y dwg2SVG (solo dibuja el espacio papel, sin
+  las ventanas que muestran el plano: lamina en blanco). Igual que con un
+  plano en PDF, lo que no esta escrito no se afirma.
+- Medido con los planos DWG reales del caso (AutoCAD 2018), en memoria, nada
+  escrito en produccion: los 6 se convirtieron (cada uno en 1-2 s), con los
+  acentos correctos; rotulo legible en todos. Ninguno escribe una superficie,
+  asi que el cruce de m2 dice «ningun plano escribe la superficie
+  construida; no se deduce de las cotas». Con el convertidor, la obra paso de
+  «6 no legibles» a «11 leidos y cruzados».
+- Ultimo recurso, explicito: si UN archivo no se deja convertir (danado o
+  version no reconocida) se registra, la ficha dice que paso y se pide su
+  PDF. Si la falla es del servidor (convertidor ausente o que no arranca) NO
+  se le pide nada al usuario: queda «en espera» y se reintenta solo en la
+  siguiente auditoria.
+- DXF e IFC: se extrae lo escrito (TEXT/MTEXT/ATTRIB del DXF; nombres de
+  proyecto, terreno, niveles, espacios, areas y direccion del IFC) sin
+  herramienta externa, y siguen el mismo camino.
+- Al subir: el plano CAD se convierte y el plano (PDF o CAD) se lee solo.
+
+== BLOQUE 4: INTEGRACION Y NO REGRESION ==
+- Obra piloto (catalogo), en memoria con su copia local: corte identico campo
+  por campo salvo los campos NUEVOS (cobertura, huella_documentos,
+  lectura.flujos, lectura.planos.confirmaciones): 38 hallazgos, mismo
+  capital, mismas advertencias, confirmaciones y documentos que faltan.
+  Informe PDF: mismo texto linea por linea salvo la fecha, mas la seccion
+  nueva «Documentos del expediente» (2 paginas mas; el resto de las
+  diferencias son vinetas que cambian de pagina por el reflujo).
+- Bloque 1 (parametrico), obra real del caso, comparado contra el codigo
+  exacto del Bloque 1 (bfca7af) sobre los mismos datos: mismos 5 hallazgos,
+  mismo presupuesto, estructura y capital; las confirmaciones previas
+  siguen y se suman 3 del programa de flujos (total y plazo cuadran). Unica
+  advertencia distinta, esperada: «8 planos todavia no se leen» (antes 2):
+  los 6 DWG ahora son planos legibles en cola de lectura.
+- SAT, Banxico, triple empate, fotos y planos PDF: sus pruebas, en verde.
+- App a 390 px (Chromium, datos inventados): panel de cobertura y pedidos
+  sin «undefined», «NaN» ni «null»; se corrigio un desborde horizontal previo
+  del selector de tipo de documento (la opcion mas larga ensanchaba la
+  pagina a 454 px).
+
+== PRUEBAS NUEVAS (fixtures sinteticos, sin datos de clientes) ==
+- DWG sintetico de AutoCAD 2000 (hecho con dxf2dwg): se convierte, rotulo y
+  superficie extraidos, PDF rasterizable. DWG danado: no convertible, dice
+  por que. Sin convertidor: falla del servidor, en espera, sin pedido.
+- DXF con y sin textos; IFC; MTEXT y bytes cp1252.
+- m2 cuadra / no cuadra / no escrito. Programa cuadra / otro total y plazo /
+  aritmetica propia rota. Vocabulario prohibido.
+- Ficha, panel, pedido de PDF, aviso de otra obra.
+- Por la API: DWG subido -> convertido -> leido al subir -> de otra obra
+  hasta confirmarlo -> cruce de m2; programa de flujos cuadra y luego no
+  (con informe PDF); catalogo + cotizacion; presupuesto escaneado; subida
+  general que no repite un corte sin cambios.
+
+PENDIENTE
+- La prueba final la hace el cliente re-corriendo su auditoria. Los planos
+  que ya estaban subidos se convierten solos al auditar; su rotulo se lee
+  con «Leer planos» (los que se suban desde hoy se leen solos).
+- Decision legal: agregar R52 y R30_PLANO_VS_PRESUPUESTO al aviso integral
+  (junto con R46-R51, SAT y Banxico).
+- Detalle de pendientes: pendiente.txt, seccion 2026-10-24.
+
+SIGUE: revision de este reporte. No se le avisa al cliente hasta revisarlo.

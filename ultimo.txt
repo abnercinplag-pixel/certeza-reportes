@@ -1,16 +1,18 @@
-ESTADO: EN CURSO Bloque 1 terminado y probado; falta desplegar (credenciales de gcloud caducadas)
-CERTEZA - ultimo (2026-10-23, Bloque 1: cualquier estructura de presupuesto)
-- Despliegue: NO. deploy.sh se detuvo antes de tocar nada (gcloud caduco).
-  Produccion sigue en certeza-api-00115-w46. Codigo en main (bfca7af).
-- Pruebas: 909 verdes, 1 omitida (30 nuevas). AST ok.
-- Estructura del presupuesto determinada con origen y confirmable:
-  catalogo / parametrico / por etapas / mixto.
-- Multi-hoja: se listan las cotizaciones y las hojas de catalogo; si el
-  contenido no decide, se pregunta. Nunca se elige a ciegas.
-- Reglas R46-R51: aritmetica m2, superficie, base de honorarios, calendario,
-  IVA, presupuesto sin catalogo (pide el catalogo).
-- Ley de usuario: lo que no es presupuesto se dice, sin plantilla.
-- Obra real del caso multi-hoja (en memoria): de 409 a 5 puntos con origen.
-- No regresion: catalogo piloto identico (corte y PDF).
-- Detalle: bloque1_presupuesto_parametrico_20261023.txt
-SIGUE: gcloud auth login + deploy.sh; revision; Bloque 2.
+ESTADO: DESPLEGADO certeza-api-00117-6q6
+CERTEZA - ultimo (2026-10-24, Bloques 2-3-4: expediente completo, DWG, cruces)
+- Despliegue: certeza-api-00117-6q6 (Bloques 1+2+3+4 juntos), humo.sh en verde.
+  Convertidor DWG verificado dentro de la imagen desplegada.
+- Pruebas: 934 verdes, 1 omitida (25 nuevas). AST ok.
+- Ficha por documento (que es, que dice, legible, de que obra) y panel de
+  cobertura en app e informe. Ilegible = pendiente visible con pedido de PDF.
+- DWG: LibreDWG compilado en el Dockerfile; se extrae el texto exacto (rotulo,
+  notas) y va al lector de planos de siempre. El dibujo no se interpreta.
+  Planos DWG reales del caso: 6 de 6 convertidos (en memoria).
+- Cruces: m2 presupuesto vs plano; programa de flujos vs calendario de pagos
+  (R52). Documento de otra obra: aviso y fuera de los cruces.
+- Subida general reaudita sola (tope 3 / 10 min; no repite si nada cambio).
+- Catalogo + cotizacion: ambos. Presupuesto escaneado: por vision, sin 409.
+- No regresion: obra piloto identica (corte y PDF, salvo la seccion nueva);
+  Bloque 1 identico contra su propio commit.
+- Detalle: bloques234_expediente_dwg_20261024.txt
+SIGUE: revision del reporte; despues, que el cliente re-corra su auditoria.

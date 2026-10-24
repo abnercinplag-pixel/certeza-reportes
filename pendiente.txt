@@ -184,3 +184,43 @@ anteriores, ya cerrados o decididos, esta en pendiente_historico_20261010.txt.
    RESUELTO 2026-10-15 (certeza-api-00115-w46): retencion uniforme. Probado
    el doble conteo (al centavo) se retiene SIN umbral, como hold condicional
    que se libera al aclarar. Ver r22_retencion_uniforme_20261015.txt.
+
+== 2026-10-23 · Bloque 1 (presupuesto parametrico), commit bfca7af ==
+1) [PERMISO] Desplegar. La sesion de gcloud caduco a media tarea (por la manana si
+   leia Cloud Run; ahora: "There was a problem refreshing your current auth tokens").
+   deploy.sh se detuvo antes de tocar nada ("no existe certeza-escaner": es el
+   describe que falla sin credenciales). Comandos:
+     gcloud auth login && gcloud auth application-default login
+     gcloud config set project cinplag-v4-core
+     cd ~/certeza && bash infra/deploy.sh && bash infra/humo.sh
+   Despues, en la app, obra GRAND 185: «Auditar» -> elegir la cotizacion vigente.
+2) [LEGAL] El aviso integral (legal/aviso-integral.md) no lista R46-R51. La prueba solo
+   exige que lo listado exista. Opciones: a) agregarlas y subir VERSION_AVISO;
+   b) dejarlo. Recomendacion: (a), junto con los puntos 8 y 12 (SAT/Banxico).
+3) [OBSERVADO, no se toco] expediente.CATALOGO trae requisitos escritos para la obra
+   piloto (p. ej. «Comprobante del anticipo a proveedor de cantera», «HERAMEC»,
+   «Mazamitla») que se piden en CUALQUIER obra. Es multi-inquilino; orden aparte.
+4) [BLOQUE 2] Si una obra trae un catalogo Y, en otro documento, una cotizacion por m2,
+   hoy gana el catalogo y la cotizacion no se audita. Va con «procesar todo el expediente».
+
+== 2026-10-24 · Bloques 2-3-4 (expediente completo, DWG, cruces) ==
+1) [ACCION DEL CLIENTE, ya prevista] Re-correr su auditoria en la app. Los planos DWG
+   que ya estaban subidos se convierten solos al auditar; su rotulo se lee con «Leer
+   planos» (cuesta una llamada al visor por plano, una sola vez). Lo que se suba desde
+   hoy se convierte y se lee solo al subirlo.
+2) [LEGAL] El aviso integral no lista R52 (programa de flujos vs calendario de pagos) ni
+   R30_PLANO_VS_PRESUPUESTO. Recomendacion: agregarlas junto con R46-R51 y las lineas de
+   SAT y Banxico (puntos 8 y 12), en un solo cambio de VERSION_AVISO.
+3) [TECNICO, riesgo conocido, no se toco] reglas/parametrico.base_de_honorarios prueba
+   combinaciones de rubros: con decenas de rubros no termina. Una cotizacion aparte ya
+   tiene tope de 12 rubros (api.MAX_RUBROS_COTIZACION); un libro mixto (catalogo y
+   cotizacion en el mismo Excel) no lo tiene. Recomendacion: el mismo tope ahi, en una
+   orden aparte (es motor de Bloque 1).
+4) [DECISION TECNICA, revisable] Presupuesto escaneado: se clasifica por vision y sus
+   cifras entran como propuesta; la aritmetica partida por partida (R22-R29, R46-R50)
+   NO se corre sobre numeros leidos por un modelo sin confirmacion. Alternativa: dejar
+   confirmar el catalogo transcrito renglon por renglon y entonces auditarlo. No lo
+   recomiendo sin una pantalla para eso.
+5) [CONFIG] Se subio el limite de Cloud Build de gcloud en Cloud Shell a 60 min
+   (`gcloud config set builds/timeout 3600`): la etapa que compila LibreDWG tarda varios
+   minutos. Para volver al default: `gcloud config unset builds/timeout`.
